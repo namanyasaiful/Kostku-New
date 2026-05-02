@@ -17,8 +17,8 @@ return new class extends Migration
             $table->string('id_pembayaran')->unique();
             $table->date('tanggal_pembayaran');
             $table->integer('nominal');
-            // $table->enum('payment_type', ['full', 'installment']); // Lunas atau Cicilan
-            // $table->integer('installment_count')->default(1); // Cicilan ke-berapa
+            $table->enum('payment_type', ['full', 'installment']);
+            $table->integer('installment_count')->default(1);
             $table->enum('status', ['belum_bayar', 'lunas'])->default('belum_bayar');
             $table->string('snap_token')->nullable(); // Token dari Midtrans
             $table->timestamps();
