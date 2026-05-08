@@ -72,3 +72,7 @@ Route::get('/pembayaran-penghuni', function () {
 Route::get('/pengaduan-penghuni', function () {
     return view('pages.penghuni.pengaduan-penghuni');
 })->name('pengaduan.penghuni');
+
+
+
+
