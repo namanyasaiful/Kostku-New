@@ -15,10 +15,13 @@ default => $maxWidth,
 
 <div
     x-show="{{ $show }}"
-    x-transition
-    class="fixed inset-0 z-50 flex items-center justify-center"
+    x-transition.opacity
+    class="fixed inset-0 w-screen h-screen z-[999] flex items-center justify-center bg-black/40 p-4"
     style="display: none;">
-    <x-card class="w-full {{ $maxWidthClass }}">
+
+    <x-card
+        x-transition
+        class="w-full {{ $maxWidthClass }} relative">
 
         {{-- HEADER --}}
         @isset($header)
@@ -40,4 +43,5 @@ default => $maxWidth,
         @endisset
 
     </x-card>
+
 </div>

@@ -57,3 +57,18 @@ Route::controller(PenghuniAuthController::class)->group(function () {
 Route::controller(PengelolaAuthController::class)->group(function () {
     Route::post('/pengelola/register/store', 'store')->name('pengelola.store');
 });
+
+/*
+|--------------------------------------------------------------------------
+| PENGHUNI
+|--------------------------------------------------------------------------
+*/
+Route::get('/dashboard-penghuni', function () {
+    return view('pages.penghuni.dashboard.dashboard-penghuni');
+})->name('dashboard.penghuni');
+Route::get('/pembayaran-penghuni', function () {
+    return view('pages.penghuni.pembayaran-penghuni');
+})->name('pembayaran.penghuni');
+Route::get('/pengaduan-penghuni', function () {
+    return view('pages.penghuni.pengaduan-penghuni');
+})->name('pengaduan.penghuni');
