@@ -30,11 +30,18 @@ class PengelolaAuthController extends Controller {
             'password' => bcrypt($request->password),
             'alamat' => $request->alamat,
             'role' => 'pengelola',
-            'nama_kost' => $request->nama_kost,
-            'alamat_kost' => $request->alamat_kost,
-            'sertifikat' => $request->file('sertifikat')->store('sertifikat', 'public')
         ]);
 
+        if ($request->role == 'pengelola') {
+        $path = $request->file('sertifikat')->store('sertifikat');
+
+        $user->kosts()->create([
+            'nama_kost'   => $request->nama_kost,
+            'alamat_kost' => $request->alamat_kost,
+            'sertifikat'  => $path,
+            'kode_kost'   => 'KST-' . time(),
+        ]);
+        }
         return redirect()->route('login')->withSuccess('Registration successful! You can now login!');
     }
 
