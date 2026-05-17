@@ -14,45 +14,9 @@
 
 
     {{-- ================= SEARCH ================= --}}
-    <div class="bg-white rounded-lg p-3">
-
-        <div class="relative">
-
-            {{-- SEARCH ICON --}}
-            <svg
-                class="
-                    absolute left-3 top-1/2 -translate-y-1/2
-                    w-4 h-4 text-gray-400
-                "
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
-
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="m21 21-4.35-4.35M10 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z" />
-
-            </svg>
-
-            <input
-                type="text"
-                placeholder="Cari"
-                class="
-                    w-full pl-10 pr-4 py-2.5
-                    rounded-lg border border-gray-200
-                    text-xs lg:text-sm
-
-                    focus:outline-none
-                    focus:ring-2
-                    focus:ring-primary
-                    focus:border-primary
-                ">
-
-        </div>
-
-    </div>
+    <x-search-input
+        name="search_penghuni"
+        placeholder="Cari" />
 
 
     {{-- ================= TABLE ================= --}}
