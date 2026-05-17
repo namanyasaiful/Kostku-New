@@ -3,32 +3,40 @@
 'name' => '',
 'type' => 'text',
 'placeholder' => '',
-'required',
+'required' => false,
+'value' => '',
 ])
 
 <div class="space-y-2">
 
-    {{-- Label --}}
+    {{-- LABEL --}}
     @if($label)
     <label
         for="{{ $name }}"
         class="block text-sm font-medium text-gray-700">
+
         {{ $label }}
+
     </label>
     @endif
 
-    {{-- Wrapper --}}
+    {{-- WRAPPER --}}
     <div class="relative">
 
-        {{-- Input --}}
+        {{-- INPUT --}}
         <input
             id="{{ $name }}"
             name="{{ $name }}"
             type="{{ $type }}"
             placeholder="{{ $placeholder }}"
-            required
 
-            {{ $attributes->merge([
+            @if(!$attributes->has('x-bind:value') && !$attributes->has(':value'))
+        value="{{ old($name, $value) }}"
+        @endif
+
+        @required($required)
+
+        {{ $attributes->merge([
                 'class' => '
                     w-full
                     rounded-xl
@@ -43,49 +51,49 @@
                 '
             ]) }}>
 
-        {{-- Toggle Password --}}
+        {{-- TOGGLE PASSWORD --}}
         @if($type === 'password')
 
         <button
             type="button"
 
             onclick="
-                    const input = document.getElementById('{{ $name }}');
+                const input = document.getElementById('{{ $name }}');
 
-                    const eyeOpen = document.getElementById('eye-open-{{ $name }}');
-                    const eyeClose = document.getElementById('eye-close-{{ $name }}');
+                const eyeOpen = document.getElementById('eye-open-{{ $name }}');
+                const eyeClose = document.getElementById('eye-close-{{ $name }}');
 
-                    if(input.type === 'password') {
+                if(input.type === 'password') {
 
-                        input.type = 'text';
+                    input.type = 'text';
 
-                        eyeOpen.classList.remove('hidden');
-                        eyeClose.classList.add('hidden');
+                    eyeOpen.classList.remove('hidden');
+                    eyeClose.classList.add('hidden');
 
-                    } else {
+                } else {
 
-                        input.type = 'password';
+                    input.type = 'password';
 
-                        eyeOpen.classList.add('hidden');
-                        eyeClose.classList.remove('hidden');
-                    }
-                "
+                    eyeOpen.classList.add('hidden');
+                    eyeClose.classList.remove('hidden');
+                }
+            "
 
             class="
-                    absolute
-                    right-4
-                    top-1/2
-                    -translate-y-1/2
-                ">
+                absolute
+                right-4
+                top-1/2
+                -translate-y-1/2
+            ">
 
-            {{-- Mata Terbuka --}}
+            {{-- EYE OPEN --}}
             <img
                 id="eye-open-{{ $name }}"
                 src="{{ asset('../assets/icons/eye-open.png') }}"
                 class="hidden w-4 h-4"
                 alt="Show Password">
 
-            {{-- Mata Tertutup --}}
+            {{-- EYE CLOSE --}}
             <img
                 id="eye-close-{{ $name }}"
                 src="{{ asset('../assets/icons/eye-close.png') }}"
