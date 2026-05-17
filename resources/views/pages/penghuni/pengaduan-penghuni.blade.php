@@ -37,9 +37,9 @@
 
             <x-form.textarea
                 name="deskripsi-pengajuan"
-                col="4"
+                rows="6"
                 placeholder="Jelaskan masalah Anda secara detail..."
-                class="mb-4 bg-[#F8F8F8]" />
+                class="mb-4 bg-[#F8F8F8] text-sm"></x-form.textarea>
         </div>
 
         <x-form.button
