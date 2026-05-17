@@ -21,7 +21,7 @@
                         w-8 h-8 lg:w-9 lg:h-9
                         border border-gray-300
                         rounded-s-lg
-                        text-gray-500 bg-transparent
+                        text-primary bg-transparent
                         hover:bg-gray-100
                     ">
 
@@ -79,7 +79,7 @@
                         w-8 h-8 lg:w-9 lg:h-9
                         border border-gray-300
                         rounded-e-lg
-                        text-gray-500 bg-transparent
+                        text-primary bg-transparent
                         hover:bg-gray-100
                     ">
 
