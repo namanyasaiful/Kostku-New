@@ -149,7 +149,7 @@
                 <div class="flex flex-col gap-4">
 
                     <div>
-                        <x-card class="bg-[#EDF2FF] py-5 shadow-none">
+                        <div class="bg-[#EDF2FF] rounded-md shadow-md px-4 py-5">
                             <h3 class="lg:text-md text-sm text-black font-semibold mb-2">
                                 Wifi ngelag
                             </h3>
@@ -158,7 +158,7 @@
                                 <p class="text-xs text-neutral">P001 - Anto Subagja</p>
                                 <p class="text-xs text-neutral">KM001</p>
                             </div>
-                        </x-card>
+                        </div>
                     </div>
 
                     <div>
