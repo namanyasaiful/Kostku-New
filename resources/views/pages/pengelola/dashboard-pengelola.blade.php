@@ -17,14 +17,14 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
 
         {{-- Total Penghuni --}}
-        <div class="bg-white border border-yellow-400 rounded-2xl p-4 lg:p-5">
+        <div class="bg-white border border-yellow-400 rounded-md p-4 lg:p-5">
 
             <img
                 src="{{ asset('assets/icons/pengelola-dashboard-jumlahpenghuni-icon.png') }}"
                 alt="Total Penghuni"
                 class="w-9 h-9 lg:w-10 lg:h-10 mb-4">
 
-            <p class="text-xs lg:text-sm text-neutral mb-1">
+            <p class="text-xs lg:text-sm text-black mb-1">
                 Total Penghuni
             </p>
 
@@ -36,14 +36,14 @@
 
 
         {{-- Kamar Terisi --}}
-        <div class="bg-white border border-green-400 rounded-2xl p-4 lg:p-5">
+        <div class="bg-white border border-green-400 rounded-md p-4 lg:p-5">
 
             <img
                 src="{{ asset('assets/icons/pengelola-dashboard-kamarterisi-icon.png') }}"
                 alt="Kamar Terisi"
                 class="w-9 h-9 lg:w-10 lg:h-10 mb-4">
 
-            <p class="text-xs lg:text-sm text-neutral mb-1">
+            <p class="text-xs lg:text-sm text-black mb-1">
                 Kamar Terisi
             </p>
 
@@ -54,16 +54,16 @@
         </div>
 
 
-        
+
         {{-- Kamar Kosong --}}
-        <div class="bg-white border border-red-400 rounded-2xl p-4 lg:p-5">
+        <div class="bg-white border border-red-400 rounded-md p-4 lg:p-5">
 
             <img
                 src="{{ asset('assets/icons/pengelola-dashboard-kamarkosong-icon.png') }}"
                 alt="Kamar Kosong"
                 class="w-9 h-9 lg:w-10 lg:h-10 mb-4">
 
-            <p class="text-xs lg:text-sm text-neutral mb-1">
+            <p class="text-xs lg:text-sm text-black mb-1">
                 Kamar Kosong
             </p>
 
@@ -75,14 +75,14 @@
 
 
         {{-- Pendapatan --}}
-        <div class="bg-white border border-primary rounded-2xl p-4 lg:p-5">
+        <div class="bg-white border border-primary rounded-md p-4 lg:p-5">
 
             <img
                 src="{{ asset('assets/icons/pengelola-dashboard-pendapatan-icon.png') }}"
                 alt="Pendapatan"
                 class="w-9 h-9 lg:w-10 lg:h-10 mb-4">
 
-            <p class="text-xs lg:text-sm text-neutral mb-1">
+            <p class="text-xs lg:text-sm text-black mb-1">
                 Pendapatan Bulan Ini
             </p>
 
