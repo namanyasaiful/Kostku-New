@@ -1,6 +1,7 @@
 @props([
 'label' => '',
 'name',
+'placeholder' => 'Pilih opsi',
 ])
 
 <div class="space-y-2">
@@ -26,14 +27,21 @@
                 border-[#888888]
                 px-4
                 py-3
-                placeholder:text-neutral
+                bg-white
                 focus:outline-none
                 focus:ring-1
                 focus:ring-primary
                 focus:border-primary
             '
         ]) }}>
+
+        {{-- PLACEHOLDER --}}
+        <option value="" disabled selected hidden>
+            {{ $placeholder }}
+        </option>
+
         {{ $slot }}
+
     </select>
 
     @error($name)
