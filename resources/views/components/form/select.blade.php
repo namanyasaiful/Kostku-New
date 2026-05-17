@@ -6,14 +6,18 @@
 
 <div class="space-y-2">
 
+    {{-- LABEL --}}
     @if($label)
     <label
         for="{{ $name }}"
         class="block text-sm font-medium text-neutral">
+
         {{ $label }}
+
     </label>
     @endif
 
+    {{-- SELECT --}}
     <select
         id="{{ $name }}"
         name="{{ $name }}"
@@ -21,7 +25,7 @@
         {{ $attributes->merge([
             'class' => '
                 w-full
-                rounded-md
+                rounded-xl
                 text-neutral
                 border
                 border-[#888888]
@@ -36,14 +40,19 @@
         ]) }}>
 
         {{-- PLACEHOLDER --}}
+        @unless($attributes->has('x-model'))
+
         <option value="" disabled selected hidden>
             {{ $placeholder }}
         </option>
+
+        @endunless
 
         {{ $slot }}
 
     </select>
 
+    {{-- ERROR --}}
     @error($name)
     <p class="text-sm text-red-500">
         {{ $message }}

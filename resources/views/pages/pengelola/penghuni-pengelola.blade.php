@@ -118,23 +118,23 @@
 
                         <tr class="border-b">
 
-                            <th class="w-[28%] text-left py-4 px-2 text-xs lg:text-sm font-medium">
+                            <th class="w-[28%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">
                                 Nama Lengkap
                             </th>
 
-                            <th class="w-[22%] text-left py-4 px-2 text-xs lg:text-sm font-medium">
+                            <th class="w-[22%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">
                                 No HP
                             </th>
 
-                            <th class="w-[15%] text-left py-4 px-2 text-xs lg:text-sm font-medium">
+                            <th class="w-[15%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">
                                 Kamar
                             </th>
 
-                            <th class="w-[20%] text-left py-4 px-2 text-xs lg:text-sm font-medium">
+                            <th class="w-[20%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">
                                 Tanggal Masuk
                             </th>
 
-                            <th class="w-[15%] text-center py-4 px-2 text-xs lg:text-sm font-medium">
+                            <th class="w-[15%] text-center py-4 px-2 text-xs lg:text-sm font-semibold">
                                 Aksi
                             </th>
 
@@ -209,15 +209,15 @@
 
                         <tr class="border-b">
 
-                            <th class="w-[40%] text-left py-4 px-2 text-xs lg:text-sm font-medium">
+                            <th class="w-[40%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">
                                 Nama Lengkap
                             </th>
 
-                            <th class="w-[35%] text-left py-4 px-2 text-xs lg:text-sm font-medium">
+                            <th class="w-[35%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">
                                 No HP
                             </th>
 
-                            <th class="w-[25%] text-center py-4 px-2 text-xs lg:text-sm font-medium">
+                            <th class="w-[25%] text-center py-4 px-2 text-xs lg:text-sm font-semibold">
                                 Aksi
                             </th>
 
@@ -277,15 +277,15 @@
 
                         <tr class="border-b">
 
-                            <th class="w-[40%] text-left py-4 px-2 text-xs lg:text-sm font-medium">
+                            <th class="w-[40%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">
                                 Nama Lengkap
                             </th>
 
-                            <th class="w-[35%] text-left py-4 px-2 text-xs lg:text-sm font-medium">
+                            <th class="w-[35%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">
                                 No HP
                             </th>
 
-                            <th class="w-[25%] text-center py-4 px-2 text-xs lg:text-sm font-medium">
+                            <th class="w-[25%] text-center py-4 px-2 text-xs lg:text-sm font-semibold">
                                 Aksi
                             </th>
 
