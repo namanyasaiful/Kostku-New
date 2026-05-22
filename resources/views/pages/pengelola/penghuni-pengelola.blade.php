@@ -9,8 +9,10 @@
 
         modalOpen: false,
         modalType: null,
+        selectedPenghuni: {},
 
-        openModal(type) {
+        openModal(type, data = {}) {
+            this.selectedPenghuni = data;
             this.modalOpen = true;
             this.modalType = type;
         },
@@ -144,49 +146,47 @@
 
                     <tbody>
 
+                        @foreach($daftarPenghuni as $penghuni)
                         <tr class="border-b">
 
                             <td class="py-4 px-2 text-xs lg:text-sm">
-                                Anto Subagja
+                                {{ $penghuni->user->nama }}
                             </td>
 
                             <td class="py-4 px-2 text-xs lg:text-sm">
-                                081234567892
+                                {{ $penghuni->user->telpon }}
                             </td>
 
                             <td class="py-4 px-2 text-xs lg:text-sm">
-                                KM001
+                                {{ $penghuni->kamar->nomor_kamar }}
                             </td>
 
                             <td class="py-4 px-2 text-xs lg:text-sm">
-                                08/04/2026
+                                {{ \Carbon\Carbon::parse($penghuni->tanggal_masuk)->format('d/m/Y') }}
                             </td>
 
                             <td class="py-4 px-2">
-
                                 <div class="flex justify-center">
-
                                     <a
                                         href="#"
-                                        @click.prevent="openModal('detail-penghuni')"
+                                        @click.prevent="openModal('detail-penghuni', {
+                                            name: '{{ $penghuni->user->nama }}',
+                                            no_hp: '{{ $penghuni->user->no_hp }}',
+                                            alamat: '{{ $penghuni->user->alamat ?? '-' }}',
+                                            nomor_kamar: '{{ $penghuni->kamar->nomor_kamar }}',
+                                            tanggal_masuk: '{{ \Carbon\Carbon::parse($penghuni->tanggal_masuk)->format('d/m/Y') }}'
+                                        })"
                                         class="
                                             p-2 rounded-md
                                             hover:bg-blue-50
                                             transition
                                         ">
-
-                                        <img
-                                            src="{{ asset('assets/icons/lihat-detail-icon.png') }}"
-                                            alt="Lihat Detail"
-                                            class="w-4 h-4">
-
+                                        <img src="{{ asset('assets/icons/lihat-detail-icon.png') }}" alt="Lihat Detail" class="w-4 h-4">
                                     </a>
-
                                 </div>
-
                             </td>
-
                         </tr>
+                        @endforeach
 
                     </tbody>
 
@@ -227,34 +227,36 @@
 
                     <tbody>
 
+                        @foreach($permintaanMasuk as $penghuni)
                         <tr class="border-b">
 
                             <td class="py-4 px-2 text-xs lg:text-sm">
-                                Budi Santoso
+                                {{ $penghuni->user->nama }}
                             </td>
 
                             <td class="py-4 px-2 text-xs lg:text-sm">
-                                081234567890
+                                {{ $penghuni->user->telpon }}
                             </td>
 
                             <td class="py-4 px-2">
-
                                 <div class="flex justify-center gap-2">
                                     <a
                                         href="#"
-                                        @click.prevent="openModal('permintaan-masuk')"
+                                        @click.prevent="openModal('permintaan-masuk', {
+                                            id: {{ $penghuni->id }},
+                                            name: '{{ $penghuni->user->nama }}',
+                                            no_hp: '{{ $penghuni->user->telpon }}',
+                                            alamat: '{{ $penghuni->user->alamat ?? '-' }}',
+                                            requested_kamar: '{{ $penghuni->kamar->nomor_kamar }}',
+                                            requested_kamar_id: {{ $penghuni->nomor_kamar }}
+                                        })"
                                         class="p-2 rounded-md hover:bg-blue-50 transition">
-                                        <img
-                                            src="{{ asset('assets/icons/lihat-detail-icon.png') }}"
-                                            alt="Lihat Detail"
-                                            class="w-4 h-4">
-
+                                        <img src="{{ asset('assets/icons/lihat-detail-icon.png') }}" alt="Lihat Detail" class="w-4 h-4">
                                     </a>
                                 </div>
-
                             </td>
-
                         </tr>
+                        @endforeach
 
                     </tbody>
 
@@ -295,41 +297,39 @@
 
                     <tbody>
 
+                        @foreach($permintaanKeluar as $penghuni)
                         <tr class="border-b">
 
                             <td class="py-4 px-2 text-xs lg:text-sm">
-                                Siti Rahma
+                                {{ $penghuni->user->nama }}
                             </td>
 
                             <td class="py-4 px-2 text-xs lg:text-sm">
-                                089876543210
+                                {{ $penghuni->user->telpon}}
                             </td>
 
                             <td class="py-4 px-2">
-
                                 <div class="flex justify-center">
-
                                     <a
                                         href="#"
-                                        @click.prevent="openModal('permintaan-keluar')"
+                                        @click.prevent="openModal('permintaan-keluar', {
+                                            id: {{ $penghuni->id }},
+                                            name: '{{ $penghuni->user->nama }}',
+                                            no_hp: '{{ $penghuni->user->telpon }}',
+                                            alamat: '{{ $penghuni->user->alamat }}',
+                                            notes: '{{ $penghuni->notes_penghuni }}'
+                                        })"
                                         class="
                                             p-2 rounded-md
                                             hover:bg-blue-50
                                             transition
                                         ">
-
-                                        <img
-                                            src="{{ asset('assets/icons/lihat-detail-icon.png') }}"
-                                            alt="Lihat Detail"
-                                            class="w-4 h-4">
-
+                                        <img src="{{ asset('assets/icons/lihat-detail-icon.png') }}" alt="Lihat Detail" class="w-4 h-4">
                                     </a>
-
                                 </div>
-
                             </td>
-
                         </tr>
+                        @endforeach
 
                     </tbody>
 
@@ -370,30 +370,30 @@
                     <div class="flex lg:gap-28 gap-20">
                         <div>
                             <p class="text-xs text-neutral mb-1">Nama Lengkap</p>
-                            <p class="text-xs font-medium">Anto Subagja</p>
+                            <p class="text-xs font-medium" x-text="selectedPenghuni.name"></p>
                         </div>
 
                         <div>
                             <p class="text-xs text-neutral mb-1">No HP</p>
-                            <p class="text-xs font-medium">081234567892</p>
+                            <p class="text-xs font-medium" x-text="selectedPenghuni.no_hp"></p>
                         </div>
                     </div>
                     <hr>
 
                     <div class="my-2">
                         <p class="text-xs text-neutral mb-1">Alamat</p>
-                        <p class="text-xs font-medium">Jl. Sudirman No.123</p>
+                        <p class="text-xs font-medium" x-text="selectedPenghuni.alamat"></p>
                     </div>
 
                     <div class="flex gap-28">
                         <div>
                             <p class="text-xs text-neutral mb-1">Kamar</p>
-                            <p class="text-xs font-medium">KM002</p>
+                            <p class="text-xs font-medium" x-text="selectedPenghuni.nomor_kamar"></p>
                         </div>
 
                         <div>
                             <p class="text-xs text-neutral mb-1">Tanggal Masuk</p>
-                            <p class="text-xs font-medium">08/05/2026</p>
+                            <p class="text-xs font-medium" x-text="selectedPenghuni.tanggal_masuk"></p>
                         </div>
                     </div>
                     <hr>
@@ -447,19 +447,19 @@
                     <div class="flex lg:gap-28 gap-20">
                         <div>
                             <p class="text-xs text-neutral mb-1">Nama Lengkap</p>
-                            <p class="text-xs font-medium">Anto Subagja</p>
+                            <p class="text-xs font-medium" x-text="selectedPenghuni.name"></p>
                         </div>
 
                         <div>
                             <p class="text-xs text-neutral mb-1">No HP</p>
-                            <p class="text-xs font-medium">081234567892</p>
+                            <p class="text-xs font-medium" x-text="selectedPenghuni.no_hp"></p>
                         </div>
                     </div>
                     <hr>
 
                     <div class="my-2">
                         <p class="text-xs text-neutral mb-1">Alamat</p>
-                        <p class="text-xs font-medium">Jl. Sudirman No.123</p>
+                        <p class="text-xs font-medium" x-text="selectedPenghuni.alamat"></p>
                     </div>
                     <hr>
                     <div class="flex flex-col gap-4">
@@ -490,11 +490,19 @@
                         Tolak
                     </x-form.button>
                     <x-form.button
-                        type="button"
+                        type="submit"
                         class="w-full text-white bg-green-600 hover:bg-green-100 hover:text-[#5BBA43]"
-                        @click="modalType = 'setujui-penghuni'">
+                        @click="$refs.formApproveMasuk.submit()">
                         Setuju
                     </x-form.button>
+
+                    <form
+                        x-ref="formApproveMasuk"
+                        :action="'/pengelola/penghuni-pengelola/approve/' + selectedPenghuni.id"
+                        method="POST"
+                        class="hidden">
+                        @csrf
+                    </form>
 
                 </div>
 
@@ -531,11 +539,14 @@
                         Batal
                     </x-form.button>
                     <x-form.button
-                        type="button"
+                        type="submit"
                         class="w-full text-white bg-red-600 hover:bg-red-100 hover:text-red-600"
-                        @click="showSuccess('Permintaan berhasil ditolak')">
+                        @click="$refs.formReject.submit()">
                         Tolak
                     </x-form.button>
+                    <form x-ref="formReject" :action="'/pengelola/penghuni-pengelola/reject/' + selectedPenghuni.id" method="POST" class="hidden">
+                        @csrf
+                    </form>
 
                 </div>
 
@@ -567,41 +578,35 @@
                     <div class="flex lg:gap-28 gap-20">
                         <div>
                             <p class="text-xs text-neutral mb-1">Nama Lengkap</p>
-                            <p class="text-xs font-medium">Anto Subagja</p>
+                            <p class="text-xs font-medium" x-text="selectedPenghuni.name"></p>
                         </div>
 
                         <div>
                             <p class="text-xs text-neutral mb-1">No HP</p>
-                            <p class="text-xs font-medium">081234567892</p>
+                            <p class="text-xs font-medium" x-text="selectedPenghuni.no_hp"></p>
                         </div>
                     </div>
                     <hr>
 
                     <div class="my-2">
                         <p class="text-xs text-neutral mb-1">Alamat</p>
-                        <p class="text-xs font-medium">Jl. Sudirman No.123</p>
+                        <p class="text-xs font-medium" x-text="selectedPenghuni.alamat"></p>
                     </div>
                     <hr>
 
-                    <x-form.select
-                        label="Pilih Kamar"
-                        name="kamar">
+                    <form :action="'/pengelola/penghuni-pengelola/approve/' + selectedPenghuni.id" method="POST">
+                        @csrf
+                        <x-form.select
+                            label="Pilih Kamar"
+                            name="nomor_kamar"
+                            x-model="selectedPenghuni.requested_kamar_id">
 
-                        <option value="">
-                            Pilih kamar
-                        </option>
+                            @foreach($kamarKosong as $kamar)
+                                <option value="{{ $kamar->id }}">{{ $kamar->nomor_kamar }}</option>
+                            @endforeach
+                        </x-form.select>
 
-                        <option value="KM001">
-                            KM001
-                        </option>
-
-                        <option value="KM002">
-                            KM002
-                        </option>
-
-                    </x-form.select>
-
-                    <div class="flex gap-3 pt-2">
+                        <div class="flex gap-3 pt-2 mt-4">
                         <x-form.button
                             type="button"
                             class="w-full bg-transparent border-2 border-primary !text-primary hover:bg-secondary hover:border-secondary hover:!text-primary"
@@ -645,26 +650,24 @@
 
                         <div>
                             <p class="text-xs text-neutral mb-1">Nama Lengkap</p>
-                            <p class="text-xs font-medium">Siti Rahma</p>
+                            <p class="text-xs font-medium" x-text="selectedPenghuni.name"></p>
                         </div>
 
                         <div>
                             <p class="text-xs text-neutral mb-1">No HP</p>
-                            <p class="text-xs font-medium">089876543210</p>
+                            <p class="text-xs font-medium" x-text="selectedPenghuni.no_hp"></p>
                         </div>
 
                     </div>
                     <hr>
                     <div>
                         <p class="text-xs text-neutral mb-1">Alamat</p>
-                        <p class="text-xs font-medium">
-                            Jl. Sudirman No.123
-                        </p>
+                        <p class="text-xs font-medium" x-text="selectedPenghuni.alamat"></p>
                     </div>
                     <hr>
                     <x-form.textarea
                         label="Alasan Keluar"
-                        name="alasan-keluar-kost"
+                        x-model="selectedPenghuni.notes"
                         rows="3"
                         class="text-xs"
                         readonly>
@@ -759,12 +762,12 @@
                     <div class="flex lg:gap-28 gap-20">
                         <div>
                             <p class="text-xs text-neutral mb-1">Nama Lengkap</p>
-                            <p class="text-xs font-medium">Anto Subagja</p>
+                            <p class="text-xs font-medium" x-text="selectedPenghuni.name"></p>
                         </div>
 
                         <div>
                             <p class="text-xs text-neutral mb-1">No HP</p>
-                            <p class="text-xs font-medium">081234567892</p>
+                            <p class="text-xs font-medium" x-text="selectedPenghuni.no_hp"></p>
                         </div>
                     </div>
                     <hr>
@@ -915,11 +918,16 @@
                         Kembali
                     </x-form.button>
                     <x-form.button
-                        type="button"
+                            type="submit"
                         class="w-full"
-                        @click="showSuccess('Permintaan berhasil dikonfirmasi')">
+                            @click="$refs.formApproveKeluar.submit()">
                         Simpan
                     </x-form.button>
+                        <form x-ref="formApproveKeluar" :action="'/pengelola/penghuni-pengelola/keluar/' + selectedPenghuni.id" method="POST" class="hidden">
+                            @csrf
+                        </form>
+                    </div>
+
                 </div>
 
             </div>
