@@ -13,13 +13,12 @@ class Penghuni extends Model
 {
     protected $fillable = [
         'user_id',
-        'room_id',
-        'kost_code',
-        'status',
+        'nomor_kamar',
+        'status_request',
         'tanggal_masuk',
         'tanggal_keluar',
         'is_redflag',
-        'problem_notes',
+        'notes_penghuni',
     ];
 
     public function user() {
@@ -27,10 +26,6 @@ class Penghuni extends Model
     }
 
     public function kamar() {
-        return $this->belongsTo(Kamar::class, 'room_id');
-    }
-
-    public function kost() {
-        return $this->belongsTo(Kost::class, 'kost_code', 'kode_kost');
+        return $this->belongsTo(Kamar::class, 'nomor_kamar');
     }
 }
