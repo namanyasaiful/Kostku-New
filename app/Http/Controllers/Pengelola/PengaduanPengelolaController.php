@@ -16,7 +16,7 @@ class PengaduanPengelolaController extends Controller
 
         if (Auth::user()->role !== 'pengelola') {
             if (Auth::user()->role === 'penghuni') {
-                return view('dashboard.penghuni');
+                return redirect()->route('dashboard.penghuni');
             }
 
             return redirect()->route('dashboard.superadmin');
