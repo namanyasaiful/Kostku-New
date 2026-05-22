@@ -35,7 +35,7 @@
                 focus:ring-primary
                 focus:border-primary
             '
-        ]) }}>{{ old($name) }}</textarea>
+        ]) }}>{{ old($name, $slot) }}</textarea>
 
     @error($name)
     <p class="text-sm text-red-500">

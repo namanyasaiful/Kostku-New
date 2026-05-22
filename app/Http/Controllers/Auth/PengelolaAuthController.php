@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use App\Models\User;
 
 class PengelolaAuthController extends Controller {
@@ -30,13 +31,27 @@ class PengelolaAuthController extends Controller {
             'password' => bcrypt($request->password),
             'alamat' => $request->alamat,
             'role' => 'pengelola',
+        ]);
+
+        $path = $request->file('sertifikat')->store('sertifikat');
+
+        // logic generate kode_kost
+        $nama = $request->nama_kost;
+        $awal   = substr($nama, 0, 1);
+        $tengah = substr($nama, strlen($nama) / 2, 1);
+        $akhir  = substr($nama, -1);
+        $kode_kost = strtoupper($awal . $tengah . $akhir) . '-' . strtoupper(Str::random(4));
+
+        $user->kosts()->create([
             'nama_kost' => $request->nama_kost,
             'alamat_kost' => $request->alamat_kost,
-            'sertifikat' => $request->file('sertifikat')->store('sertifikat', 'public')
+            'sertifikat' => $path,
+            'kode_kost' => $kode_kost,
         ]);
 
         return redirect()->route('login')->withSuccess('Registration successful! You can now login!');
     }
+
 
         public function logout(Request $request){
         Auth::logout();
