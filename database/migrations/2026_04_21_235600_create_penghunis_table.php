@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('nomor_kamar')->constrained('kamars')->onDelete('cascade');
+            $table->enum('status_request', ['disetujui','ditolak', 'menunggu'])->default('menunggu')->nullable();
             $table->date('tanggal_masuk');
             $table->date('tanggal_keluar')->nullable();
             $table->enum('is_redflag', ['no', 'yes'])->default('no')->nullable();

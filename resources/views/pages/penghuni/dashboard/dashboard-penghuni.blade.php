@@ -2,13 +2,29 @@
 @section('title', 'Dashboard Penghuni')
 
 @section('content')
+@php
+    // Mengambil data penghuni aktif milik user
+    $penghuni = \App\Models\Penghuni::where('user_id', Auth::id())
+        ->latest()
+        ->first();
+
+    $status = 'not_joined';
+    if ($penghuni) {
+
+        $status = ($penghuni->status_request === 'menunggu') ? 'pending' : 'joined';
+
+        if ($penghuni->status_request === 'disetujui' && $penghuni->kamar && $penghuni->kamar->user_id != Auth::id()) {
+            $status = 'not_joined';
+        }
+    }
+@endphp
 
 <!-- cara cek section, ubah statusnya dengan berikut: -->
 <!-- not_joined, pending, joined -->
 
 <div
     x-data="{
-        status: 'not_joined',
+        status: '{{ $status }}',
         modalOpen: false,
         modalType: null,
 
@@ -138,31 +154,27 @@
                     Gabung Kost
                 </h2>
 
-                <div class="mb-1">
+                <form action="{{ route('penghuni.join') }}" method="POST">
+                    @csrf
+                    <div class="mb-1">
+                        <x-form.input
+                            label="Kode Kost"
+                            name="kode_kost"
+                            placeholder="Masukkan kode kost"
+                            class="text-black"
+                            required />
+                    </div>
 
-                    <x-form.input
-                        label="Kode Kost"
-                        name="kode_kost"
-                        placeholder="Masukkan kode kost"
-                        class="text-black" />
+                    <p class="text-xs text-neutral mb-6">
+                        Hubungi pengelola kost untuk mendapatkan kode
+                    </p>
 
-                </div>
-
-                <p class="text-xs text-neutral mb-6">
-                    Hubungi pengelola kost untuk mendapatkan kode
-                </p>
-
-                <x-form.button
-                    type="button"
-                    class="w-full"
-                    @click="
-                        status = 'pending';
-                        openModal('pending-success');
-                    ">
-
-                    Gabung Sekarang
-
-                </x-form.button>
+                    <x-form.button
+                        type="submit"
+                        class="w-full">
+                        Gabung Sekarang
+                    </x-form.button>
+                </form>
 
             </div>
 
