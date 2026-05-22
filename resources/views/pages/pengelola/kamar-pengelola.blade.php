@@ -14,6 +14,17 @@
 
         kamarStatus: 'terisi',
 
+        // EDIT KAMAR
+        editKamarId: null,
+        editKamarNomor: '',
+        editKamarPenghuni: '',
+        editKamarTipe: '',
+        editKamarStatus: 'kosong',
+        editKamarHarga: '',
+        editKamarFasilitas: '',
+
+        deleteKamarId: null,
+
         openModal(type) {
             this.modalOpen = true;
             this.modalType = type;
@@ -182,10 +193,11 @@
                                         {{-- EDIT --}}
                                         <button
                                             type="button"
-                                            @click="kamarStatus = 'terisi'; openModal('edit-kamar')"
+                                            @click="editKamarId = '{{ $kamar->id }}'; editKamarNomor = '{{ addslashes($kamar->nomor_kamar) }}'; editKamarPenghuni = '{{ addslashes($kamar->penghuni?->nama ?? '-') }}'; editKamarTipe = '{{ addslashes($kamar->tipe_kamar) }}'; editKamarStatus = '{{ $kamar->status }}'; editKamarHarga = '{{ $kamar->harga }}'; editKamarFasilitas = '{{ addslashes($kamar->fasilitas ?? '-') }}'; kamarStatus = 'terisi'; openModal('edit-kamar')"
                                             class="p-2 rounded-md hover:bg-yellow-50 transition">
                                             <img src="{{ asset('assets/icons/edit-icon.png') }}" class="w-4">
                                         </button>
+
 
                                         {{-- DELETE --}}
                                         <button
@@ -245,21 +257,19 @@
                                         {{-- EDIT --}}
                                         <button
                                             type="button"
-                                            @click="kamarStatus = 'kosong'; openModal('edit-kamar')"
+                                            @click="editKamarId = '{{ $kamar->id }}'; editKamarNomor = '{{ addslashes($kamar->nomor_kamar) }}'; editKamarPenghuni = '{{ addslashes($kamar->penghuni?->nama ?? '-') }}'; editKamarTipe = '{{ addslashes($kamar->tipe_kamar) }}'; editKamarStatus = '{{ $kamar->status }}'; editKamarHarga = '{{ $kamar->harga }}'; editKamarFasilitas = '{{ addslashes($kamar->fasilitas ?? '-') }}'; kamarStatus = 'kosong'; openModal('edit-kamar')"
                                             class="p-2 rounded-md hover:bg-yellow-50 transition">
                                             <img src="{{ asset('assets/icons/edit-icon.png') }}" class="w-4">
                                         </button>
 
+
                                         {{-- DELETE --}}
-                                        <form action="{{ route('kamar.destroy', $kamar->id) }}" method="POST" class="delete-form">
-                                            @csrf
-                                            <button
-                                                type="button"
-                                                @click="kamarStatus = 'kosong'; openModal('confirm-delete')"
-                                                class="p-2 rounded-md hover:bg-red-50 transition">
-                                                <img src="{{ asset('assets/icons/delete-icon.png') }}" class="w-4">
-                                            </button>
-                                        </form>
+                                        <button
+                                            type="button"
+                                            @click="kamarStatus = 'kosong'; deleteKamarId = '{{ $kamar->id }}'; openModal('confirm-delete')"
+                                            class="p-2 rounded-md hover:bg-red-50 transition">
+                                            <img src="{{ asset('assets/icons/delete-icon.png') }}" class="w-4">
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -316,7 +326,7 @@
                 </h2>
 
                 <div class="space-y-4">
-                        <form action="{{ route('kamar.store') }}" method="POST" enctype="multipart/form-data">
+<form action="{{ route('kamar.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
 
                             <x-form.input
@@ -468,96 +478,97 @@
                 {{-- CONTENT --}}
                 <div class="space-y-4 lg:max-h-[450px] max-h-[250px] overflow-auto">
 
-                    <x-form.input
-                        label="Nomor Kamar"
-                        name="nomor_kamar"
-                        value="KM001"
-                        class="lg:text-sm text-xs" />
+                        <form :action="'{{ url('/pengelola/kamar-pengelola/update') }}/' + editKamarId" method="POST">
+                        @csrf
 
-                    <x-form.input
-                        label="Nama Penghuni"
-                        name="edit-penghuni"
-                        ::value="kamarStatus === 'kosong' ? '-' : 'Anton Subagja'"
-                        class="lg:text-sm text-xs" />
+                        {{-- Nomor Kamar --}}
+                        <x-form.input
+                            label="Nomor Kamar"
+                            name="nomor_kamar"
+                            x-model="editKamarNomor"
+                            class="lg:text-sm text-xs" />
 
-                    <x-form.select
-                        label="Tipe Kamar"
-                        name="edit-tipe"
-                        class="lg:text-sm text-xs">
+                        {{-- Nama Penghuni (display saja) --}}
+                        <x-form.input
+                            label="Nama Penghuni"
+                            name="penghuni"
+                            x-model="editKamarPenghuni"
+                            class="lg:text-sm text-xs"
+                            readonly />
 
-                        <option selected>
-                            Standard
-                        </option>
+                        {{-- Tipe Kamar --}}
+                        <x-form.select
+                            label="Tipe Kamar"
+                            name="tipe_kamar"
+                            x-model="editKamarTipe"
+                            class="lg:text-sm text-xs">
 
-                        <option>
-                            Premium
-                        </option>
+                            <option value="standard">Standard</option>
+                            <option value="premium">Premium</option>
 
-                    </x-form.select>
+                        </x-form.select>
 
-                    <x-form.select
-                        label="Status Kamar"
-                        name="edit-status"
-                        x-model="kamarStatus"
-                        class="lg:text-sm text-xs">
+                        {{-- Status Kamar (display saja) --}}
+                        <x-form.select
+                            label="Status Kamar"
+                            name="status"
+                            x-model="editKamarStatus"
+                            class="lg:text-sm text-xs"
+                            disabled>
 
-                        <option value="kosong">
-                            Kosong
-                        </option>
+                            <option value="kosong">Kosong</option>
+                            <option value="terisi">Terisi</option>
 
-                        <option value="terisi">
-                            Terisi
-                        </option>
+                        </x-form.select>
 
-                    </x-form.select>
+                        {{-- Harga --}}
+                        <x-form.input
+                            label="Harga per Bulan"
+                            name="harga"
+                            x-model="editKamarHarga"
+                            class="lg:text-sm text-xs" />
 
-                    <x-form.input
-                        label="Harga per Bulan"
-                        name="edit-harga"
-                        value="Rp500.000"
-                        class="lg:text-sm text-xs" />
+                        {{-- Fasilitas --}}
+                        <x-form.input
+                            label="Fasilitas Kamar"
+                            name="fasilitas"
+                            x-model="editKamarFasilitas"
+                            class="lg:text-sm text-xs" />
 
-                    <x-form.input
-                        label="Fasilitas Kamar"
-                        name="edit-fasilitas"
-                        value="Lemari, WiFi"
-                        class="lg:text-sm text-xs" />
+                        {{-- ACTION --}}
+                        <div class="flex gap-3 pt-4">
 
-                </div>
-                {{-- ACTION --}}
-                <div class="flex gap-3 pt-4">
+                            <x-form.button
+                                type="button"
+                                class="
+                                w-full
+                                bg-transparent
+                                border-2
+                                border-primary
+                                !text-primary
+                                hover:bg-secondary
+                                hover:border-secondary
+                                hover:!text-primary
+                            "
+                                @click="closeModal()">
 
-                    <x-form.button
-                        type="button"
-                        class="
-                    w-full
-                    bg-transparent
-                    border-2
-                    border-primary
-                    !text-primary
-                    hover:bg-secondary
-                    hover:border-secondary
-                    hover:!text-primary
-                "
-                        @click="closeModal()">
+                                Batal
 
-                        Batal
+                            </x-form.button>
 
-                    </x-form.button>
+                            <x-form.button
+                                type="submit"
+                                class="w-full">
 
-                    <x-form.button
-                        type="button"
-                        class="w-full"
-                        @click="showSuccess('Data kamar berhasil diperbarui')">
+                                Simpan
 
-                        Simpan
+                            </x-form.button>
 
-                    </x-form.button>
+                        </div>
+                    </form>
 
                 </div>
             </div>
-
-
         </template>
 
 
@@ -595,9 +606,13 @@
                     <x-form.button
                         type="button"
                         class="w-full bg-red-600 hover:bg-red-100 hover:text-red-600"
-                        @click="document.querySelector('.delete-form')?.submit()">
+                        @click="$refs.deleteForm.submit()">
                         Hapus
                     </x-form.button>
+
+                    <form x-ref="deleteForm" :action="'{{ url('/pengelola/kamar-pengelola/delete') }}/' + deleteKamarId" method="POST" class="hidden">
+                        @csrf
+                    </form>
 
                 </div>
 

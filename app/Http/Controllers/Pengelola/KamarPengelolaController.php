@@ -60,7 +60,7 @@ class KamarPengelolaController extends Controller
         return redirect()->route('kamar.pengelola')->with('success', 'Kamar berhasil ditambahkan!');
     }
 
-    public function updateKamar(Request $request,User  $id)
+    public function updateKamar(Request $request, $id)
     {
         $request->validate([
             'nomor_kamar'  => 'required|string|max:255',
@@ -69,7 +69,8 @@ class KamarPengelolaController extends Controller
             'fasilitas'    => 'required|string',
         ]);
 
-        $kamar = Kost::where('user_id', Auth::id())->first()->kamars()->findOrFail($id);
+        $kostIds = Kost::where('user_id', Auth::id())->pluck('id');
+        $kamar = Kamar::whereIn('kode_kost', $kostIds)->findOrFail($id);
 
         $kamar->update([
             'nomor_kamar' => $request->nomor_kamar,
@@ -83,7 +84,8 @@ class KamarPengelolaController extends Controller
 
     public function deleteKamar($id)
     {
-        $kamar = Kost::where('user_id', Auth::id())->first()->kamars()->findOrFail($id);
+        $kostIds = Kost::where('user_id', Auth::id())->pluck('id');
+        $kamar = Kamar::whereIn('kode_kost', $kostIds)->findOrFail($id);
         $kamar->delete();
 
         return redirect()->route('kamar.pengelola')->with('success', 'Kamar berhasil dihapus!');

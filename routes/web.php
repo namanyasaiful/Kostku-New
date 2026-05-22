@@ -2,21 +2,26 @@
 
 use Illuminate\Support\Facades\Route;
 
+// Auth
 use App\Http\Controllers\Auth\PenghuniAuthController;
 use App\Http\Controllers\Auth\PengelolaAuthController;
 use App\Http\Controllers\Auth\LupaPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 
+// Penghuni
 use App\Http\Controllers\Penghuni\PengaduanPenghuniController;
 use App\Http\Controllers\Penghuni\PembayaranPenghuniController;
 use App\Http\Controllers\Penghuni\DashboardPenghuniController;
+use App\Http\Controllers\Penghuni\KamarPenghuniController;
 
+// Pengelola
 use App\Http\Controllers\Pengelola\DashboardPengelolaController;
 use App\Http\Controllers\Pengelola\KamarPengelolaController;
 use App\Http\Controllers\Pengelola\PembayaranPengelolaController;
 use App\Http\Controllers\Pengelola\PengaduanPengelolaController;
 use App\Http\Controllers\Pengelola\PenghuniPengelolaController;
 
+// Super Admin
 use App\Http\Controllers\SuperAdmin\DashboardSuperAdminController;
 
 /*
@@ -70,8 +75,8 @@ Route::controller(PengelolaAuthController::class)->group(function () {
 // Dashboard Penghuni
 Route::controller(DashboardPenghuniController::class)->group(function () {
     Route::get('/penghuni/dashboard-penghuni', 'viewDashboard')->name('dashboard.penghuni');
-    Route::post('/penghuni/dashboard-penghuni/join', 'joinKost')->name('penghuni.join');
     Route::get('/penghuni/kode-kost', 'kodeKost')->name('kodekost.penghuni');
+    Route::post('/penghuni/dashboard-penghuni/join', 'joinKost')->name('penghuni.join');
 });
 
 // Pembayaran Penghuni
@@ -82,6 +87,14 @@ Route::controller(PembayaranPenghuniController::class)->group(function () {
 // Pengaduan Penghuni
 Route::controller(PengaduanPenghuniController::class)->group(function () {
     Route::get('/penghuni/pengaduan-penghuni', 'viewPengaduan')->name('pengaduan.penghuni');
+});
+
+// Kamar Penghuni
+Route::controller(KamarPenghuniController::class)->group(function () {
+    Route::get('/penghuni/kamar-penghuni', 'viewKamar')->name('kamar.penghuni');
+    Route::post('/penghuni/kamar-penghuni/request/{id}', 'requestKamar')->name('kamar.request');
+    Route::post('/penghuni/kamar-penghuni/approve/{id}', 'approveRequest')->name('approve.request');
+    Route::post('/penghuni/kamar-penghuni/leave', 'penghuniOut')->name('penghuni.out');
 });
 
 /*
@@ -118,6 +131,7 @@ Route::controller(PenghuniPengelolaController::class)->group(function () {
     Route::get('/pengelola/penghuni-pengelola', 'viewPenghuni')->name('penghuni.pengelola');
     Route::post('/pengelola/penghuni-pengelola/approve/{penghuni}', 'approvePenghuni')->name('penghuni.approve');
     Route::post('/pengelola/penghuni-pengelola/reject/{penghuni}', 'rejectPenghuni')->name('penghuni.reject');
+    Route::post('/pengelola/penghuni-pengelola/keluar/{penghuni}', 'approveKeluar')->name('penghuni.approve_keluar');
 });
 
 /*
