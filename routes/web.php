@@ -87,6 +87,7 @@ Route::controller(PembayaranPenghuniController::class)->group(function () {
 // Pengaduan Penghuni
 Route::controller(PengaduanPenghuniController::class)->group(function () {
     Route::get('/penghuni/pengaduan-penghuni', 'viewPengaduan')->name('pengaduan.penghuni');
+    Route::post('/penghuni/pengaduan-penghuni/store', 'storePengaduanPenghuni')->name('penghuni.pengaduan.store');
 });
 
 // Kamar Penghuni
@@ -124,6 +125,7 @@ Route::controller(PembayaranPengelolaController::class)->group(function () {
 // Pengaduan Pengelola
 Route::controller(PengaduanPengelolaController::class)->group(function () {
     Route::get('/pengelola/pengaduan-pengelola', 'viewPengaduan')->name('pengaduan.pengelola');
+    Route::post('/pengelola/pengaduan-pengelola/store', 'pengelolaStorePengaduan')->name('pengelola.pengaduan.store');
 });
 
 // Penghuni Pengelola

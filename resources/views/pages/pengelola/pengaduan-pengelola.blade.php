@@ -8,11 +8,29 @@
         modalOpen: false,
         modalType: null,
 
-        status: 'baru',
+        id: null,
+        judul: '',
+        isi: '',
+        nama: '',
+        kamar: '',
+        status: '',
+        selectedStatus: 'proses',
+        balasan: '',
 
-        selectedStatus: 'diproses',
-
-        openModal(type) {
+        openModal(type, data = {}) {
+            if(data) {
+                this.id = data.id;
+                this.judul = data.judul;
+                this.isi = data.isi;
+                this.nama = data.nama;
+                this.kamar = data.kamar;
+                this.status = data.status;
+                // pastikan value status selalu sesuai enum database: baru|proses|selesai
+                this.selectedStatus = ['baru','proses','selesai'].includes(data.status)
+                    ? data.status
+                    : 'proses';
+                this.balasan = data.balasan || '';
+            }
             this.modalOpen = true;
             this.modalType = type;
         },
@@ -71,70 +89,54 @@
 
             <tbody>
 
-                <x-table.tr>
+                @foreach ($pengaduans as $pengaduan)
+                    <x-table.tr>
+                        <x-table.td class="font-medium text-heading">
+                            {{ $pengaduan->user->nama }}
+                        </x-table.td>
 
-                    <x-table.td class="font-medium text-heading">
-                        Anto Subagja
-                    </x-table.td>
+                        <x-table.td class="font-medium text-heading">
+                            {{ $pengaduan->user->penghuni->first()->kamar->nomor_kamar ?? '-' }}
+                        </x-table.td>
 
-                    <x-table.td class="font-medium text-heading">
-                        KM001
-                    </x-table.td>
+                        <x-table.td class="font-medium text-heading">
+                            {{ $pengaduan->created_at->format('d/m/Y') }}
+                        </x-table.td>
 
-                    <x-table.td class="font-medium text-heading">
-                        08/04/2026
-                    </x-table.td>
+                        <x-table.td>
+                            @if ($pengaduan->status === 'baru')
+                                <x-badge type="danger">Baru</x-badge>
+                            @elseif($pengaduan->status === 'proses')
+                                <x-badge type="warning">Diproses</x-badge>
+                            @elseif($pengaduan->status === 'selesai')
+                                <x-badge type="success">Selesai</x-badge>
+                            @endif
+                        </x-table.td>
 
-                    {{-- ================= STATUS BADGE ================= --}}
-                    <x-table.td>
+                        {{-- ================= DETAIL BUTTON ================= --}}
+                        <x-table.td>
+                            <a
+                                href="#"
+                                @click.prevent="openModal('detail-pengaduan', {
+                                    id: {{ $pengaduan->id }},
+                                    judul: '{{ addslashes($pengaduan->judul) }}',
+                                    isi: '{{ addslashes($pengaduan->isi) }}',
+                                    nama: '{{ addslashes($pengaduan->user->nama) }}',
+                                    kamar: '{{ $pengaduan->user->penghuni->first()->kamar->nomor_kamar ?? '-' }}',
+                                    status: '{{ $pengaduan->status }}',
+                                    balasan: '{{ addslashes($pengaduan->balasan) }}'
+                                })"
+                                class="w-28 flex justify-center cursor-pointer">
 
-                        {{-- BARU --}}
-                        <template x-if="status === 'baru'">
+                                <img
+                                    src="{{ asset('assets/icons/lihat-detail-icon.png') }}"
+                                    alt="Lihat Detail"
+                                    class="w-4 h-4">
 
-                            <x-badge type="danger">
-                                Baru
-                            </x-badge>
-
-                        </template>
-
-                        {{-- DIPROSES --}}
-                        <template x-if="status === 'diproses'">
-
-                            <x-badge type="warning">
-                                Diproses
-                            </x-badge>
-
-                        </template>
-
-                        {{-- SELESAI --}}
-                        <template x-if="status === 'selesai'">
-
-                            <x-badge type="success">
-                                Selesai
-                            </x-badge>
-
-                        </template>
-
-                    </x-table.td>
-
-                    {{-- ================= DETAIL BUTTON ================= --}}
-                    <x-table.td>
-
-                        <a
-                            href="#"
-                            @click.prevent="openModal('detail-pengaduan')"
-                            class="w-28 flex justify-center cursor-pointer">
-
-                            <img
-                                src="{{ asset('assets/icons/lihat-detail-icon.png') }}"
-                                alt="Lihat Detail"
-                                class="w-4 h-4">
-
-                        </a>
-
-                    </x-table.td>
-
-                </x-table.tr>
+                            </a>
+                        </x-table.td>
+                    </x-table.tr>
+                @endforeach
 
             </tbody>
 
@@ -143,7 +145,9 @@
     </x-card>
 
     {{-- ================= PAGINATION ================= --}}
-    <x-pagination />
+    <div class="mt-4">
+        {{ $pengaduans->links() }}
+    </div>
 
     {{-- ================= MODAL ================= --}}
     <x-modal show="modalOpen" maxWidth="lg:max-w-[500px] max-w-[350px]">
@@ -174,75 +178,69 @@
                     Detail Pengaduan
                 </h2>
 
-                <div class="flex flex-col gap-4">
+                <form action="{{ route('pengelola.pengaduan.store') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="pengaduan_id" :value="id">
 
-                    {{-- CARD PENGADUAN --}}
-                    <div class="bg-[#EDF2FF] rounded-md shadow-md px-4 py-5">
+                    <div class="flex flex-col gap-4">
 
-                        <h3 class="lg:text-md text-sm text-black font-semibold mb-2">
-                            Wifi ngelag
-                        </h3>
+                        {{-- CARD BALASAN PENGADUAN --}}
+                        <div class="bg-[#EDF2FF] rounded-md shadow-md px-4 py-5">
 
-                        <p class="text-xs text-neutral mb-3">
-                            WiFi lambat internetnya sudah dari kemarin
-                        </p>
+                            <h3 class="lg:text-md text-sm text-black font-semibold mb-2" x-text="judul"></h3>
 
-                        <div class="flex justify-around">
+                            <p class="text-xs text-neutral mb-3" x-text="isi"></p>
 
-                            <p class="text-xs text-neutral">
-                                P001 - Anto Subagja
-                            </p>
-
-                            <p class="text-xs text-neutral">
-                                KM001
-                            </p>
+                            <div class="flex justify-around">
+                                <p class="text-xs text-neutral" x-text="nama"></p>
+                                <p class="text-xs text-neutral" x-text="kamar"></p>
+                            </div>
 
                         </div>
 
+                        {{-- TEXTAREA --}}
+                        <x-form.textarea
+                            label="Respon Anda"
+                            name="balasan"
+                            x-model="balasan"
+                            rows="3"
+                            placeholder="Tulis respon untuk pengaduan ini" />
+
+                        {{-- SELECT STATUS --}}
+                        <x-form.select
+                            label="Status"
+                            name="status"
+                            x-model="selectedStatus"
+                            class="bg-[#F8F8F8] border-[#E2E2E2]">
+
+                            <option value="proses">
+                                Diproses
+                            </option>
+
+                            <option value="selesai">
+                                Selesai
+                            </option>
+
+                        </x-form.select>
+
+                        {{-- BUTTON --}}
+                        <x-form.button
+                            type="submit"
+                            class="w-full mt-4">
+
+                            Simpan dan balas pengaduan
+
+                        </x-form.button>
+
                     </div>
-
-                    {{-- TEXTAREA --}}
-                    <x-form.textarea
-                        label="Respon Anda"
-                        name="pengaduan-pengelola"
-                        rows="3"
-                        placeholder="Tulis respon untuk pengaduan ini" />
-
-                    {{-- SELECT STATUS --}}
-                    <x-form.select
-                        label="Status"
-                        name="status-pengaduan-pengelola"
-                        x-model="selectedStatus"
-                        class="bg-[#F8F8F8] border-[#E2E2E2]">
-
-                        <option value="diproses">
-                            Diproses
-                        </option>
-
-                        <option value="selesai">
-                            Selesai
-                        </option>
-
-                    </x-form.select>
-
-                    {{-- BUTTON --}}
-                    <x-form.button
-                        type="button"
-                        class="w-full mt-4"
-                        @click="savePengaduan()">
-
-                        Simpan dan balas pengaduan
-
-                    </x-form.button>
-
-                </div>
+                </form>
 
             </div>
 
         </template>
 
         {{-- ================= SUCCESS MODAL ================= --}}
-        <template x-if="modalType === 'kirim-success'">
+        <template x-if="modalOpen && modalType === 'kirim-success'">
 
             <div class="text-center">
 
@@ -260,7 +258,7 @@
 
                 <h2 class="lg:text-xl text-md font-bold mb-2">
 
-                    <template x-if="status === 'diproses'">
+                    <template x-if="status === 'proses'">
                         <span>
                             Balasan berhasil dikirim
                         </span>

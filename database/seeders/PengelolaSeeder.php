@@ -87,7 +87,7 @@ class PengelolaSeeder extends Seeder
                     'kode_kost' => $kost->id,
                     'nomor_kamar' => 'A02',
                     'tipe_kamar' => 'standard',
-                    'status' => 'terisi',
+                    'status' => 'kosong',
                     'harga' => 550000,
                     'fasilitas' => 'Kamar standard luas',
                     'user_id' => $pengelola->id,

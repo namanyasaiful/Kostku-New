@@ -20,9 +20,7 @@ class Kamar extends Model
     ];
 
     public function kost() {
-        // kode_kost di tabel kamars mengacu ke kolom kode_kost pada tabel kosts (bukan id).
-        // Karena di controller kost dipetakan dengan kode_kost.
-        return $this->belongsTo(Kost::class, 'kode_kost', 'kode_kost');
+        return $this->belongsTo(Kost::class, 'kode_kost');
     }
 
     public function user()
