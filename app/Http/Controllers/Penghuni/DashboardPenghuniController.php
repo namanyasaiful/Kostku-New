@@ -17,11 +17,6 @@ class DashboardPenghuniController extends Controller
         return view('pages.penghuni.dashboard.dashboard-penghuni');
     }
 
-    public function kodeKost()
-    {
-        return view('pages.penghuni.kode-kost');
-    }
-
     public function joinKost(Request $request)
     {
         $request->validate([

@@ -9,9 +9,9 @@ class Pengaduan extends Model
     protected $fillable = [
         'user_id',
         'judul',
-        'deskripsi',
+        'isi',
         'status',
-        'tanggapan'
+        'balasan'
     ];
 
     public function user() {

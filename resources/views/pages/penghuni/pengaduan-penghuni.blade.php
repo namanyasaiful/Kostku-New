@@ -3,54 +3,78 @@
 
 @section('content')
 
-<div x-data="{ modalOpen: false, modalType: null,
-                openModal(type, duration = 2500) {
-            this.modalOpen = true;
-            this.modalType = type;
+<div x-data="{
+    modalOpen: false,
+    modalType: null,
 
-            setTimeout(() => {
-                this.modalOpen = false;
-                this.modalType = null;
-            }, duration)
-        } }">
+    id: null,
+    judul: '',
+    isi: '',
+    balasan: '',
+    status: '',
+    tanggalPengaduan: '',
 
-    <x-card class="mb-8">
-        <h1 class="lg:text-2xl text-xl text-black font-semibold mb-4">
-            Buat Pengaduan Baru
-        </h1>
+    openModal(type, data = {}) {
+        if (data) {
+            this.id = data.id;
+            this.judul = data.judul || '';
+            this.isi = data.isi || '';
+            this.balasan = data.balasan || '';
+            this.status = data.status || '';
+            this.tanggalPengaduan = data.tanggal_pengaduan || '';
+        }
+        this.modalOpen = true;
+        this.modalType = type;
+    },
 
-        <div class="mb-4">
-            <h3 class="lg:text-md text-sm text-black font-semibold mb-2">
-                Judul Pengajuan
-            </h3>
+    formatStatus(status) {
+        if (status === 'baru') return 'Baru';
+        if (status === 'proses') return 'Diproses';
+        if (status === 'selesai') return 'Selesai';
+        return status;
+    }
+}">
 
-            <x-form.input
-                name="judul-pengajuan"
-                placeholder="Contoh: WiFi ngelag"
-                class="mb-4 bg-[#F8F8F8]" />
-        </div>
+    <form action="{{ route('penghuni.pengaduan.store') }}" method="POST">
+        @csrf
+        <x-card class="mb-8">
+            <h1 class="lg:text-2xl text-xl text-black font-semibold mb-4">
+                Buat Pengaduan Baru
+            </h1>
 
-        <div class="mb-4">
-            <h3 class="lg:text-md text-sm text-black font-semibold mb-2">
-                Deskripsi Pengajuan
-            </h3>
+            <div class="mb-4">
+                <h3 class="lg:text-md text-sm text-black font-semibold mb-2">
+                    Judul Pengaduan
+                </h3>
 
-            <x-form.textarea
-                name="deskripsi-pengajuan"
-                rows="6"
-                placeholder="Jelaskan masalah Anda secara detail..."
-                class="mb-4 bg-[#F8F8F8] text-sm"></x-form.textarea>
-        </div>
+                <x-form.input
+                    name="judul"
+                    placeholder="Contoh: WiFi ngelag"
+                    class="mb-4 bg-[#F8F8F8]" />
+            </div>
 
-        <x-form.button
-            type="button"
-            @click="openModal('kirim-success')">
+            <div class="mb-4">
+                <h3 class="lg:text-md text-sm text-black font-semibold mb-2">
+                    Deskripsi Pengaduan
+                </h3>
 
-            Kirim Pengaduan
+                <x-form.textarea
+                    name="isi"
+                    rows="6"
+                    placeholder="Jelaskan masalah Anda secara detail..."
+                    class="mb-4 bg-[#F8F8F8] text-sm"></x-form.textarea>
+            </div>
 
-        </x-form.button>
+            <x-form.button
+                type="submit"
+                @click="openModal('kirim-success')">
 
-    </x-card>
+                Kirim Pengaduan
+
+            </x-form.button>
+
+        </x-card>
+    </form>
 
     <h1 class="lg:text-xl text-lg text-black font-semibold mb-4">
         Riwayat Pengaduan
@@ -58,7 +82,10 @@
 
     <x-card>
 
+        @if ($pengaduans->count() > 0)
+
         <x-table.index class="min-w-[700px]">
+
 
             <thead class="sticky top-0 bg-white z-10 border-default">
 
@@ -82,39 +109,68 @@
 
             <tbody>
 
-                <x-table.tr>
+                @forelse ($pengaduans as $pengaduan)
+                    <x-table.tr>
 
-                    <x-table.td class="font-medium text-heading">
-                        08/04/2026
-                    </x-table.td>
+                        <x-table.td class="font-medium text-heading">
+                            {{ $pengaduan->created_at->format('d/m/Y') }}
+                        </x-table.td>
 
-                    <x-table.td>
-                        <x-badge type="success">
-                            Selesai
-                        </x-badge>
-                    </x-table.td>
+                        <x-table.td>
+                            @if ($pengaduan->status === 'baru')
+                                <x-badge type="danger">Baru</x-badge>
+                            @elseif($pengaduan->status === 'proses')
+                                <x-badge type="warning">Diproses</x-badge>
+                            @elseif($pengaduan->status === 'selesai')
+                                <x-badge type="success">Selesai</x-badge>
+                            @else
+                                <x-badge type="secondary">{{ $pengaduan->status }}</x-badge>
+                            @endif
+                        </x-table.td>
 
-                    <x-table.td>
+                        <x-table.td>
 
-                        <a
-                            href="#"
-                            @click.prevent="modalOpen = true; modalType = 'detail-pengaduan'"
-                            class="w-28 flex justify-center cursor-pointer">
+                            <a
+                                href="#"
+                                @click.prevent="openModal('detail-pengaduan', {
+                                    id: {{ $pengaduan->id }},
+                                    judul: '{{ addslashes($pengaduan->judul) }}',
+                                    isi: '{{ addslashes($pengaduan->isi) }}',
+                                    balasan: '{{ addslashes($pengaduan->balasan) }}',
+                                    status: '{{ $pengaduan->status }}',
+                                    tanggal_pengaduan: '{{ $pengaduan->created_at->format('d/m/Y') }}'
+                                })"
+                                class="w-28 flex justify-center cursor-pointer">
 
-                            <img
-                                src="{{ asset('assets/icons/lihat-detail-icon.png') }}"
-                                alt="Lihat Detail"
-                                class="w-4 h-4">
+                                <img
+                                    src="{{ asset('assets/icons/lihat-detail-icon.png') }}"
+                                    alt="Lihat Detail"
+                                    class="w-4 h-4">
 
-                        </a>
+                            </a>
 
-                    </x-table.td>
+                        </x-table.td>
 
-                </x-table.tr>
+                    </x-table.tr>
+                @empty
+                    <x-table.tr>
+                        <x-table.td colspan="3" class="text-center text-neutral py-10">
+                            Belum ada pengaduan.
+                        </x-table.td>
+                    </x-table.tr>
+                @endforelse
 
             </tbody>
 
         </x-table.index>
+
+        <div class="mt-4">
+            {{ $pengaduans->links() }}
+        </div>
+
+        @else
+            <p class="text-center text-neutral py-10">Belum ada pengaduan.</p>
+        @endif
 
     </x-card>
 
@@ -150,13 +206,11 @@
 
                     <div>
                         <div class="bg-[#EDF2FF] rounded-md shadow-md px-4 py-5">
-                            <h3 class="lg:text-md text-sm text-black font-semibold mb-2">
-                                Wifi ngelag
-                            </h3>
-                            <p class="text-xs text-neutral mb-3">WiFi lambat internetnya sudah dari kemarin</p>
+                            <h3 class="lg:text-md text-sm text-black font-semibold mb-2" x-text="judul"></h3>
+                            <p class="text-xs text-neutral mb-3" x-text="isi"></p>
                             <div class="flex justify-around">
-                                <p class="text-xs text-neutral">P001 - Anto Subagja</p>
-                                <p class="text-xs text-neutral">KM001</p>
+                                <p class="text-xs text-neutral" x-text="tanggalPengaduan"></p>
+                                <p class="text-xs text-neutral" x-text="status"></p>
                             </div>
                         </div>
                     </div>
@@ -167,13 +221,9 @@
                     rounded-xl bg-[#F8F8F8] border-2 border-[#E2E2E2]
                     px-4
                     py-3">
-                            <p class="text-xs text-black mb-1">
-                                Baik, terima kasih sudah memberi tahu, akan segera diperbaiki
-                            </p>
+                            <p class="text-xs text-black mb-1" x-text="balasan"></p>
 
-                            <p class="text-[10px] text-neutral text-right">
-                                07/05/2026 10.00
-                            </p>
+                            <p class="text-[10px] text-neutral text-right" x-text="status"></p>
                         </div>
                     </div>
 
@@ -182,7 +232,8 @@
                             label="Status"
                             name="status-pengaduan"
                             class="bg-[#F8F8F8] border-[#E2E2E2]"
-                            placeholder="Selesai" disabled />
+                            x-bind:value="formatStatus(status)"
+                            placeholder="Status" disabled />
                     </div>
                 </div>
             </div>
