@@ -58,6 +58,11 @@ class User extends Authenticatable
         return $this->hasOne(Kost::class, 'user_id');
     }
 
+    public function penghuni()
+    {
+        return $this->hasMany(Penghuni::class, 'user_id');
+    }
+
     public function pembayarans() {
         return $this->hasMany(Pembayaran::class, 'user_id');
     }
