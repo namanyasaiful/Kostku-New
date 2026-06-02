@@ -68,8 +68,8 @@ Route::controller(PengelolaAuthController::class)->group(function () {
 
 // Super Admin Auth
 Route::controller(SuperAdminAuthController::class)->group(function () {
-    Route::get('/superadmin/login', 'view')->name('login');
-    Route::post('/postLogin', 'sessionLogin')->name('sessionLogin');
+    Route::get('/superadmin/login', 'view')->name('superadmin.login');
+    Route::post('/superadmin/postLogin', 'sessionLogin')->name('superadmin.sessionLogin');
 });
 
 /*
