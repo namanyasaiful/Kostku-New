@@ -16,7 +16,7 @@
             <div class="flex justify-center lg:pt-10 pt-2">
                 <x-card class="w-[500px]">
                     <h1 class="lg:text-3xl text-xl text-black font-bold mb-4">Masuk Admin</h1>
-                    <form action="{{ route('sessionLogin') }}" method="POST">
+                    <form action="{{ route('superadmin.sessionLogin') }}" method="POST">
                         @csrf
                         <div>
                             <x-form.input
