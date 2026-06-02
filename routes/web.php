@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 // Auth
 use App\Http\Controllers\Auth\PenghuniAuthController;
 use App\Http\Controllers\Auth\PengelolaAuthController;
+use App\Http\Controllers\Auth\SuperAdminAuthController;
 use App\Http\Controllers\Auth\LupaPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 
@@ -65,6 +66,11 @@ Route::controller(PengelolaAuthController::class)->group(function () {
     Route::get('/pengelola/register', 'viewRegister')->name('register.pengelola');
 });
 
+// Super Admin Auth
+Route::controller(SuperAdminAuthController::class)->group(function () {
+    Route::get('/superadmin/login', 'view')->name('login');
+    Route::post('/postLogin', 'sessionLogin')->name('sessionLogin');
+});
 
 /*
 |--------------------------------------------------------------------------
