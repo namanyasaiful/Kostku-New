@@ -24,6 +24,12 @@ use App\Http\Controllers\Pengelola\PenghuniPengelolaController;
 
 // Super Admin
 use App\Http\Controllers\SuperAdmin\DashboardSuperAdminController;
+use App\Http\Controllers\SuperAdmin\ManajemenPengelolaController;
+use App\Http\Controllers\SuperAdmin\ManajemenPenghuniController;
+use App\Http\Controllers\SuperAdmin\PenilaianPenghuniController;
+use App\Http\Controllers\SuperAdmin\PengaduanSuperAdminController;
+use App\Http\Controllers\SuperAdmin\PembayaranSuperAdminController;
+use App\Http\Controllers\SuperAdmin\LogAuditController;
 
 /*
 |--------------------------------------------------------------------------
@@ -70,6 +76,7 @@ Route::controller(PengelolaAuthController::class)->group(function () {
 Route::controller(SuperAdminAuthController::class)->group(function () {
     Route::get('/superadmin/login', 'view')->name('superadmin.login');
     Route::post('/superadmin/postLogin', 'sessionLogin')->name('superadmin.sessionLogin');
+    Route::post('/superadmin/logout', 'logout')->name('superadmin.logout');
 });
 
 /*
@@ -151,4 +158,34 @@ Route::controller(PenghuniPengelolaController::class)->group(function () {
 // Dashboard Super Admin
 Route::controller(DashboardSuperAdminController::class)->group(function () {
     Route::get('/superadmin/dashboard-superadmin', 'viewDashboard')->name('dashboard.superadmin');
+});
+
+// Manajemen Pengelola - superadmin
+Route::controller(ManajemenPengelolaController::class)->group(function(){
+    Route::get('/superadmin/manajemen-pengelola','viewManajemenPengelola')->name('manajemen-pengelola.superadmin');
+});
+
+// Manajemen Penghuni - superadmin
+Route::controller(ManajemenPenghuniController::class)->group(function(){
+    Route::get('/superadmin/manajemen-penghuni','viewManajemenPenghuni')->name('manajemen-penghuni.superadmin');
+});
+
+// Penilaian Penghuni - superadmin
+Route::controller(PenilaianPenghuniController::class)->group(function(){
+    Route::get('/superadmin/penilaian-penghuni','viewPenilaianPenghuni')->name('penilaian-penghuni.superadmin');
+});
+
+// Pengaduan - superadmin
+Route::controller(PengaduanSuperAdminController::class)->group(function(){
+    Route::get('/superadmin/pengaduan-superadmin','viewPengaduanSuperAdmin')->name('pengaduan-superadmin.superadmin');
+});
+
+// Pembayaran - superadmin
+Route::controller(PembayaranSuperAdminController::class)->group(function(){
+    Route::get('/superadmin/pembayaran-superadmin','viewPembayaranSuperAdmin')->name('pembayaran-superadmin.superadmin');
+});
+
+// Log Audit - superadmin
+Route::controller(LogAuditController::class)->group(function(){
+    Route::get('/superadmin/log-audit','viewLogAudit')->name('log-audit.superadmin');
 });
