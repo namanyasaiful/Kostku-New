@@ -167,7 +167,14 @@
 
                             <td class="py-4 px-2">
                                 <div class="flex justify-center">
-                                    <a
+                                    <x-form.button @click.prevent="openModal('detail-penghuni', {
+                                            name: '{{ $penghuni->user->nama }}',
+                                            no_hp: '{{ $penghuni->user->no_hp }}',
+                                            alamat: '{{ $penghuni->user->alamat ?? '-' }}',
+                                            nomor_kamar: '{{ $penghuni->kamar->nomor_kamar }}',
+                                            tanggal_masuk: '{{ \Carbon\Carbon::parse($penghuni->tanggal_masuk)->format('d/m/Y') }}'
+                                        })" class="border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">Detail</x-form.button>
+                                    <!-- <a
                                         href="#"
                                         @click.prevent="openModal('detail-penghuni', {
                                             name: '{{ $penghuni->user->nama }}',
@@ -182,7 +189,7 @@
                                             transition
                                         ">
                                         <img src="{{ asset('assets/icons/lihat-detail-icon.png') }}" alt="Lihat Detail" class="w-4 h-4">
-                                    </a>
+                                    </a> -->
                                 </div>
                             </td>
                         </tr>
@@ -240,7 +247,15 @@
 
                             <td class="py-4 px-2">
                                 <div class="flex justify-center gap-2">
-                                    <a
+                                    <x-form.button @click.prevent="openModal('permintaan-masuk', {
+                                            id: {{ $penghuni->id }},
+                                            name: '{{ $penghuni->user->nama }}',
+                                            no_hp: '{{ $penghuni->user->telpon }}',
+                                            alamat: '{{ $penghuni->user->alamat ?? '-' }}',
+                                            requested_kamar: '{{ $penghuni->kamar->nomor_kamar }}',
+                                            requested_kamar_id: {{ $penghuni->nomor_kamar }}
+                                        })" class="w-[150px] border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">Detail</x-form.button>
+                                    <!-- <a
                                         href="#"
                                         @click.prevent="openModal('permintaan-masuk', {
                                             id: {{ $penghuni->id }},
@@ -252,7 +267,7 @@
                                         })"
                                         class="p-2 rounded-md hover:bg-blue-50 transition">
                                         <img src="{{ asset('assets/icons/lihat-detail-icon.png') }}" alt="Lihat Detail" class="w-4 h-4">
-                                    </a>
+                                    </a> -->
                                 </div>
                             </td>
                         </tr>
@@ -310,7 +325,14 @@
 
                             <td class="py-4 px-2">
                                 <div class="flex justify-center">
-                                    <a
+                                    <x-form.button @click.prevent="openModal('permintaan-keluar', {
+                                            id: {{ $penghuni->id }},
+                                            name: '{{ $penghuni->user->nama }}',
+                                            no_hp: '{{ $penghuni->user->telpon }}',
+                                            alamat: '{{ $penghuni->user->alamat }}',
+                                            notes: '{{ $penghuni->notes_penghuni }}'
+                                        })" class="w-[150px] border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">Detail</x-form.button>
+                                    <!-- <a
                                         href="#"
                                         @click.prevent="openModal('permintaan-keluar', {
                                             id: {{ $penghuni->id }},
@@ -325,7 +347,7 @@
                                             transition
                                         ">
                                         <img src="{{ asset('assets/icons/lihat-detail-icon.png') }}" alt="Lihat Detail" class="w-4 h-4">
-                                    </a>
+                                    </a> -->
                                 </div>
                             </td>
                         </tr>
@@ -485,14 +507,14 @@
                 <div class="flex gap-3 mt-8">
                     <x-form.button
                         type="button"
-                        class="w-full text-white bg-red-600 hover:bg-red-100 hover:text-red-600"
+                        class="w-full text-white !bg-red-600 hover:!bg-red-100 hover:!text-red-600"
                         @click="modalType = 'confirm-tolak'">
                         Tolak
                     </x-form.button>
                     <x-form.button
                         type="submit"
-                        class="w-full text-white bg-green-600 hover:bg-green-100 hover:text-[#5BBA43]"
-                        @click="$refs.formApproveMasuk.submit()">
+                        class="w-full text-white !bg-green-600 hover:!bg-green-100 hover:!text-[#5BBA43]"
+                        @click="modalType = 'setujui-penghuni'">
                         Setuju
                     </x-form.button>
 
@@ -534,13 +556,13 @@
                 <div class="flex gap-3 mt-8">
                     <x-form.button
                         type="button"
-                        class="w-full !text-neutral bg-transparent border-2 border-neutral hover:bg-neutral hover:!text-white"
+                        class="w-full !text-neutral !bg-transparent border-2 !border-neutral hover:!bg-neutral hover:!text-white"
                         @click="modalType = 'permintaan-masuk'">
                         Batal
                     </x-form.button>
                     <x-form.button
                         type="submit"
-                        class="w-full text-white bg-red-600 hover:bg-red-100 hover:text-red-600"
+                        class="w-full !text-white !bg-red-600 hover:!bg-red-100 hover:!text-red-600"
                         @click="$refs.formReject.submit()">
                         Tolak
                     </x-form.button>
@@ -570,7 +592,7 @@
                 </button>
 
                 <h2 class="text-xl font-bold mb-6">
-                    Detail Penghuni
+                    Pilih Kamar Untuk Penghuni
                 </h2>
 
                 <div class="space-y-4">
@@ -602,24 +624,24 @@
                             x-model="selectedPenghuni.requested_kamar_id">
 
                             @foreach($kamarKosong as $kamar)
-                                <option value="{{ $kamar->id }}">{{ $kamar->nomor_kamar }}</option>
+                            <option value="{{ $kamar->id }}">{{ $kamar->nomor_kamar }}</option>
                             @endforeach
                         </x-form.select>
 
                         <div class="flex gap-3 pt-2 mt-4">
-                        <x-form.button
-                            type="button"
-                            class="w-full bg-transparent border-2 border-primary !text-primary hover:bg-secondary hover:border-secondary hover:!text-primary"
-                            @click="modalType = 'permintaan-masuk'">
-                            Kembali
-                        </x-form.button>
-                        <x-form.button
-                            type="button"
-                            class="w-full"
-                            @click="showSuccess('Penghuni berhasil ditambahkan')">
-                            Simpan
-                        </x-form.button>
-                    </div>
+                            <x-form.button
+                                type="button"
+                                class="w-full bg-transparent border-2 border-primary !text-primary hover:bg-secondary hover:border-secondary hover:!text-primary"
+                                @click="modalType = 'permintaan-masuk'">
+                                Kembali
+                            </x-form.button>
+                            <x-form.button
+                                type="button"
+                                class="w-full"
+                                @click="showSuccess('Penghuni berhasil ditambahkan')">
+                                Simpan
+                            </x-form.button>
+                        </div>
 
                 </div>
 
@@ -721,14 +743,14 @@
 
                     <x-form.button
                         type="button"
-                        class="w-full bg-transparent border-2 border-neutral !text-neutral hover:bg-neutral hover:!text-white"
+                        class="w-full bg-transparent border-2 !border-neutral !text-neutral hover:!bg-neutral hover:!text-white"
                         @click="modalType = 'permintaan-keluar'">
                         Batal
                     </x-form.button>
 
                     <x-form.button
                         type="button"
-                        class="w-full text-white bg-red-600 hover:bg-red-100 hover:text-red-600"
+                        class="w-full text-white !bg-red-600 hover:!bg-red-100 hover:!text-red-600"
                         @click="showSuccess('Permintaan keluar berhasil ditolak')">
                         Ya
                     </x-form.button>
@@ -918,43 +940,43 @@
                         Kembali
                     </x-form.button>
                     <x-form.button
-                            type="submit"
+                        type="submit"
                         class="w-full"
-                            @click="$refs.formApproveKeluar.submit()">
+                        @click="$refs.formApproveKeluar.submit()">
                         Simpan
                     </x-form.button>
-                        <form x-ref="formApproveKeluar" :action="'/pengelola/penghuni-pengelola/keluar/' + selectedPenghuni.id" method="POST" class="hidden">
-                            @csrf
-                        </form>
-                    </div>
-
+                    <form x-ref="formApproveKeluar" :action="'/pengelola/penghuni-pengelola/keluar/' + selectedPenghuni.id" method="POST" class="hidden">
+                        @csrf
+                    </form>
                 </div>
 
             </div>
-        </template>
 
-        {{-- ================= SUCCESS ================= --}}
-        <template x-if="modalType === 'success'">
+</div>
+</template>
 
-            <div class="text-center">
+{{-- ================= SUCCESS ================= --}}
+<template x-if="modalType === 'success'">
 
-                <div class="flex justify-center mb-4">
+    <div class="text-center">
 
-                    <img
-                        src="{{ asset('assets/icons/success-modal-icon.png') }}"
-                        class="w-12">
+        <div class="flex justify-center mb-4">
 
-                </div>
+            <img
+                src="{{ asset('assets/icons/success-modal-icon.png') }}"
+                class="w-12">
 
-                <h2 class="text-lg font-bold">
-                    <span x-text="successMessage"></span>
-                </h2>
+        </div>
 
-            </div>
+        <h2 class="text-lg font-bold">
+            <span x-text="successMessage"></span>
+        </h2>
 
-        </template>
+    </div>
 
-    </x-modal>
+</template>
+
+</x-modal>
 </div>
 
 @endsection
