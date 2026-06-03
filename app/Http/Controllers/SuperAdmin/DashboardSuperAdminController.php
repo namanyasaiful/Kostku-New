@@ -9,6 +9,6 @@ class DashboardSuperAdminController extends Controller
 {
     public function viewDashboard()
     {
-        return view('pages.super-admin.dashboard-super-admin');
+        return view('pages.superadmin.dashboard-superadmin');
     }
 }
