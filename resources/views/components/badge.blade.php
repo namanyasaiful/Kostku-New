@@ -7,6 +7,7 @@ $classes = match($type) {
 'success' => 'bg-[#CFEFC7] text-[#479135]',
 'warning' => 'bg-[#FEF5B2] text-[#B39E04]',
 'danger' => 'bg-[#FFC5BF] text-[#B43024]',
+'neutral' => 'bg-[#E2E2E2] text-[#4D4D4D]',
 'info' => 'bg-secondary text-primary',
 default => 'bg-gray-100 text-neutral border border-2 border-[#E2E2E2]',
 };
