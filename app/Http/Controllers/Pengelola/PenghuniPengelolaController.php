@@ -33,7 +33,6 @@ class PenghuniPengelolaController extends Controller
     public function viewPenghuni()
     {
         $kostIds = Kost::where('user_id', Auth::id())->pluck('id');
-        $kamarIds = Kamar::whereIn('kode_kost', $kostIds)->pluck('id');
 
         $query = Penghuni::query()
             ->whereHas('kamar', function ($q) use ($kostIds) {
@@ -62,20 +61,27 @@ class PenghuniPengelolaController extends Controller
 
     public function approvePenghuni(Request $request, $id)
     {
+        $request->validate([
+            'nomor_kamar' => 'required|exists:kamars,id',
+        ]);
+
         $penghuni = Penghuni::findOrFail($id);
 
         DB::transaction(function () use ($penghuni, $request) {
-            // Update kamar jika pengelola memilih kamar lain di modal
-            if ($request->has('nomor_kamar') && $request->nomor_kamar) {
-                $penghuni->update(['nomor_kamar' => $request->nomor_kamar]);
-                $penghuni->refresh();
+            $kamar = Kamar::findOrFail($request->nomor_kamar);
+
+            if ($kamar->status !== 'kosong') {
+                throw new \Exception('Kamar yang dipilih sudah terisi.');
             }
 
-            $penghuni->update(['status_request' => 'disetujui']);
+            $penghuni->update([
+                'nomor_kamar' => $kamar->id,
+                'status_request' => 'disetujui'
+            ]);
 
-            $penghuni->kamar->update([
+            $kamar->update([
                 'user_id' => $penghuni->user_id,
-                'status' => 'terisi'
+                'status'  => 'terisi'
             ]);
         });
 
@@ -85,25 +91,66 @@ class PenghuniPengelolaController extends Controller
     public function rejectPenghuni($id)
     {
         $penghuni = Penghuni::findOrFail($id);
-        $penghuni->update(['status_request' => 'ditolak']);
+
+        // Ketika permintaan keluar ditolak, penghuni harus kembali menjadi penghuni aktif.
+        // Query daftar penghuni memakai: status_request = 'disetujui' dan tanggal_keluar IS NULL.
+        $penghuni->update([
+            'status_request' => 'disetujui',
+            'tanggal_keluar' => null,
+        ]);
 
         return redirect()->back()->with('success', 'Permintaan berhasil ditolak.');
     }
 
-    public function approveKeluar($id)
+
+    public function approveKeluar(Request $request, $id)
     {
+        $request->validate([
+            'skor_pembayaran' => 'required|in:Baik,Perlu Perhatian,Buruk',
+            'skor_sikap' => 'required|in:Baik,Perlu Perhatian,Buruk',
+            'skor_perawatan_fasilitas' => 'required|in:Baik,Perlu Perhatian,Buruk',
+            'catatan' => 'required|string',
+            'bukti' => 'nullable|mimes:pdf|max:10240',
+        ]);
+
         $penghuni = Penghuni::findOrFail($id);
 
-        DB::transaction(function () use ($penghuni) {
-            // Kosongkan kamar
+        DB::transaction(function () use ($penghuni, $request) {
+            $isRedflag = (
+                $request->input('skor_pembayaran') === 'Buruk' &&
+                $request->input('skor_sikap') === 'Buruk' &&
+                $request->input('skor_perawatan_fasilitas') === 'Buruk'
+            ) ? 'yes' : 'no';
+
+            $buktiFilePath = $request->file('bukti')->store('bukti', 'public');
+
             if ($penghuni->kamar) {
                 $penghuni->kamar->update([
                     'user_id' => null,
                     'status' => 'kosong'
                 ]);
             }
+
+            \App\Models\Record::create([
+                'user_id' => $penghuni->user_id,
+                'kamar_id' => $penghuni->nomor_kamar,
+
+                'tanggal_masuk' => $penghuni->tanggal_masuk,
+                'tanggal_keluar' => now(),
+
+                'is_redflag' => $isRedflag,
+
+                'skor_pembayaran' => $request->input('skor_pembayaran'),
+                'skor_sikap' => $request->input('skor_sikap'),
+                'skor_perawatan_fasilitas' => $request->input('skor_perawatan_fasilitas'),
+
+                'catatan' => $request->input('catatan'),
+                'bukti' => $buktiFilePath,
+            ]);
+
+            $penghuni->delete();
         });
 
-        return redirect()->back()->with('success', 'Checkout berhasil disetujui.');
+        return redirect()->back()->with('success', 'Permintaan keluar berhasil dikonfirmasi');
     }
 }

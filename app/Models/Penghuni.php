@@ -19,6 +19,20 @@ class Penghuni extends Model
         'tanggal_keluar',
         'is_redflag',
         'notes_penghuni',
+        'skor_pembayaran',
+        'skor_sikap',
+        'skor_perawatan_fasilitas',
+        'catatan',
+        'bukti_file',
+    ];
+
+    public function records()
+    {
+        return $this->hasMany(\App\Models\Record::class, 'user_id', 'user_id');
+    }
+
+    protected $casts = [
+        'tanggal_keluar' => 'datetime',
     ];
 
     public function user() {
