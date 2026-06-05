@@ -9,23 +9,30 @@ $penghuni = \App\Models\Penghuni::where('user_id', Auth::id())
 ->first();
 
 $status = 'not_joined';
+$leaveStatus = 'none';
+
 if ($penghuni) {
+    if ($penghuni->status_request === 'menunggu') {
+        $status = 'pending';
+    } elseif ($penghuni->status_request === 'disetujui') {
+        $status = 'joined';
 
-$status = ($penghuni->status_request === 'menunggu') ? 'pending' : 'joined';
+        // Jika penghuni sudah minta keluar tapi belum disetujui admin
+        if ($penghuni->tanggal_keluar !== null) {
+            $leaveStatus = 'pending';
+        }
 
-if ($penghuni->status_request === 'disetujui' && $penghuni->kamar && $penghuni->kamar->user_id != Auth::id()) {
-$status = 'not_joined';
-}
+        // Cek apakah kamar sudah dilepaskan oleh admin
+        if ($penghuni->kamar && $penghuni->kamar->user_id != Auth::id()) {
+            $status = 'not_joined';
+        }
+    }
 }
 @endphp
 
-<!-- cara cek section, ubah statusnya dengan berikut: -->
-<!-- not_joined, pending, joined -->
-
 <div x-data="{
     status: '{{ $status }}',
-
-    leaveStatus: 'none',
+    leaveStatus: '{{ $leaveStatus }}',
 
     modalOpen: false,
     modalType: null,
@@ -40,33 +47,19 @@ $status = 'not_joined';
         this.modalType = null;
     },
 
-    submitLeaveRequest(){
-
-        this.modalType = 'leave-kost-success';
-
-        setTimeout(() => {
-
-            this.closeModal();
-
-            this.leaveStatus = 'pending';
-
-        }, 2500);
+    init() {
+        @if(session('success'))
+            this.modalOpen = true;
+            @if(session('success') == 'Permintaan keluar kost telah dikirim ke pengelola.')
+                this.modalType = 'leave-kost-success';
+            @else
+                this.modalType = 'joined-success';
+            @endif
+            setTimeout(() => {
+                this.closeModal();
+            }, 2500);
+        @endif
     },
-
-    approveLeaveRequest(){
-
-        this.modalType = 'leave-approved';
-
-        this.modalOpen = true;
-
-        setTimeout(() => {
-
-            this.closeModal();
-
-            this.leaveStatus = 'approved';
-
-        }, 3000);
-    }
 }">
 
     {{-- ================= PAGE HEADER ================= --}}
@@ -350,21 +343,23 @@ $status = 'not_joined';
                     Selesai Kost
                 </h2>
 
-                <form>
+                <form action="{{ route('penghuni.out') }}" method="POST">
+                    @csrf
 
                     <x-form.textarea
                         label="Alasan Keluar"
                         name="alasan_keluar"
                         rows="4"
                         placeholder="Masukkan alasan keluar kost..."
-                        class="text-black" />
+                        class="text-black"
+                        required />
 
                     <div class="mt-6">
 
                         <x-form.button
-                            type="button"
+                            type="submit"
                             class="w-full rounded-md !bg-[#E73D2E] !text-white lg:!text-md !text-sm !font-medium hover:!bg-[#FFC5BF] hover:!text-[#E73D2E] !transition"
-                            @click="submitLeaveRequest()">
+                            >
                             Ajukan Permintaan
                         </x-form.button>
 

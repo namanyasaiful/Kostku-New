@@ -7,6 +7,17 @@
     x-data="{
         activeTab: 'daftar',
 
+        init() {
+            @if(session('success'))
+                this.successMessage = '{{ session('success') }}';
+                this.modalType = 'success';
+                this.modalOpen = true;
+                setTimeout(() => {
+                    this.closeModal();
+                }, 2500);
+            @endif
+        },
+
         modalOpen: false,
         modalType: null,
         selectedPenghuni: {},
@@ -169,27 +180,14 @@
                                 <div class="flex justify-center">
                                     <x-form.button @click.prevent="openModal('detail-penghuni', {
                                             name: '{{ $penghuni->user->nama }}',
-                                            no_hp: '{{ $penghuni->user->no_hp }}',
+                                            no_hp: '{{ $penghuni->user->telpon }}',
                                             alamat: '{{ $penghuni->user->alamat ?? '-' }}',
                                             nomor_kamar: '{{ $penghuni->kamar->nomor_kamar }}',
-                                            tanggal_masuk: '{{ \Carbon\Carbon::parse($penghuni->tanggal_masuk)->format('d/m/Y') }}'
+                                            tanggal_masuk: '{{ \Carbon\Carbon::parse($penghuni->tanggal_masuk)->format('d/m/Y') }}',
+                                            skor_pembayaran: '{{ $penghuni->skor_pembayaran }}',
+                                            skor_sikap: '{{ $penghuni->skor_sikap }}',
+                                            skor_perawatan_fasilitas: '{{ $penghuni->skor_perawatan_fasilitas }}'
                                         })" class="border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">Detail</x-form.button>
-                                    <!-- <a
-                                        href="#"
-                                        @click.prevent="openModal('detail-penghuni', {
-                                            name: '{{ $penghuni->user->nama }}',
-                                            no_hp: '{{ $penghuni->user->no_hp }}',
-                                            alamat: '{{ $penghuni->user->alamat ?? '-' }}',
-                                            nomor_kamar: '{{ $penghuni->kamar->nomor_kamar }}',
-                                            tanggal_masuk: '{{ \Carbon\Carbon::parse($penghuni->tanggal_masuk)->format('d/m/Y') }}'
-                                        })"
-                                        class="
-                                            p-2 rounded-md
-                                            hover:bg-blue-50
-                                            transition
-                                        ">
-                                        <img src="{{ asset('assets/icons/lihat-detail-icon.png') }}" alt="Lihat Detail" class="w-4 h-4">
-                                    </a> -->
                                 </div>
                             </td>
                         </tr>
@@ -253,21 +251,11 @@
                                             no_hp: '{{ $penghuni->user->telpon }}',
                                             alamat: '{{ $penghuni->user->alamat ?? '-' }}',
                                             requested_kamar: '{{ $penghuni->kamar->nomor_kamar }}',
-                                            requested_kamar_id: {{ $penghuni->nomor_kamar }}
+                                            requested_kamar_id: {{ $penghuni->nomor_kamar }},
+                                            skor_pembayaran: '{{ $penghuni->skor_pembayaran }}',
+                                            skor_sikap: '{{ $penghuni->skor_sikap }}',
+                                            skor_perawatan_fasilitas: '{{ $penghuni->skor_perawatan_fasilitas }}'
                                         })" class="w-[150px] border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">Detail</x-form.button>
-                                    <!-- <a
-                                        href="#"
-                                        @click.prevent="openModal('permintaan-masuk', {
-                                            id: {{ $penghuni->id }},
-                                            name: '{{ $penghuni->user->nama }}',
-                                            no_hp: '{{ $penghuni->user->telpon }}',
-                                            alamat: '{{ $penghuni->user->alamat ?? '-' }}',
-                                            requested_kamar: '{{ $penghuni->kamar->nomor_kamar }}',
-                                            requested_kamar_id: {{ $penghuni->nomor_kamar }}
-                                        })"
-                                        class="p-2 rounded-md hover:bg-blue-50 transition">
-                                        <img src="{{ asset('assets/icons/lihat-detail-icon.png') }}" alt="Lihat Detail" class="w-4 h-4">
-                                    </a> -->
                                 </div>
                             </td>
                         </tr>
@@ -332,22 +320,6 @@
                                             alamat: '{{ $penghuni->user->alamat }}',
                                             notes: '{{ $penghuni->notes_penghuni }}'
                                         })" class="w-[150px] border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">Detail</x-form.button>
-                                    <!-- <a
-                                        href="#"
-                                        @click.prevent="openModal('permintaan-keluar', {
-                                            id: {{ $penghuni->id }},
-                                            name: '{{ $penghuni->user->nama }}',
-                                            no_hp: '{{ $penghuni->user->telpon }}',
-                                            alamat: '{{ $penghuni->user->alamat }}',
-                                            notes: '{{ $penghuni->notes_penghuni }}'
-                                        })"
-                                        class="
-                                            p-2 rounded-md
-                                            hover:bg-blue-50
-                                            transition
-                                        ">
-                                        <img src="{{ asset('assets/icons/lihat-detail-icon.png') }}" alt="Lihat Detail" class="w-4 h-4">
-                                    </a> -->
                                 </div>
                             </td>
                         </tr>
@@ -427,15 +399,21 @@
                         </div>
                         <div class="w-full flex justify-between">
                             <p class="text-xs text-neutral">Pembayaran</p>
-                            <x-badge type="success">Baik</x-badge>
+                            <x-badge x-bind:class="selectedPenghuni.skor_pembayaran === 'Baik' ? '!bg-green-100 !text-green-700' : (selectedPenghuni.skor_pembayaran === 'Buruk' ? '!bg-red-100 !text-red-700' : (selectedPenghuni.skor_pembayaran ? '!bg-yellow-100 !text-yellow-700' : '!bg-gray-100 !text-gray-700'))">
+                                <span x-text="selectedPenghuni.skor_pembayaran || '-'"></span>
+                            </x-badge>
                         </div>
                         <div class="w-full flex justify-between">
                             <p class="text-xs text-neutral">Sikap</p>
-                            <x-badge type="warning">Perlu perhatian</x-badge>
+                            <x-badge x-bind:class="selectedPenghuni.skor_sikap === 'Baik' ? '!bg-green-100 !text-green-700' : (selectedPenghuni.skor_sikap === 'Buruk' ? '!bg-red-100 !text-red-700' : (selectedPenghuni.skor_sikap ? '!bg-yellow-100 !text-yellow-700' : '!bg-gray-100 !text-gray-700'))">
+                                <span x-text="selectedPenghuni.skor_sikap || '-'"></span>
+                            </x-badge>
                         </div>
                         <div class="w-full flex justify-between">
                             <p class="text-xs text-neutral">Perawatan Fasilitas</p>
-                            <x-badge type="success">Baik</x-badge>
+                            <x-badge x-bind:class="selectedPenghuni.skor_perawatan_fasilitas === 'Baik' ? '!bg-green-100 !text-green-700' : (selectedPenghuni.skor_perawatan_fasilitas === 'Buruk' ? '!bg-red-100 !text-red-700' : (selectedPenghuni.skor_perawatan_fasilitas ? '!bg-yellow-100 !text-yellow-700' : '!bg-gray-100 !text-gray-700'))">
+                                <span x-text="selectedPenghuni.skor_perawatan_fasilitas || '-'"></span>
+                            </x-badge>
                         </div>
                     </div>
 
@@ -491,15 +469,21 @@
                         </div>
                         <div class="w-full flex justify-between">
                             <p class="text-xs text-neutral">Pembayaran</p>
-                            <x-badge type="success">Baik</x-badge>
+                            <x-badge x-bind:class="selectedPenghuni.skor_pembayaran === 'Baik' ? '!bg-green-100 !text-green-700' : (selectedPenghuni.skor_pembayaran === 'Buruk' ? '!bg-red-100 !text-red-700' : (selectedPenghuni.skor_pembayaran ? '!bg-yellow-100 !text-yellow-700' : '!bg-gray-100 !text-gray-700'))">
+                                <span x-text="selectedPenghuni.skor_pembayaran || '-'"></span>
+                            </x-badge>
                         </div>
                         <div class="w-full flex justify-between">
                             <p class="text-xs text-neutral">Sikap</p>
-                            <x-badge type="warning">Perlu perhatian</x-badge>
+                            <x-badge x-bind:class="selectedPenghuni.skor_sikap === 'Baik' ? '!bg-green-100 !text-green-700' : (selectedPenghuni.skor_sikap === 'Buruk' ? '!bg-red-100 !text-red-700' : (selectedPenghuni.skor_sikap ? '!bg-yellow-100 !text-yellow-700' : '!bg-gray-100 !text-gray-700'))">
+                                <span x-text="selectedPenghuni.skor_sikap || '-'"></span>
+                            </x-badge>
                         </div>
                         <div class="w-full flex justify-between">
                             <p class="text-xs text-neutral">Perawatan Fasilitas</p>
-                            <x-badge type="success">Baik</x-badge>
+                            <x-badge x-bind:class="selectedPenghuni.skor_perawatan_fasilitas === 'Baik' ? '!bg-green-100 !text-green-700' : (selectedPenghuni.skor_perawatan_fasilitas === 'Buruk' ? '!bg-red-100 !text-red-700' : (selectedPenghuni.skor_perawatan_fasilitas ? '!bg-yellow-100 !text-yellow-700' : '!bg-gray-100 !text-gray-700'))">
+                                <span x-text="selectedPenghuni.skor_perawatan_fasilitas || '-'"></span>
+                            </x-badge>
                         </div>
                     </div>
                 </div>
@@ -512,20 +496,11 @@
                         Tolak
                     </x-form.button>
                     <x-form.button
-                        type="submit"
+                        type="button"
                         class="w-full text-white !bg-green-600 hover:!bg-green-100 hover:!text-[#5BBA43]"
                         @click="modalType = 'setujui-penghuni'">
                         Setuju
                     </x-form.button>
-
-                    <form
-                        x-ref="formApproveMasuk"
-                        :action="'/pengelola/penghuni-pengelola/approve/' + selectedPenghuni.id"
-                        method="POST"
-                        class="hidden">
-                        @csrf
-                    </form>
-
                 </div>
 
             </div>
@@ -578,13 +553,13 @@
 
 
         {{-- ================= SETUJUI PENGHUNI ================= --}}
-        <template x-if="modalType === 'setujui-penghuni'">
+            <template x-if="modalType === 'setujui-penghuni'">
 
-            <div class="relative">
+                <div class="relative">
 
                 <button
-                    type="button"
-                    class="absolute top-0 right-0 text-xl"
+                type="button"
+                class="absolute top-0 right-0 text-xl"
                     @click="closeModal()">
 
                     ✕
@@ -616,12 +591,14 @@
                     </div>
                     <hr>
 
-                    <form :action="'/pengelola/penghuni-pengelola/approve/' + selectedPenghuni.id" method="POST">
+                    <form :action="'{{ url('pengelola/penghuni-pengelola/approve') }}/' + selectedPenghuni.id" method="POST">
                         @csrf
                         <x-form.select
                             label="Pilih Kamar"
                             name="nomor_kamar"
-                            x-model="selectedPenghuni.requested_kamar_id">
+                            x-model="selectedPenghuni.requested_kamar_id"
+                            required>
+                            <option value="" disabled selected>Pilih Kamar</option>
 
                             @foreach($kamarKosong as $kamar)
                             <option value="{{ $kamar->id }}">{{ $kamar->nomor_kamar }}</option>
@@ -636,15 +613,13 @@
                                 Kembali
                             </x-form.button>
                             <x-form.button
-                                type="button"
-                                class="w-full"
-                                @click="showSuccess('Penghuni berhasil ditambahkan')">
+                                type="submit"
+                                class="w-full">
                                 Simpan
                             </x-form.button>
                         </div>
-
+                    </form>
                 </div>
-
             </div>
         </template>
 
@@ -739,23 +714,26 @@
                     Apakah Anda yakin ingin menolak permintaan penghuni? Tindakan ini tidak dapat dibatalkan.
                 </p>
 
-                <div class="flex gap-3 mt-8">
+                <form action="{{ route('penghuni.reject', $penghuni->id) }}" method="POST">
+                    @csrf
 
-                    <x-form.button
-                        type="button"
-                        class="w-full bg-transparent border-2 !border-neutral !text-neutral hover:!bg-neutral hover:!text-white"
-                        @click="modalType = 'permintaan-keluar'">
-                        Batal
-                    </x-form.button>
+                    <div class="flex gap-3 mt-8">
 
-                    <x-form.button
-                        type="button"
-                        class="w-full text-white !bg-red-600 hover:!bg-red-100 hover:!text-red-600"
-                        @click="showSuccess('Permintaan keluar berhasil ditolak')">
-                        Ya
-                    </x-form.button>
+                        <x-form.button
+                            type="button"
+                            class="w-full bg-transparent border-2 !border-neutral !text-neutral hover:!bg-neutral hover:!text-white"
+                            @click="modalType = 'permintaan-keluar'">
+                            Batal
+                        </x-form.button>
 
-                </div>
+                        <x-form.button
+                            type="submit"
+                            class="w-full text-white !bg-red-600 hover:!bg-red-100 hover:!text-red-600">
+                            Ya
+                        </x-form.button>
+
+                    </div>
+                </form>
 
             </div>
 
@@ -763,193 +741,135 @@
 
         {{-- ================= SETUJUI PENGHUNI KELUAR ================= --}}
         <template x-if="modalType === 'setujui-keluar'">
-
             <div class="relative">
+                <button type="button" class="absolute top-0 right-0 text-xl" @click="closeModal()">✕</button>
 
-                <button
-                    type="button"
-                    class="absolute top-0 right-0 text-xl"
-                    @click="closeModal()">
+                <form :action="'/pengelola/penghuni-pengelola/keluar/' + selectedPenghuni.id" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <h2 class="text-xl font-bold mb-6">
+                        Penilaian Penghuni
+                    </h2>
 
-                    ✕
-
-                </button>
-
-                <h2 class="text-xl font-bold mb-6">
-                    Penilaian Penghuni
-                </h2>
-
-                <div class="space-y-4 lg:max-h-[450px] max-h-[250px] overflow-auto">
-
-                    <div class="flex lg:gap-28 gap-20">
-                        <div>
-                            <p class="text-xs text-neutral mb-1">Nama Lengkap</p>
-                            <p class="text-xs font-medium" x-text="selectedPenghuni.name"></p>
+                    <div class="space-y-4 lg:max-h-[450px] max-h-[250px] overflow-auto">
+                        <div class="flex lg:gap-28 gap-20">
+                            <div>
+                                <p class="text-xs text-neutral mb-1">Nama Lengkap</p>
+                                <p class="text-xs font-medium" x-text="selectedPenghuni.name"></p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-neutral mb-1">No HP</p>
+                                <p class="text-xs font-medium" x-text="selectedPenghuni.no_hp"></p>
+                            </div>
                         </div>
-
-                        <div>
-                            <p class="text-xs text-neutral mb-1">No HP</p>
-                            <p class="text-xs font-medium" x-text="selectedPenghuni.no_hp"></p>
+                        <hr>
+                        <div class="my-2">
+                            <p class="text-xs text-neutral mb-1">Alamat</p>
+                            <p class="text-xs font-medium" x-text="selectedPenghuni.alamat"></p>
                         </div>
-                    </div>
-                    <hr>
-                    <div class="my-2">
-                        <p class="text-xs text-neutral mb-1">Alamat</p>
-                        <p class="text-xs font-medium">Jl. Sudirman No.123</p>
-                    </div>
-                    <hr>
+                        <hr>
 
-                    <x-form.select
-                        label="Ketertiban pembayaran"
-                        name="ketertiban-bayar" placeholder="Status">
-                        <option value="baik">
-                            Baik
-                        </option>
-                        <option value="perlu-perhatian">
-                            Perlu perhatian
-                        </option>
-                        <option value="Buruk">
-                            Buruk
-                        </option>
-                    </x-form.select>
-                    <x-form.select
-                        label="Sikap"
-                        name="sikap" placeholder="Status">
-                        <option value="baik">
-                            Baik
-                        </option>
-                        <option value="perlu-perhatian">
-                            Perlu perhatian
-                        </option>
-                        <option value="Buruk">
-                            Buruk
-                        </option>
-                    </x-form.select>
-                    <x-form.select
-                        label="Perawatan fasilitas"
-                        name="perawatan-fasilitas" placeholder="Status">
-                        <option value="baik">
-                            Baik
-                        </option>
-                        <option value="perlu-perhatian">
-                            Perlu perhatian
-                        </option>
-                        <option value="Buruk">
-                            Buruk
-                        </option>
-                    </x-form.select>
+                        <x-form.select
+                            label="Ketertiban pembayaran"
+                            name="skor_pembayaran" placeholder="Status" required>
+                            <option value="Baik">Baik</option>
+                            <option value="Perlu Perhatian">Perlu perhatian</option>
+                            <option value="Buruk">Buruk</option>
+                        </x-form.select>
+                        <x-form.select
+                            label="Sikap"
+                            name="skor_sikap" placeholder="Status" required>
+                            <option value="Baik">Baik</option>
+                            <option value="Perlu Perhatian">Perlu perhatian</option>
+                            <option value="Buruk">Buruk</option>
+                        </x-form.select>
+                        <x-form.select
+                            label="Perawatan fasilitas"
+                            name="skor_perawatan_fasilitas" placeholder="Status" required>
+                            <option value="Baik">Baik</option>
+                            <option value="Perlu Perhatian">Perlu perhatian</option>
+                            <option value="Buruk">Buruk</option>
+                        </x-form.select>
+                        <x-form.input
+                            label="Catatan Tambahan"
+                            name="catatan"
+                            rows="3"
+                            type="text"
+                            placeholder="Tulis catatan tambahan jika ada"
+                            class="text-x" required>
+                        </x-form.input>
 
-                    {{-- FILE UPLOAD --}}
-                    <div x-data="{
-                                file: null,
-                                fileSize: '',
-                                handleFile(event) {
-                                    this.file = event.target.files[0];
-                                    this.fileSize = (this.file.size / 1024 / 1024).toFixed(2) + ' MB';
-                                },
-                                removeFile() {
-                                    this.file = null;
-                                    this.fileSize = '';
-                                }
-                            }" class="w-full mb-1" name="sertifikat">
+                        {{-- FILE UPLOAD --}}
+                        <div x-data="{
+                                    file: null,
+                                    fileSize: '',
+                                    handleFile(event) {
+                                        this.file = event.target.files[0];
+                                        this.fileSize = (this.file.size / 1024 / 1024).toFixed(2) + ' MB';
+                                    },
+                                    removeFile() {
+                                        this.file = null;
+                                        this.fileSize = '';
+                                    }
+                                }" class="w-full mb-1">
 
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            <span class="text-black font-medium">Upload bukti (Opsional),</span> *wajib jika penilaian <span class="font-semibold text-black">buruk</span>
-                        </label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <span class="text-black font-medium">Upload bukti (Opsional),</span> *wajib jika penilaian <span class="font-semibold text-black">buruk</span>
+                            </label>
 
-                        {{-- ================= BEFORE UPLOAD ================= --}}
-                        <div x-show="!file">
-
-                            <div
-                                class="border-2 border-dashed border-gray-300 rounded-xl h-32 cursor-pointer hover:border-primary transition flex items-center justify-center"
-                                @click="$refs.file.click()">
-
-                                <div class="flex flex-col items-center justify-center text-body lg:p-2 p-6">
-
-                                    <img src="{{ asset('assets/icons/cloud-add.png') }}" class="w-8 h-8 lg:mb-4 mb-2">
-
-                                    <p class="lg:text-sm text-xs text-center mb-1">Drag & drop file atau klik untuk upload</p>
-
-                                    <p class="lg:text-xs text-[10px] text-[#B0B0B0]">Format: PDF (Max 10MB)</p>
-
+                            <div x-show="!file">
+                                <div
+                                    class="border-2 border-dashed border-gray-300 rounded-xl h-32 cursor-pointer hover:border-primary transition flex items-center justify-center"
+                                    @click="$refs.file.click()">
+                                    <div class="flex flex-col items-center justify-center text-body lg:p-2 p-6">
+                                        <img src="{{ asset('assets/icons/cloud-add.png') }}" class="w-8 h-8 lg:mb-4 mb-2">
+                                        <p class="lg:text-sm text-xs text-center mb-1">Drag & drop file atau klik untuk upload</p>
+                                        <p class="lg:text-xs text-[10px] text-[#B0B0B0]">Format: PDF (Max 10MB)</p>
+                                    </div>
                                 </div>
-
                             </div>
 
-                        </div>
-
-                        {{-- ================= AFTER UPLOAD ================= --}}
-                        <div x-show="file" x-transition class="w-full">
-
-                            <x-card class="relative flex items-center gap-3 w-full h-14 overflow-hidden bg-[#F8F8F8]">
-
-                                {{-- DELETE --}}
-                                <button
-                                    type="button"
-                                    class="absolute top-2 right-2"
-                                    @click="removeFile(); $refs.file.value = null">
-                                    <img src="{{ asset('assets/icons/delete-icon.png') }}" class="w-4">
-                                </button>
-
-                                {{-- ICON --}}
-                                <img src="{{ asset('assets/icons/pdf-icon.png') }}" class="w-10 h-10 shrink-0">
-
-                                {{-- INFO --}}
-                                <div class="flex-1 min-w-0 pr-6">
-
-                                    {{-- FILE NAME --}}
-                                    <p class="text-sm font-medium truncate w-full">
-                                        <span x-text="file.name"></span>
-                                    </p>
-
-                                    {{-- META --}}
-                                    <div class="flex items-center gap-2 mt-1 text-xs flex-wrap">
-
-                                        <span class="text-gray-500 whitespace-nowrap"
-                                            x-text="fileSize + ' of ' + fileSize + ' •'">
-                                        </span>
-
-                                        <span class="text-black flex items-center gap-1 whitespace-nowrap">
-                                            <img src="{{ asset('assets/icons/success-icon.png') }}" class="w-3 h-3">
-                                            Selesai
-                                        </span>
-
+                            <div x-show="file" x-transition class="w-full">
+                                <x-card class="relative flex items-center gap-3 w-full h-14 overflow-hidden bg-[#F8F8F8]">
+                                    <button
+                                        type="button"
+                                        class="absolute top-2 right-2"
+                                        @click="removeFile(); $refs.file.value = null">
+                                        <img src="{{ asset('assets/icons/delete-icon.png') }}" class="w-4">
+                                    </button>
+                                    <img src="{{ asset('assets/icons/pdf-icon.png') }}" class="w-10 h-10 shrink-0">
+                                    <div class="flex-1 min-w-0 pr-6">
+                                        <p class="text-sm font-medium truncate w-full">
+                                            <span x-text="file.name"></span>
+                                        </p>
+                                        <div class="flex items-center gap-2 mt-1 text-xs flex-wrap">
+                                            <span class="text-gray-500 whitespace-nowrap"
+                                                x-text="fileSize + ' of ' + fileSize + ' •'">
+                                            </span>
+                                            <span class="text-black flex items-center gap-1 whitespace-nowrap">
+                                                <img src="{{ asset('assets/icons/success-icon.png') }}" class="w-3 h-3">
+                                                Selesai
+                                            </span>
+                                        </div>
                                     </div>
+                                </x-card>
+                            </div>
 
-                                </div>
-
-                            </x-card>
-
+                            <input type="file" name="bukti" accept=".pdf" class="hidden" x-ref="file" @change="handleFile($event)">
                         </div>
-
-                        {{-- INPUT (DI LUAR BOX) --}}
-                        <input
-                            type="file"
-                            name="sertifikat"
-                            accept=".pdf"
-                            class="hidden"
-                            x-ref="file"
-                            @change="handleFile($event)">
                     </div>
-                </div>
-                <div class="flex gap-3 lg:mt-6 mt-10">
-                    <x-form.button
-                        type="button"
-                        class="w-full bg-transparent border-2 border-primary !text-primary hover:bg-secondary hover:border-secondary hover:!text-primary"
-                        @click="modalType = 'permintaan-keluar'">
-                        Kembali
-                    </x-form.button>
-                    <x-form.button
-                        type="submit"
-                        class="w-full"
-                        @click="$refs.formApproveKeluar.submit()">
-                        Simpan
-                    </x-form.button>
-                    <form x-ref="formApproveKeluar" :action="'/pengelola/penghuni-pengelola/keluar/' + selectedPenghuni.id" method="POST" class="hidden">
-                        @csrf
-                    </form>
-                </div>
 
+                    <div class="flex gap-3 lg:mt-6 mt-10">
+                        <x-form.button
+                            type="button"
+                            class="w-full bg-transparent border-2 border-primary !text-primary hover:bg-secondary hover:border-secondary hover:!text-primary"
+                            @click="modalType = 'permintaan-keluar'">
+                            Kembali
+                        </x-form.button>
+                        <x-form.button type="submit" class="w-full">
+                            Simpan
+                        </x-form.button>
+                    </div>
+                </form>
             </div>
 
 </div>

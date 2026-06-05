@@ -67,7 +67,7 @@ class KamarPenghuniController extends Controller
         return redirect()->back()->with('success', 'Request disetujui.');
     }
 
-    public function penghuniOut()
+    public function penghuniOut(Request $request)
     {
         $penghuni = Penghuni::where('user_id', Auth::id())
             ->where('status_request', 'disetujui')
@@ -79,7 +79,8 @@ class KamarPenghuniController extends Controller
         }
 
         $penghuni->update([
-            'tanggal_keluar' => Carbon::now()
+            'tanggal_keluar' => Carbon::now(),
+            'notes_penghuni' => $request->alasan_keluar,
         ]);
 
         return redirect()->back()->with('success', 'Permintaan keluar kost telah dikirim ke pengelola.');
