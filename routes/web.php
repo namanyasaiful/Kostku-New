@@ -163,6 +163,10 @@ Route::controller(DashboardSuperAdminController::class)->group(function () {
 // Manajemen Pengelola - superadmin
 Route::controller(ManajemenPengelolaController::class)->group(function(){
     Route::get('/superadmin/manajemen-pengelola','viewManajemenPengelola')->name('manajemen-pengelola.superadmin');
+    Route::post('/superadmin/manajemen-pengelola/setujui/{pengelola}', 'setujuiPengelola')->name('pengelola.setujui');
+    Route::post('/superadmin/manajemen-pengelola/tolak/{pengelola}',   'tolakPengelola')->name('pengelola.tolak');
+    Route::post('/superadmin/manajemen-pengelola/batasi/{pengelola}',  'batasiPengelola')->name('pengelola.batasi');
+    Route::post('/superadmin/manajemen-pengelola/aktifkan/{pengelola}','aktifkanPengelola')->name('pengelola.aktifkan');
 });
 
 // Manajemen Penghuni - superadmin
