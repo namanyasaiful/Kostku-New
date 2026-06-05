@@ -174,22 +174,6 @@
                                             nomor_kamar: '{{ $penghuni->kamar->nomor_kamar }}',
                                             tanggal_masuk: '{{ \Carbon\Carbon::parse($penghuni->tanggal_masuk)->format('d/m/Y') }}'
                                         })" class="border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">Detail</x-form.button>
-                                    <!-- <a
-                                        href="#"
-                                        @click.prevent="openModal('detail-penghuni', {
-                                            name: '{{ $penghuni->user->nama }}',
-                                            no_hp: '{{ $penghuni->user->no_hp }}',
-                                            alamat: '{{ $penghuni->user->alamat ?? '-' }}',
-                                            nomor_kamar: '{{ $penghuni->kamar->nomor_kamar }}',
-                                            tanggal_masuk: '{{ \Carbon\Carbon::parse($penghuni->tanggal_masuk)->format('d/m/Y') }}'
-                                        })"
-                                        class="
-                                            p-2 rounded-md
-                                            hover:bg-blue-50
-                                            transition
-                                        ">
-                                        <img src="{{ asset('assets/icons/lihat-detail-icon.png') }}" alt="Lihat Detail" class="w-4 h-4">
-                                    </a> -->
                                 </div>
                             </td>
                         </tr>
@@ -255,19 +239,6 @@
                                             requested_kamar: '{{ $penghuni->kamar->nomor_kamar }}',
                                             requested_kamar_id: {{ $penghuni->nomor_kamar }}
                                         })" class="w-[150px] border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">Detail</x-form.button>
-                                    <!-- <a
-                                        href="#"
-                                        @click.prevent="openModal('permintaan-masuk', {
-                                            id: {{ $penghuni->id }},
-                                            name: '{{ $penghuni->user->nama }}',
-                                            no_hp: '{{ $penghuni->user->telpon }}',
-                                            alamat: '{{ $penghuni->user->alamat ?? '-' }}',
-                                            requested_kamar: '{{ $penghuni->kamar->nomor_kamar }}',
-                                            requested_kamar_id: {{ $penghuni->nomor_kamar }}
-                                        })"
-                                        class="p-2 rounded-md hover:bg-blue-50 transition">
-                                        <img src="{{ asset('assets/icons/lihat-detail-icon.png') }}" alt="Lihat Detail" class="w-4 h-4">
-                                    </a> -->
                                 </div>
                             </td>
                         </tr>
@@ -332,22 +303,6 @@
                                             alamat: '{{ $penghuni->user->alamat }}',
                                             notes: '{{ $penghuni->notes_penghuni }}'
                                         })" class="w-[150px] border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">Detail</x-form.button>
-                                    <!-- <a
-                                        href="#"
-                                        @click.prevent="openModal('permintaan-keluar', {
-                                            id: {{ $penghuni->id }},
-                                            name: '{{ $penghuni->user->nama }}',
-                                            no_hp: '{{ $penghuni->user->telpon }}',
-                                            alamat: '{{ $penghuni->user->alamat }}',
-                                            notes: '{{ $penghuni->notes_penghuni }}'
-                                        })"
-                                        class="
-                                            p-2 rounded-md
-                                            hover:bg-blue-50
-                                            transition
-                                        ">
-                                        <img src="{{ asset('assets/icons/lihat-detail-icon.png') }}" alt="Lihat Detail" class="w-4 h-4">
-                                    </a> -->
                                 </div>
                             </td>
                         </tr>

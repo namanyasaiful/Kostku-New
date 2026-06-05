@@ -1,5 +1,6 @@
 <button
     {{ $attributes->merge([
+        'type' => 'button', 
         'class' => '
             px-5
             py-3

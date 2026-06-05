@@ -5,7 +5,7 @@
         <div>
             <h1 class="lg:text-xl text-md font-bold text-black mb-2">Informasi Kost</h1>
             <p class="text-sm text-neutral">
-                Ajukan permintaan untuk menyelesaikan masa tinggal Anda di kost ini
+                Permintaan Anda sedang menunggu persetujuan dari pengelola kost.
             </p>
         </div>
 

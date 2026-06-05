@@ -101,6 +101,7 @@ Route::controller(PembayaranPenghuniController::class)->group(function () {
 Route::controller(PengaduanPenghuniController::class)->group(function () {
     Route::get('/penghuni/pengaduan-penghuni', 'viewPengaduan')->name('pengaduan.penghuni');
     Route::post('/penghuni/pengaduan-penghuni/store', 'storePengaduanPenghuni')->name('penghuni.pengaduan.store');
+    Route::patch('/penghuni/pengaduan/{id}/batal', [PengaduanPenghuniController::class, 'batalPengaduan'])->name('pengaduan.batal');
 });
 
 // Kamar Penghuni
@@ -161,31 +162,31 @@ Route::controller(DashboardSuperAdminController::class)->group(function () {
 });
 
 // Manajemen Pengelola - superadmin
-Route::controller(ManajemenPengelolaController::class)->group(function(){
-    Route::get('/superadmin/manajemen-pengelola','viewManajemenPengelola')->name('manajemen-pengelola.superadmin');
+Route::controller(ManajemenPengelolaController::class)->group(function () {
+    Route::get('/superadmin/manajemen-pengelola', 'viewManajemenPengelola')->name('manajemen-pengelola.superadmin');
 });
 
 // Manajemen Penghuni - superadmin
-Route::controller(ManajemenPenghuniController::class)->group(function(){
-    Route::get('/superadmin/manajemen-penghuni','viewManajemenPenghuni')->name('manajemen-penghuni.superadmin');
+Route::controller(ManajemenPenghuniController::class)->group(function () {
+    Route::get('/superadmin/manajemen-penghuni', 'viewManajemenPenghuni')->name('manajemen-penghuni.superadmin');
 });
 
 // Penilaian Penghuni - superadmin
-Route::controller(PenilaianPenghuniController::class)->group(function(){
-    Route::get('/superadmin/penilaian-penghuni','viewPenilaianPenghuni')->name('penilaian-penghuni.superadmin');
+Route::controller(PenilaianPenghuniController::class)->group(function () {
+    Route::get('/superadmin/penilaian-penghuni', 'viewPenilaianPenghuni')->name('penilaian-penghuni.superadmin');
 });
 
 // Pengaduan - superadmin
-Route::controller(PengaduanSuperAdminController::class)->group(function(){
-    Route::get('/superadmin/pengaduan-superadmin','viewPengaduanSuperAdmin')->name('pengaduan-superadmin.superadmin');
+Route::controller(PengaduanSuperAdminController::class)->group(function () {
+    Route::get('/superadmin/pengaduan-superadmin', 'viewPengaduanSuperAdmin')->name('pengaduan-superadmin.superadmin');
 });
 
 // Pembayaran - superadmin
-Route::controller(PembayaranSuperAdminController::class)->group(function(){
-    Route::get('/superadmin/pembayaran-superadmin','viewPembayaranSuperAdmin')->name('pembayaran-superadmin.superadmin');
+Route::controller(PembayaranSuperAdminController::class)->group(function () {
+    Route::get('/superadmin/pembayaran-superadmin', 'viewPembayaranSuperAdmin')->name('pembayaran-superadmin.superadmin');
 });
 
 // Log Audit - superadmin
-Route::controller(LogAuditController::class)->group(function(){
-    Route::get('/superadmin/log-audit','viewLogAudit')->name('log-audit.superadmin');
+Route::controller(LogAuditController::class)->group(function () {
+    Route::get('/superadmin/log-audit', 'viewLogAudit')->name('log-audit.superadmin');
 });

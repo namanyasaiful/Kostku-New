@@ -27,6 +27,8 @@ $status = 'not_joined';
 
     leaveStatus: 'none',
 
+    kodeKost: '',
+
     modalOpen: false,
     modalType: null,
 
@@ -71,9 +73,7 @@ $status = 'not_joined';
 
     {{-- ================= PAGE HEADER ================= --}}
     <x-page-header
-        title="Dashboard"
-        description="Pantau informasi kost dan aktivitas Anda">
-
+        title="Selamat Datang, Saifulloh Fattah">
         <x-form.button
             type="button"
             x-show="status === 'not_joined'"
@@ -94,13 +94,11 @@ $status = 'not_joined';
     <template x-if="status === 'not_joined'">
 
         <div class="flex flex-col gap-6">
-
-            {{-- PROFILE CARD --}}
-            @include('pages.penghuni.dashboard.sections.profile-card')
-
             {{-- JOIN KOST CARD --}}
             @include('pages.penghuni.dashboard.sections.join-kost-card')
 
+            {{-- INFORMATION CARD --}}
+            @include('pages.penghuni.dashboard.sections.information-card')
         </div>
 
     </template>
@@ -112,13 +110,8 @@ $status = 'not_joined';
     <template x-if="status === 'pending'">
 
         <div class="flex flex-col gap-6">
-
-            {{-- PROFILE CARD --}}
-            @include('pages.penghuni.dashboard.sections.profile-card')
-
             {{-- PENDING CARD --}}
             @include('pages.penghuni.dashboard.sections.pending-card')
-
         </div>
 
     </template>
@@ -132,50 +125,19 @@ $status = 'not_joined';
         <div class="space-y-6">
 
             <div class="grid lg:grid-cols-2 gap-6">
-
-                @include('pages.penghuni.dashboard.sections.profile-card')
-
                 @include('pages.penghuni.dashboard.sections.kost-info-card')
 
+                <template x-if="leaveStatus === 'none'">
+                    @include('pages.penghuni.dashboard.sections.leave-kost-card')
+                </template>
+
+                <template x-if="leaveStatus === 'pending'">
+                    @include('pages.penghuni.dashboard.sections.leave-pending-card')
+                </template>
             </div>
-
-            <template x-if="leaveStatus === 'none'">
-
-                @include('pages.penghuni.dashboard.sections.leave-kost-card')
-
-            </template>
-
-            <template x-if="leaveStatus === 'pending'">
-
-                @include('pages.penghuni.dashboard.sections.leave-pending-card')
-
-            </template>
-
         </div>
 
     </template>
-
-    {{-- ====================================================== --}}
-    {{-- ================= LEAVE PENDING ====================== --}}
-    {{-- ====================================================== --}}
-    <!-- <template x-if="status === 'leave_pending'">
-
-        <div class="space-y-6">
-
-            <div class="grid lg:grid-cols-2 gap-6">
-
-                @include('pages.penghuni.dashboard.sections.profile-card')
-
-                @include('pages.penghuni.dashboard.sections.kost-info-card')
-
-            </div>
-
-            @include('pages.penghuni.dashboard.sections.leave-pending-card')
-
-        </div>
-
-    </template> -->
-
 
     {{-- ====================================================== --}}
     {{-- ================= MODAL ============================== --}}
@@ -210,13 +172,14 @@ $status = 'not_joined';
                     Gabung Kost
                 </h2>
 
-                <form action="{{ route('penghuni.join') }}" method="POST">
+                <form>
                     @csrf
                     <div class="mb-1">
                         <x-form.input
                             label="Kode Kost"
                             name="kode_kost"
                             placeholder="Masukkan kode kost"
+                            x-model="kodeKost"
                             class="text-black"
                             required />
                     </div>
@@ -226,14 +189,96 @@ $status = 'not_joined';
                     </p>
 
                     <x-form.button
-                        type="submit"
-                        class="w-full">
-                        Gabung Sekarang
+                        type="button"
+                        class="w-full"
+                        @click="modalType = 'informasi-kost'">
+                        Validasi Kode
                     </x-form.button>
                 </form>
 
             </div>
 
+        </template>
+
+        {{-- ====================================================== --}}
+        {{-- ================= INFORMATION KOST MODAL ==================== --}}
+        {{-- ====================================================== --}}
+        <template x-if="modalType === 'informasi-kost'">
+
+            <div class="relative">
+
+                <button
+                    type="button"
+                    class="absolute top-0 right-0 text-xl"
+                    @click="closeModal()">
+
+                    ✕
+
+                </button>
+
+                <h2 class="text-xl font-bold mb-6">
+                    Konfirmasi informasi Kost
+                </h2>
+
+                <p class="text-xs text-neutral mb-4">Pastikan informasi kost di bawah ini sudah benar sebelum bergabung</p>
+
+                <div class="space-y-4">
+
+                    <div class="flex lg:gap-28 gap-20">
+                        <div>
+                            <p class="text-xs text-neutral mb-1">Nama Kost</p>
+                            <p class="text-xs font-medium">Kost Abadi Jaya</p>
+                        </div>
+
+                        <div>
+                            <p class="text-xs text-neutral mb-1">Nama Pemilik</p>
+                            <p class="text-xs font-medium">Budi Santoso</p>
+                        </div>
+                    </div>
+                    <hr>
+
+                    <div class="my-2">
+                        <p class="text-xs text-neutral mb-1">Alamat</p>
+                        <p class="text-xs font-medium">Jl. Cibiru No. 123, Bandung</p>
+                    </div>
+                    <hr>
+                    <div class="flex gap-3 pt-2 mt-4">
+                        <x-form.button
+                            type="button"
+                            class="w-full bg-transparent border-2 border-neutral !text-neutral hover:bg-[#E2E2E2] hover:border-[#E2E2E2] hover:!text-neutral"
+                            @click="modalType = 'join-kost'">
+                            Kembali
+                        </x-form.button>
+                        <form
+                            action="{{ route('penghuni.join') }}"
+                            method="POST"
+                            class="w-full">
+
+                            @csrf
+
+                            <input
+                                type="hidden"
+                                name="kode_kost"
+                                :value="kodeKost">
+                            <x-form.button
+                                type="button"
+                                class="w-full"
+                                @click="
+                                    modalType = 'pending-success';
+
+                                    setTimeout(() => {
+                                        closeModal();
+                                        status = 'pending';
+                                    }, 2500);
+                                ">
+                                Gabung Sekarang
+                            </x-form.button>
+
+                        </form>
+                    </div>
+                </div>
+
+            </div>
         </template>
 
 
@@ -268,6 +313,37 @@ $status = 'not_joined';
 
         </template>
 
+
+        {{-- ====================================================== --}}
+        {{-- ================= FAILED JOIN ======================= --}}
+        {{-- ====================================================== --}}
+        <template x-if="modalType === 'pending-failed'">
+
+            <div class="text-center">
+
+                <div class="flex justify-center mb-4">
+
+                    <div class="w-20 h-20 flex items-center justify-center">
+
+                        <img
+                            src="{{ asset('assets/icons/failed-modal-icon.png') }}"
+                            class="w-12">
+
+                    </div>
+
+                </div>
+
+                <h2 class="lg:text-xl text-md font-bold mb-2">
+                    Gagal Bergabung Kost!
+                </h2>
+
+                <p class="lg:text-sm text-xs text-neutral">
+                    Silakan coba lagi
+                </p>
+
+            </div>
+
+        </template>
 
         {{-- ====================================================== --}}
         {{-- ================= LOADING MODAL ====================== --}}
@@ -408,7 +484,7 @@ $status = 'not_joined';
         </template>
 
         {{-- ====================================================== --}}
-        {{-- ================= LEAVE APPROVED ====================== --}}
+        {{-- ================= LEAVE APPROVED ===================== --}}
         {{-- ====================================================== --}}
         <template x-if="modalType === 'leave-approved'">
 
