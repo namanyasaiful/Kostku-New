@@ -171,8 +171,10 @@ Route::controller(ManajemenPengelolaController::class)->group(function(){
 });
 
 // Manajemen Penghuni - superadmin
-Route::controller(ManajemenPenghuniController::class)->group(function () {
-    Route::get('/superadmin/manajemen-penghuni', 'viewManajemenPenghuni')->name('manajemen-penghuni.superadmin');
+Route::controller(ManajemenPenghuniController::class)->group(function(){
+    Route::get('/superadmin/manajemen-penghuni','viewManajemenPenghuni')->name('manajemen-penghuni.superadmin');
+    Route::post('/superadmin/manajemen-penghuni/batasi/{penghuni}',  'batasipenghuni')->name('penghuni.batasi');
+    Route::post('/superadmin/manajemen-penghuni/aktifkan/{penghuni}','aktifkanpenghuni')->name('penghuni.aktifkan');
 });
 
 // Penilaian Penghuni - superadmin

@@ -68,8 +68,8 @@ $dummyData = [
     ],
 ];
 
-$semuaPengelola    = $dummyData;
-$aktifPengelola    = array_filter($dummyData, fn($p) => $p['status'] === 'Aktif');
+$semuaPengelola = $dummyData;
+$aktifPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Aktif');
 $menungguPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Menunggu');
 $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibatasi');
 @endphp
@@ -161,208 +161,204 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
 
         {{-- ================= SEMUA ================= --}}
         <div x-show="activeTab === 'semua'" x-transition>
-            <div class="overflow-x-auto overflow-y-auto max-h-[360px]">
-                <table class="w-full min-w-[750px] table-fixed">
-                    <thead>
-                        <tr class="border-b">
-                            <th class="w-[22%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">Nama Lengkap</th>
-                            <th class="w-[22%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">Email</th>
-                            <th class="w-[18%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">Nama Kost</th>
-                            <th class="w-[13%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">Kode Kost</th>
-                            <th class="w-[13%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">Status</th>
-                            <th class="w-[12%] text-center py-4 px-2 text-xs lg:text-sm font-semibold">Aksi</th>
-                        </tr>
+            <div class="overflow-x-auto">
+                <x-table.index>
+                    <thead class="sticky top-0 bg-white z-10 border-b border-default">
+                        <x-table.tr>
+                            <x-table.th>Nama Lengkap</x-table.th>
+                            <x-table.th>Email</x-table.th>
+                            <x-table.th>Nama Kost</x-table.th>
+                            <x-table.th>Kode Kost</x-table.th>
+                            <x-table.th>Status Akun</x-table.th>
+                            <x-table.th class="text-center">Aksi</x-table.th>
+                        </x-table.tr>
                     </thead>
                     <tbody>
                         @foreach($semuaPengelola as $pengelola)
-                        <tr class="border-b">
-                            <td class="py-4 px-2 text-xs lg:text-sm">{{ $pengelola['nama'] }}</td>
-                            <td class="py-4 px-2 text-xs lg:text-sm">{{ $pengelola['email'] }}</td>
-                            <td class="py-4 px-2 text-xs lg:text-sm">{{ $pengelola['nama_kost'] }}</td>
-                            <td class="py-4 px-2 text-xs lg:text-sm">{{ $pengelola['kode_kost'] }}</td>
-                            <td class="py-4 px-2 text-xs lg:text-sm">
+                        <x-table.tr>
+                            <x-table.td class="font-medium">{{ $pengelola['nama'] }}</x-table.td>
+                            <x-table.td>{{ $pengelola['email'] }}</x-table.td>
+                            <x-table.td>{{ $pengelola['nama_kost'] }}</x-table.td>
+                            <x-table.td>{{ $pengelola['kode_kost'] }}</x-table.td>
+                            <x-table.td>
                                 @if($pengelola['status'] === 'Aktif')
-                                    <span class="px-2 py-1 rounded-lg text-[10px] lg:text-xs bg-green-100 text-green-700 font-medium">Aktif</span>
+                                    <x-badge type="success">Aktif</x-badge>
                                 @elseif($pengelola['status'] === 'Menunggu')
-                                    <span class="px-2 py-1 rounded-lg text-[10px] lg:text-xs bg-yellow-100 text-yellow-700 font-medium">Menunggu</span>
+                                    <x-badge type="warning">Menunggu</x-badge>
                                 @elseif($pengelola['status'] === 'Dibatasi')
-                                    <span class="px-2 py-1 rounded-lg text-[10px] lg:text-xs bg-red-100 text-red-700 font-medium">Dibatasi</span>
+                                    <x-badge type="danger">Dibatasi</x-badge>
                                 @endif
-                            </td>
-                            <td class="py-4 px-2">
-                                <div class="flex justify-center">
-                                    <x-form.button
-                                        @click.prevent="openModal('detail-{{ $pengelola['status'] === 'Aktif' ? 'aktif' : ($pengelola['status'] === 'Menunggu' ? 'menunggu' : 'dibatasi') }}', {
-                                            id: {{ $pengelola['id'] }},
-                                            name: '{{ $pengelola['nama'] }}',
-                                            no_hp: '{{ $pengelola['telpon'] }}',
-                                            email: '{{ $pengelola['email'] }}',
-                                            nama_kost: '{{ $pengelola['nama_kost'] }}',
-                                            kode_kost: '{{ $pengelola['kode_kost'] }}',
-                                            alamat: '{{ $pengelola['alamat'] }}',
-                                            tanggal_daftar: '{{ $pengelola['tanggal_daftar'] }}',
-                                            sertifikat: '{{ $pengelola['sertifikat'] }}'
-                                        })"
-                                        class="border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">
-                                        Detail
-                                    </x-form.button>
-                                </div>
-                            </td>
-                        </tr>
+                            </x-table.td>
+                            <x-table.td class="text-center">
+                                <x-form.button
+                                    @click.prevent="openModal('detail-{{ $pengelola['status'] === 'Aktif' ? 'aktif' : ($pengelola['status'] === 'Menunggu' ? 'menunggu' : 'dibatasi') }}', {
+                                        id: {{ $pengelola['id'] }},
+                                        name: '{{ $pengelola['nama'] }}',
+                                        no_hp: '{{ $pengelola['telpon'] }}',
+                                        email: '{{ $pengelola['email'] }}',
+                                        nama_kost: '{{ $pengelola['nama_kost'] }}',
+                                        kode_kost: '{{ $pengelola['kode_kost'] }}',
+                                        alamat: '{{ $pengelola['alamat'] }}',
+                                        tanggal_daftar: '{{ $pengelola['tanggal_daftar'] }}',
+                                        sertifikat: '{{ $pengelola['sertifikat'] }}'
+                                    })"
+                                    class="border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">
+                                    Detail
+                                </x-form.button>
+                            </x-table.td>
+                        </x-table.tr>
                         @endforeach
                     </tbody>
-                </table>
+                </x-table.index>
             </div>
+            <p class="text-xs text-neutral mt-3">Menampilkan {{ count($semuaPengelola) }} data</p>
         </div>
 
         {{-- ================= AKTIF ================= --}}
         <div x-show="activeTab === 'aktif'" x-transition>
-            <div class="overflow-x-auto overflow-y-auto max-h-[360px]">
-                <table class="w-full min-w-[750px] table-fixed">
-                    <thead>
-                        <tr class="border-b">
-                            <th class="w-[22%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">Nama Lengkap</th>
-                            <th class="w-[22%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">Email</th>
-                            <th class="w-[18%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">Nama Kost</th>
-                            <th class="w-[13%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">Kode Kost</th>
-                            <th class="w-[13%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">Status</th>
-                            <th class="w-[12%] text-center py-4 px-2 text-xs lg:text-sm font-semibold">Aksi</th>
-                        </tr>
+            <div class="overflow-x-auto">
+                <x-table.index>
+                    <thead class="sticky top-0 bg-white z-10 border-b border-default">
+                        <x-table.tr>
+                            <x-table.th>Nama Lengkap</x-table.th>
+                            <x-table.th>Email</x-table.th>
+                            <x-table.th>Nama Kost</x-table.th>
+                            <x-table.th>Kode Kost</x-table.th>
+                            <x-table.th>Status Akun</x-table.th>
+                            <x-table.th class="text-center">Aksi</x-table.th>
+                        </x-table.tr>
                     </thead>
                     <tbody>
                         @foreach($aktifPengelola as $pengelola)
-                        <tr class="border-b">
-                            <td class="py-4 px-2 text-xs lg:text-sm">{{ $pengelola['nama'] }}</td>
-                            <td class="py-4 px-2 text-xs lg:text-sm">{{ $pengelola['email'] }}</td>
-                            <td class="py-4 px-2 text-xs lg:text-sm">{{ $pengelola['nama_kost'] }}</td>
-                            <td class="py-4 px-2 text-xs lg:text-sm">{{ $pengelola['kode_kost'] }}</td>
-                            <td class="py-4 px-2 text-xs lg:text-sm">
-                                <span class="px-2 py-1 rounded-lg text-[10px] lg:text-xs bg-green-100 text-green-700 font-medium">Aktif</span>
-                            </td>
-                            <td class="py-4 px-2">
-                                <div class="flex justify-center">
-                                    <x-form.button
-                                        @click.prevent="openModal('detail-aktif', {
-                                            id: {{ $pengelola['id'] }},
-                                            name: '{{ $pengelola['nama'] }}',
-                                            no_hp: '{{ $pengelola['telpon'] }}',
-                                            email: '{{ $pengelola['email'] }}',
-                                            nama_kost: '{{ $pengelola['nama_kost'] }}',
-                                            kode_kost: '{{ $pengelola['kode_kost'] }}',
-                                            alamat: '{{ $pengelola['alamat'] }}',
-                                            tanggal_daftar: '{{ $pengelola['tanggal_daftar'] }}',
-                                            sertifikat: '{{ $pengelola['sertifikat'] }}'
-                                        })"
-                                        class="border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">
-                                        Detail
-                                    </x-form.button>
-                                </div>
-                            </td>
-                        </tr>
+                        <x-table.tr>
+                            <x-table.td class="font-medium">{{ $pengelola['nama'] }}</x-table.td>
+                            <x-table.td>{{ $pengelola['email'] }}</x-table.td>
+                            <x-table.td>{{ $pengelola['nama_kost'] }}</x-table.td>
+                            <x-table.td>{{ $pengelola['kode_kost'] }}</x-table.td>
+                            <x-table.td>
+                                <x-badge type="success">Aktif</x-badge>
+                            </x-table.td>
+                            <x-table.td class="text-center">
+                                <x-form.button
+                                    @click.prevent="openModal('detail-aktif', {
+                                        id: {{ $pengelola['id'] }},
+                                        name: '{{ $pengelola['nama'] }}',
+                                        no_hp: '{{ $pengelola['telpon'] }}',
+                                        email: '{{ $pengelola['email'] }}',
+                                        nama_kost: '{{ $pengelola['nama_kost'] }}',
+                                        kode_kost: '{{ $pengelola['kode_kost'] }}',
+                                        alamat: '{{ $pengelola['alamat'] }}',
+                                        tanggal_daftar: '{{ $pengelola['tanggal_daftar'] }}',
+                                        sertifikat: '{{ $pengelola['sertifikat'] }}'
+                                    })"
+                                    class="border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">
+                                    Detail
+                                </x-form.button>
+                            </x-table.td>
+                        </x-table.tr>
                         @endforeach
                     </tbody>
-                </table>
+                </x-table.index>
             </div>
+            <p class="text-xs text-neutral mt-3">Menampilkan {{ count($aktifPengelola) }} data</p>
         </div>
 
         {{-- ================= MENUNGGU ================= --}}
         <div x-show="activeTab === 'menunggu'" x-transition>
-            <div class="overflow-x-auto overflow-y-auto max-h-[360px]">
-                <table class="w-full min-w-[750px] table-fixed">
-                    <thead>
-                        <tr class="border-b">
-                            <th class="w-[22%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">Nama Lengkap</th>
-                            <th class="w-[22%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">Email</th>
-                            <th class="w-[18%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">Nama Kost</th>
-                            <th class="w-[13%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">Kode Kost</th>
-                            <th class="w-[13%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">Status</th>
-                            <th class="w-[12%] text-center py-4 px-2 text-xs lg:text-sm font-semibold">Aksi</th>
-                        </tr>
+            <div class="overflow-x-auto">
+                <x-table.index>
+                    <thead class="sticky top-0 bg-white z-10 border-b border-default">
+                        <x-table.tr>
+                            <x-table.th>Nama Lengkap</x-table.th>
+                            <x-table.th>Email</x-table.th>
+                            <x-table.th>Nama Kost</x-table.th>
+                            <x-table.th>Kode Kost</x-table.th>
+                            <x-table.th>Status Akun</x-table.th>
+                            <x-table.th class="text-center">Aksi</x-table.th>
+                        </x-table.tr>
                     </thead>
                     <tbody>
                         @foreach($menungguPengelola as $pengelola)
-                        <tr class="border-b">
-                            <td class="py-4 px-2 text-xs lg:text-sm">{{ $pengelola['nama'] }}</td>
-                            <td class="py-4 px-2 text-xs lg:text-sm">{{ $pengelola['email'] }}</td>
-                            <td class="py-4 px-2 text-xs lg:text-sm">{{ $pengelola['nama_kost'] }}</td>
-                            <td class="py-4 px-2 text-xs lg:text-sm">{{ $pengelola['kode_kost'] }}</td>
-                            <td class="py-4 px-2 text-xs lg:text-sm">
-                                <span class="px-2 py-1 rounded-lg text-[10px] lg:text-xs bg-yellow-100 text-yellow-700 font-medium">Menunggu</span>
-                            </td>
-                            <td class="py-4 px-2">
-                                <div class="flex justify-center">
-                                    <x-form.button
-                                        @click.prevent="openModal('detail-menunggu', {
-                                            id: {{ $pengelola['id'] }},
-                                            name: '{{ $pengelola['nama'] }}',
-                                            no_hp: '{{ $pengelola['telpon'] }}',
-                                            email: '{{ $pengelola['email'] }}',
-                                            nama_kost: '{{ $pengelola['nama_kost'] }}',
-                                            kode_kost: '{{ $pengelola['kode_kost'] }}',
-                                            alamat: '{{ $pengelola['alamat'] }}',
-                                            tanggal_daftar: '{{ $pengelola['tanggal_daftar'] }}',
-                                            sertifikat: '{{ $pengelola['sertifikat'] }}'
-                                        })"
-                                        class="border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">
-                                        Detail
-                                    </x-form.button>
-                                </div>
-                            </td>
-                        </tr>
+                        <x-table.tr>
+                            <x-table.td class="font-medium">{{ $pengelola['nama'] }}</x-table.td>
+                            <x-table.td>{{ $pengelola['email'] }}</x-table.td>
+                            <x-table.td>{{ $pengelola['nama_kost'] }}</x-table.td>
+                            <x-table.td>{{ $pengelola['kode_kost'] }}</x-table.td>
+                            <x-table.td>
+                                <x-badge type="warning">Menunggu</x-badge>
+                            </x-table.td>
+                            <x-table.td class="text-center">
+                                <x-form.button
+                                    @click.prevent="openModal('detail-menunggu', {
+                                        id: {{ $pengelola['id'] }},
+                                        name: '{{ $pengelola['nama'] }}',
+                                        no_hp: '{{ $pengelola['telpon'] }}',
+                                        email: '{{ $pengelola['email'] }}',
+                                        nama_kost: '{{ $pengelola['nama_kost'] }}',
+                                        kode_kost: '{{ $pengelola['kode_kost'] }}',
+                                        alamat: '{{ $pengelola['alamat'] }}',
+                                        tanggal_daftar: '{{ $pengelola['tanggal_daftar'] }}',
+                                        sertifikat: '{{ $pengelola['sertifikat'] }}'
+                                    })"
+                                    class="border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">
+                                    Detail
+                                </x-form.button>
+                            </x-table.td>
+                        </x-table.tr>
                         @endforeach
                     </tbody>
-                </table>
+                </x-table.index>
             </div>
+            <p class="text-xs text-neutral mt-3">Menampilkan {{ count($menungguPengelola) }} data</p>
         </div>
 
         {{-- ================= DIBATASI ================= --}}
         <div x-show="activeTab === 'dibatasi'" x-transition>
-            <div class="overflow-x-auto overflow-y-auto max-h-[360px]">
-                <table class="w-full min-w-[750px] table-fixed">
-                    <thead>
-                        <tr class="border-b">
-                            <th class="w-[22%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">Nama Lengkap</th>
-                            <th class="w-[22%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">Email</th>
-                            <th class="w-[18%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">Nama Kost</th>
-                            <th class="w-[13%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">Kode Kost</th>
-                            <th class="w-[13%] text-left py-4 px-2 text-xs lg:text-sm font-semibold">Status</th>
-                            <th class="w-[12%] text-center py-4 px-2 text-xs lg:text-sm font-semibold">Aksi</th>
-                        </tr>
+            <div class="overflow-x-auto">
+                <x-table.index>
+                    <thead class="sticky top-0 bg-white z-10 border-b border-default">
+                        <x-table.tr>
+                            <x-table.th>Nama Lengkap</x-table.th>
+                            <x-table.th>Email</x-table.th>
+                            <x-table.th>Nama Kost</x-table.th>
+                            <x-table.th>Kode Kost</x-table.th>
+                            <x-table.th>Status Akun</x-table.th>
+                            <x-table.th class="text-center">Aksi</x-table.th>
+                        </x-table.tr>
                     </thead>
                     <tbody>
                         @foreach($dibatasiPengelola as $pengelola)
-                        <tr class="border-b">
-                            <td class="py-4 px-2 text-xs lg:text-sm">{{ $pengelola['nama'] }}</td>
-                            <td class="py-4 px-2 text-xs lg:text-sm">{{ $pengelola['email'] }}</td>
-                            <td class="py-4 px-2 text-xs lg:text-sm">{{ $pengelola['nama_kost'] }}</td>
-                            <td class="py-4 px-2 text-xs lg:text-sm">{{ $pengelola['kode_kost'] }}</td>
-                            <td class="py-4 px-2 text-xs lg:text-sm">
-                                <span class="px-2 py-1 rounded-lg text-[10px] lg:text-xs bg-red-100 text-red-700 font-medium">Dibatasi</span>
-                            </td>
-                            <td class="py-4 px-2">
-                                <div class="flex justify-center">
-                                    <x-form.button
-                                        @click.prevent="openModal('detail-dibatasi', {
-                                            id: {{ $pengelola['id'] }},
-                                            name: '{{ $pengelola['nama'] }}',
-                                            no_hp: '{{ $pengelola['telpon'] }}',
-                                            email: '{{ $pengelola['email'] }}',
-                                            nama_kost: '{{ $pengelola['nama_kost'] }}',
-                                            kode_kost: '{{ $pengelola['kode_kost'] }}',
-                                            alamat: '{{ $pengelola['alamat'] }}',
-                                            tanggal_daftar: '{{ $pengelola['tanggal_daftar'] }}',
-                                            sertifikat: '{{ $pengelola['sertifikat'] }}'
-                                        })"
-                                        class="border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">
-                                        Detail
-                                    </x-form.button>
-                                </div>
-                            </td>
-                        </tr>
+                        <x-table.tr>
+                            <x-table.td class="font-medium">{{ $pengelola['nama'] }}</x-table.td>
+                            <x-table.td>{{ $pengelola['email'] }}</x-table.td>
+                            <x-table.td>{{ $pengelola['nama_kost'] }}</x-table.td>
+                            <x-table.td>{{ $pengelola['kode_kost'] }}</x-table.td>
+                            <x-table.td>
+                                <x-badge type="danger">Dibatasi</x-badge>
+                            </x-table.td>
+                            <x-table.td class="text-center">
+                                <x-form.button
+                                    @click.prevent="openModal('detail-dibatasi', {
+                                        id: {{ $pengelola['id'] }},
+                                        name: '{{ $pengelola['nama'] }}',
+                                        no_hp: '{{ $pengelola['telpon'] }}',
+                                        email: '{{ $pengelola['email'] }}',
+                                        nama_kost: '{{ $pengelola['nama_kost'] }}',
+                                        kode_kost: '{{ $pengelola['kode_kost'] }}',
+                                        alamat: '{{ $pengelola['alamat'] }}',
+                                        tanggal_daftar: '{{ $pengelola['tanggal_daftar'] }}',
+                                        sertifikat: '{{ $pengelola['sertifikat'] }}'
+                                    })"
+                                    class="border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">
+                                    Detail
+                                </x-form.button>
+                            </x-table.td>
+                        </x-table.tr>
                         @endforeach
                     </tbody>
-                </table>
+                </x-table.index>
             </div>
+            <p class="text-xs text-neutral mt-3">Menampilkan {{ count($dibatasiPengelola) }} data</p>
         </div>
 
     </div>
@@ -382,7 +378,7 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
                 {{-- HEADER --}}
                 <div class="flex items-center justify-between mb-6 pr-6">
                     <h2 class="text-xl font-bold">Detail Pengelola</h2>
-                    <span class="px-3 py-1 rounded-lg text-xs bg-green-100 text-green-700 font-medium">Aktif</span>
+                    <x-badge type="success" class="!px-3 !py-1 !text-xs">Aktif</x-badge>
                 </div>
 
                 <div class="space-y-4 lg:max-h-[450px] max-h-[300px] overflow-y-auto pr-1">
@@ -472,7 +468,7 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
                 {{-- HEADER --}}
                 <div class="flex items-center justify-between mb-6 pr-6">
                     <h2 class="text-xl font-bold">Detail Pengelola</h2>
-                    <span class="px-3 py-1 rounded-lg text-xs bg-yellow-100 text-yellow-700 font-medium">Menunggu</span>
+                    <x-badge type="warning" class="!px-3 !py-1 !text-xs">Menunggu</x-badge>
                 </div>
 
                 <div class="space-y-4 lg:max-h-[400px] max-h-[260px] overflow-y-auto pr-1">
@@ -561,7 +557,7 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
                 {{-- HEADER --}}
                 <div class="flex items-center justify-between mb-6 pr-6">
                     <h2 class="text-xl font-bold">Detail Pengelola</h2>
-                    <span class="px-3 py-1 rounded-lg text-xs bg-red-100 text-red-700 font-medium">Dibatasi</span>
+                    <x-badge type="danger" class="!px-3 !py-1 !text-xs">Dibatasi</x-badge>
                 </div>
 
                 <div class="space-y-4 lg:max-h-[450px] max-h-[300px] overflow-y-auto pr-1">
