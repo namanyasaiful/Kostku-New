@@ -9,7 +9,7 @@
             </p>
         </div>
 
-        <button
+        <!-- <button
             class="px-8
             py-3
             w-fit
@@ -22,8 +22,14 @@
             hover:bg-[#FFC5BF]
             hover:text-[#E73D2E]
             transition">Keluar Kost
-        </button>
+        </button> -->
 
+        <x-form.button
+            type="button"
+            @click="modalOpen = true; modalType = 'leave-kost';"
+            class="!px-8 !py-3 !w-fit rounded-md !bg-[#E73D2E] !text-white lg:!text-md !text-sm !font-medium hover:!bg-[#FFC5BF] hover:!text-[#E73D2E] !transition">
+            Keluar Kost
+        </x-form.button>
     </div>
 
 </x-card>

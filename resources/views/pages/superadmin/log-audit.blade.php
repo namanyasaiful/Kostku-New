@@ -2,6 +2,6 @@
 
 @section('content')
 
-<h1>Dashboard Super Admin</h1>
+<h1>Log Audit Super Admin</h1>
 
 @endsection

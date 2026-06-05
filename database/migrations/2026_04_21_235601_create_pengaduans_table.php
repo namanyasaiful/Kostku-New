@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('pengaduans', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('judul');
-            $table->text('isi');
+            $table->string('judul')->nullable();
+            $table->text('isi')->nullable();
+            $table->string('balasan')->nullable();
             $table->enum('status', ['baru', 'proses', 'selesai'])->default('baru');
             $table->timestamps();
         });
