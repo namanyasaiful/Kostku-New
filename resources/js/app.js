@@ -4,7 +4,7 @@ import Alpine from "alpinejs";
 
 window.Alpine = Alpine;
 
-/* ================= FILE UPLOAD ================= */
+/* ================= FILE UPLOAD SERTIFIKAT/PENILAIAN PENGHUNI ================= */
 window.fileUpload = function () {
     return {
         file: null,
@@ -35,6 +35,71 @@ window.fileUpload = function () {
 
         formatSize(size) {
             return (size / 1024).toFixed(0) + " KB";
+        },
+    };
+};
+
+/* ================= FILE UPLOAD PENGADUAN ================= */
+window.fileUploadMixed = function () {
+    return {
+        file: null,
+        fileSize: null,
+        previewUrl: null,
+
+        handleFile(event) {
+            const f = event.target.files[0];
+
+            if (!f) return;
+
+            const allowedTypes = ["application/pdf", "image/jpeg", "image/png"];
+
+            if (!allowedTypes.includes(f.type)) {
+                alert("File harus berupa PDF, JPG, atau PNG");
+                event.target.value = "";
+                return;
+            }
+
+            if (f.size > 10 * 1024 * 1024) {
+                alert("Ukuran file maksimal 10 MB");
+                event.target.value = "";
+                return;
+            }
+
+            this.file = f;
+            this.fileSize = this.formatSize(f.size);
+
+            if (f.type === "image/jpeg" || f.type === "image/png") {
+                this.previewUrl = URL.createObjectURL(f);
+            } else {
+                this.previewUrl = null;
+            }
+        },
+
+        removeFile() {
+            if (this.previewUrl) {
+                URL.revokeObjectURL(this.previewUrl);
+                this.previewUrl = null;
+            }
+            this.file = null;
+            this.fileSize = null;
+        },
+
+        formatSize(size) {
+            if (size < 1024 * 1024) {
+                return (size / 1024).toFixed(0) + " KB";
+            }
+
+            return (size / 1024 / 1024).toFixed(2) + " MB";
+        },
+
+        getFileIcon() {
+            if (!this.file) return "";
+
+            if (this.file.type === "application/pdf") {
+                return "/assets/icons/pdf-icon.png";
+            }
+
+            return "/assets/icons/image-icon.png";
         },
     };
 };

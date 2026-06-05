@@ -11,10 +11,12 @@ class Pengaduan extends Model
         'judul',
         'isi',
         'status',
-        'balasan'
+        'balasan',
+        'bukti_pengaduan',
     ];
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo(User::class, 'user_id');
     }
 }
