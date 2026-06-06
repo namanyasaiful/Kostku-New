@@ -190,6 +190,8 @@ Route::controller(PengaduanSuperAdminController::class)->group(function () {
 // Pembayaran - superadmin
 Route::controller(PembayaranSuperAdminController::class)->group(function () {
     Route::get('/superadmin/pembayaran-superadmin', 'viewPembayaranSuperAdmin')->name('pembayaran-superadmin.superadmin');
+    Route::get('/superadmin/pembayaran', 'index')->name('pembayaran.superadmin');
+    Route::get('/superadmin/pembayaran/{pembayaran}', 'show')->name('pembayaran.superadmin.show');
 });
 
 // Log Audit - superadmin
