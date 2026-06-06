@@ -3,77 +3,6 @@
 
 @section('content')
 
-{{-- DATA DUMMY --}}
-@php
-$dummyData = [
-    [
-        'id' => 1,
-        'nama_lengkap' => 'Budi Santoso',
-        'email' => 'budi@gmail.com',
-        'nama_kost' => 'Kost Melati',
-        'nomor_kamar' => 'KM001',
-        'judul' => 'WiFi ngelag terus',
-        'isi' => 'Sudah 3 hari ini wifi di lantai 2 sangat lambat, tidak bisa digunakan untuk kerja.',
-        'balasan' => 'Sudah kami teruskan ke teknisi, akan diperbaiki besok.',
-        'status' => 'proses',
-        'tanggal_pengaduan' => '01/06/2026',
-        'bukti' => 'https://placehold.co/400x300.jpg',
-    ],
-    [
-        'id' => 2,
-        'nama_lengkap' => 'Siti Rahayu',
-        'email' => 'siti@gmail.com',
-        'nama_kost' => 'Kost Mawar',
-        'nomor_kamar' => 'KM005',
-        'judul' => 'Kamar mandi bocor',
-        'isi' => 'Ada kebocoran di langit-langit kamar mandi, air menetes saat hujan deras.',
-        'balasan' => '',
-        'status' => 'baru',
-        'tanggal_pengaduan' => '02/06/2026',
-        'bukti' => 'https://placehold.co/400x300.jpg',
-    ],
-    [
-        'id' => 3,
-        'nama_lengkap' => 'Ahmad Fauzi',
-        'email' => 'ahmad@gmail.com',
-        'nama_kost' => 'Kost Anggrek',
-        'nomor_kamar' => 'KM003',
-        'judul' => 'AC tidak dingin',
-        'isi' => 'AC di kamar sudah seminggu tidak dingin, sudah dicoba restart tapi tetap sama.',
-        'balasan' => 'Sudah selesai diperbaiki oleh teknisi.',
-        'status' => 'selesai',
-        'tanggal_pengaduan' => '03/06/2026',
-        'bukti' => '',
-    ],
-    [
-        'id' => 4,
-        'nama_lengkap' => 'Dewi Lestari',
-        'email' => 'dewi@gmail.com',
-        'nama_kost' => 'Kost Kenanga',
-        'nomor_kamar' => 'KM002',
-        'judul' => 'Kunci kamar rusak',
-        'isi' => 'Kunci kamar saya susah dibuka, harus diputar berkali-kali baru bisa.',
-        'balasan' => '',
-        'status' => 'baru',
-        'tanggal_pengaduan' => '04/06/2026',
-        'bukti' => 'https://placehold.co/400x300.jpg',
-    ],
-    [
-        'id' => 5,
-        'nama_lengkap' => 'Reza Firmansyah',
-        'email' => 'reza@gmail.com',
-        'nama_kost' => 'Kost Cempaka',
-        'nomor_kamar' => 'KM007',
-        'judul' => 'Lampu teras mati',
-        'isi' => 'Lampu teras depan kamar saya sudah mati sejak 4 hari lalu, jadi gelap saat malam.',
-        'balasan' => 'Sedang menunggu pengiriman bohlam baru.',
-        'status' => 'proses',
-        'tanggal_pengaduan' => '05/06/2026',
-        'bukti' => '',
-    ],
-];
-@endphp
-
 <div x-data="{
     modalOpen: false,
     modalType: null,
@@ -122,6 +51,14 @@ $dummyData = [
         description="Lihat semua riwayat pengaduan penghuni">
     </x-page-header>
 
+    {{-- ================= SEARCH ================= --}}
+    <form method="GET" action="{{ route('pengaduan-superadmin.superadmin') }}">
+        <x-search-input
+            name="search"
+            placeholder="Cari nama, email, atau judul pengaduan..."
+            value="{{ $search ?? '' }}" />
+    </form>
+
     {{-- ================= TABLE ================= --}}
     <div class="bg-white rounded-lg p-4 lg:p-6 mt-4 mb-6">
         <div class="overflow-x-auto">
@@ -137,53 +74,67 @@ $dummyData = [
                     </x-table.tr>
                 </thead>
                 <tbody>
-                    @foreach ($dummyData as $pengaduan)
+                    @forelse ($pengaduans as $pengaduan)
                     <x-table.tr>
-                        <x-table.td class="font-medium text-heading">{{ $pengaduan['nama_lengkap'] }}</x-table.td>
-                        <x-table.td>{{ $pengaduan['nama_kost'] }}</x-table.td>
-                        <x-table.td>{{ Str::limit($pengaduan['judul'], 40) }}</x-table.td>
-                        <x-table.td>{{ $pengaduan['tanggal_pengaduan'] }}</x-table.td>
+                        <x-table.td class="font-medium text-heading">
+                            {{ $pengaduan->user->nama ?? '-' }}
+                        </x-table.td>
                         <x-table.td>
-                            @if ($pengaduan['status'] === 'baru')
+                            {{ $pengaduan->user->penghuni->kamar->kost->nama_kost ?? '-' }}
+                        </x-table.td>
+                        <x-table.td>
+                            {{ Str::limit($pengaduan->judul, 40) }}
+                        </x-table.td>
+                        <x-table.td>
+                            {{ $pengaduan->created_at->format('d/m/Y') }}
+                        </x-table.td>
+                        <x-table.td>
+                            @if ($pengaduan->status === 'baru')
                                 <x-badge type="info">Baru</x-badge>
-                            @elseif ($pengaduan['status'] === 'proses')
+                            @elseif ($pengaduan->status === 'proses')
                                 <x-badge type="warning">Diproses</x-badge>
-                            @elseif ($pengaduan['status'] === 'selesai')
+                            @elseif ($pengaduan->status === 'selesai')
                                 <x-badge type="success">Selesai</x-badge>
                             @else
-                                <x-badge type="secondary">{{ $pengaduan['status'] }}</x-badge>
+                                <x-badge type="secondary">{{ $pengaduan->status }}</x-badge>
                             @endif
                         </x-table.td>
                         <x-table.td class="text-center">
                             <x-form.button
                                 type="button"
                                 @click="openModal('detail-pengaduan', {
-                                    id: '{{ $pengaduan['id'] }}',
-                                    nama_lengkap: '{{ $pengaduan['nama_lengkap'] }}',
-                                    email: '{{ $pengaduan['email'] }}',
-                                    nama_kost: '{{ $pengaduan['nama_kost'] }}',
-                                    nomor_kamar: '{{ $pengaduan['nomor_kamar'] }}',
-                                    judul: '{{ $pengaduan['judul'] }}',
-                                    isi: '{{ $pengaduan['isi'] }}',
-                                    balasan: '{{ $pengaduan['balasan'] }}',
-                                    status: '{{ $pengaduan['status'] }}',
-                                    tanggal_pengaduan: '{{ $pengaduan['tanggal_pengaduan'] }}',
-                                    bukti: '{{ $pengaduan['bukti'] }}'
+                                    id: '{{ $pengaduan->id }}',
+                                    nama_lengkap: '{{ addslashes($pengaduan->user->nama ?? '-') }}',
+                                    email: '{{ addslashes($pengaduan->user->email ?? '-') }}',
+                                    nama_kost: '{{ addslashes($pengaduan->user->penghuni->kamar->kost->nama_kost ?? '-') }}',
+                                    nomor_kamar: '{{ addslashes($pengaduan->user->penghuni->nomor_kamar ?? '-') }}',
+                                    judul: '{{ addslashes($pengaduan->judul) }}',
+                                    isi: '{{ addslashes($pengaduan->isi) }}',
+                                    balasan: '{{ addslashes($pengaduan->balasan ?? '') }}',
+                                    status: '{{ $pengaduan->status }}',
+                                    tanggal_pengaduan: '{{ $pengaduan->created_at->format('d/m/Y') }}',
+                                    bukti: '{{ $pengaduan->bukti_pengaduan ? asset('storage/' . $pengaduan->bukti_pengaduan) : '' }}'
                                 })"
                                 class="border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">
                                 Detail
                             </x-form.button>
                         </x-table.td>
                     </x-table.tr>
-                    @endforeach
+                    @empty
+                    <x-table.tr>
+                        <x-table.td colspan="6" class="text-center text-neutral py-10">
+                            {{ $search ? 'Tidak ada hasil untuk "' . $search . '".' : 'Belum ada pengaduan.' }}
+                        </x-table.td>
+                    </x-table.tr>
+                    @endforelse
                 </tbody>
             </x-table.index>
         </div>
-        <p class="text-xs text-neutral mt-3">Menampilkan {{ count($dummyData) }} data</p>
+        <div class="flex items-center justify-between mt-4">
+            <p class="text-xs text-neutral mt-3">Menampilkan {{ $pengaduans->count() }} data</p>
+            {{ $pengaduans->links() }}
+        </div>
     </div>
-
-    {{-- ================= PAGINATION ================= --}}
-    <x-pagination />
 
     {{-- ================= MODAL ================= --}}
     <x-modal show="modalOpen" maxWidth="lg:max-w-[450px] max-w-[350px]">
