@@ -235,29 +235,19 @@
                             <td class="py-4 px-3">
                                 <div class="flex items-center justify-center gap-2">
                                     {{-- DETAIL --}}
-                                    <button
-                                        type="button"
+                                    <x-form.button
                                         @click="kamarStatus = 'kosong'; detailKamarNomor = '{{ $kamar->nomor_kamar }}'; detailKamarPenghuni = '{{ addslashes($kamar->penghuni?->nama ?? '-') }}'; detailKamarTipe = '{{ addslashes($kamar->tipe_kamar) }}'; detailKamarStatus = '{{ $kamar->status }}'; detailKamarHarga = '{{ $kamar->harga }}'; detailKamarFasilitas = '{{ addslashes($kamar->fasilitas ?? '-') }}'; openModal('detail-kamar')"
-                                        class="p-2 rounded-md hover:bg-blue-50 transition">
-                                        <img src="{{ asset('assets/icons/lihat-detail-icon.png') }}" class="w-4 h-4">
-                                    </button>
+                                        class="w-24 !p-2 border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">Detail</x-form.button>
 
                                     {{-- EDIT --}}
-                                    <button
-                                        type="button"
+                                    <x-form.button
                                         @click="editKamarId = '{{ $kamar->id }}'; editKamarNomor = '{{ addslashes($kamar->nomor_kamar) }}'; editKamarPenghuni = '{{ addslashes($kamar->penghuni?->nama ?? '-') }}'; editKamarTipe = '{{ addslashes($kamar->tipe_kamar) }}'; editKamarStatus = '{{ $kamar->status }}'; editKamarHarga = '{{ $kamar->harga }}'; editKamarFasilitas = '{{ addslashes($kamar->fasilitas ?? '-') }}'; kamarStatus = 'kosong'; openModal('edit-kamar')"
-                                        class="p-2 rounded-md hover:bg-yellow-50 transition">
-                                        <img src="{{ asset('assets/icons/edit-icon.png') }}" class="w-4">
-                                    </button>
-
+                                        class="w-24 !p-2 border border-neutral bg-transparent !text-neutral hover:!bg-[#E2E2E2] hover:!border-[#E2E2E2]">Edit</x-form.button>
 
                                     {{-- DELETE --}}
-                                    <button
-                                        type="button"
+                                    <x-form.button
                                         @click="kamarStatus = 'kosong'; deleteKamarId = '{{ $kamar->id }}'; openModal('confirm-delete')"
-                                        class="p-2 rounded-md hover:bg-red-50 transition">
-                                        <img src="{{ asset('assets/icons/delete-icon.png') }}" class="w-4">
-                                    </button>
+                                        class="w-24 !p-2 border border-[#E73D2E] bg-transparent !text-[#E73D2E] hover:!bg-[#FFC5BF] hover:!border-[#FFC5BF]">Hapus</x-form.button>
                                 </div>
                             </td>
                         </tr>

@@ -19,7 +19,8 @@ class Kamar extends Model
         'penghuni_id',
     ];
 
-    public function kost() {
+    public function kost()
+    {
         return $this->belongsTo(Kost::class, 'kode_kost');
     }
 
@@ -30,6 +31,6 @@ class Kamar extends Model
 
     public function penghuni()
     {
-        return $this->hasMany(Penghuni::class);
+        return $this->belongsTo(Penghuni::class);
     }
 }
