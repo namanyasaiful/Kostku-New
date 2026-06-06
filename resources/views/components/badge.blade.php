@@ -9,6 +9,7 @@ $classes = match($type) {
 'danger' => 'bg-[#FFC5BF] text-[#B43024]',
 'neutral' => 'bg-[#E2E2E2] text-[#4D4D4D]',
 'info' => 'bg-secondary text-primary',
+'purple' => 'bg-purple-100 text-purple-700',
 default => 'bg-gray-100 text-neutral border border-2 border-[#E2E2E2]',
 };
 @endphp
