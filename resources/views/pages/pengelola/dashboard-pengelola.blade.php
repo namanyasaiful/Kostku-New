@@ -61,7 +61,6 @@
             </div>
         </div>
 
-
         {{-- Kamar Terisi --}}
         <div class="flex flex-col justify-between bg-white border border-none rounded-xl p-4 lg:p-5">
             <div class="flex justify-between">
@@ -75,7 +74,7 @@
                 </div>
                 <img
                     src="{{ asset('assets/icons/kamar-terisi-icon.png') }}"
-                    alt="Total Penghuni"
+                    alt="Kamar Terisi"
                     class="w-9 h-9 lg:w-14 lg:h-14 mb-4">
             </div>
             <div class="flex gap-2 items-center">
@@ -83,8 +82,6 @@
                 <p class="lg:text-sm text-xs text-neutral">Naik dari hari kemarin</p>
             </div>
         </div>
-
-
 
         {{-- Kamar Kosong --}}
         <div class="flex flex-col justify-between bg-white border border-none rounded-xl p-4 lg:p-5">
@@ -99,15 +96,14 @@
                 </div>
                 <img
                     src="{{ asset('assets/icons/kamar-kosong-icon.png') }}"
-                    alt="Total Penghuni"
+                    alt="Kamar Kosong"
                     class="w-9 h-9 lg:w-14 lg:h-14 mb-4">
             </div>
             <div class="flex gap-2 items-center">
                 <img src="{{ asset('assets/icons/down-icon.png') }}" alt="Turun" class="lg:w-6 w-4">
-                <p class="lg:text-sm text-xs text-neutral">Turung dari hari kemarin</p>
+                <p class="lg:text-sm text-xs text-neutral">Turun dari hari kemarin</p>
             </div>
         </div>
-
 
         {{-- Pendapatan --}}
         <div class="flex flex-col justify-between bg-white border border-none rounded-xl p-4 lg:p-5">
@@ -122,7 +118,7 @@
                 </div>
                 <img
                     src="{{ asset('assets/icons/pendapatan-icon.png') }}"
-                    alt="Total Penghuni"
+                    alt="Pendapatan"
                     class="w-9 h-9 lg:w-14 lg:h-14 mb-4">
             </div>
             <div class="flex gap-2 items-center">
