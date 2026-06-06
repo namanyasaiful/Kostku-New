@@ -11,7 +11,6 @@
     namaLengkap: '',
     email: '',
     namaKost: '',
-    nomorKamar: '',
     judul: '',
     isi: '',
     balasan: '',
@@ -25,7 +24,6 @@
             this.namaLengkap = data.nama_lengkap || '';
             this.email = data.email || '';
             this.namaKost = data.nama_kost || '';
-            this.nomorKamar = data.nomor_kamar || '';
             this.judul = data.judul || '';
             this.isi = data.isi || '';
             this.balasan = data.balasan || '';
@@ -55,7 +53,7 @@
     <form method="GET" action="{{ route('pengaduan-superadmin.superadmin') }}">
         <x-search-input
             name="search"
-            placeholder="Cari nama, email, atau judul pengaduan..."
+            placeholder="Cari"
             value="{{ $search ?? '' }}" />
     </form>
 
@@ -107,7 +105,6 @@
                                     nama_lengkap: '{{ addslashes($pengaduan->user->nama ?? '-') }}',
                                     email: '{{ addslashes($pengaduan->user->email ?? '-') }}',
                                     nama_kost: '{{ addslashes($pengaduan->user->penghuni->kamar->kost->nama_kost ?? '-') }}',
-                                    nomor_kamar: '{{ addslashes($pengaduan->user->penghuni->nomor_kamar ?? '-') }}',
                                     judul: '{{ addslashes($pengaduan->judul) }}',
                                     isi: '{{ addslashes($pengaduan->isi) }}',
                                     balasan: '{{ addslashes($pengaduan->balasan ?? '') }}',

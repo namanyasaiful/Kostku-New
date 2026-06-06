@@ -1,96 +1,24 @@
 @extends('layouts.superadmin')
-@section('title', 'Pembayaran')
+@section('title', 'Pembayaran - Super Admin')
 
 @section('content')
 
-{{-- DATA DUMMY --}}
-@php
-$dummyData = [
-    [
-        'id' => 1,
-        'nama' => 'Budi Santoso',
-        'nama_kost' => 'Kost Melati',
-        'tanggal_pembayaran' => '04/05/2026',
-        'nominal' => 'Rp500.000',
-        'jenis' => 'Bayar Lunas',
-        'status' => 'Lunas',
-        'periode' => 'Mei 2026',
-        'nomor_transaksi' => 'TRS001',
-        'metode' => 'Transfer Bank',
-        'waktu' => '04/05/2026 10.30',
-    ],
-    [
-        'id' => 2,
-        'nama' => 'Siti Rahayu',
-        'nama_kost' => 'Kost Mawar',
-        'tanggal_pembayaran' => '05/05/2026',
-        'nominal' => 'Rp250.000',
-        'jenis' => 'Cicilan 1',
-        'status' => 'Belum Lunas',
-        'periode' => 'Mei 2026',
-        'nomor_transaksi' => 'TRS002',
-        'metode' => 'Dana',
-        'waktu' => '05/05/2026 09.15',
-    ],
-    [
-        'id' => 3,
-        'nama' => 'Ahmad Fauzi',
-        'nama_kost' => 'Kost Anggrek',
-        'tanggal_pembayaran' => '06/05/2026',
-        'nominal' => 'Rp250.000',
-        'jenis' => 'Cicilan 2',
-        'status' => 'Lunas',
-        'periode' => 'Mei 2026',
-        'nomor_transaksi' => 'TRS003',
-        'metode' => 'GoPay',
-        'waktu' => '06/05/2026 14.00',
-    ],
-    [
-        'id' => 4,
-        'nama' => 'Dewi Lestari',
-        'nama_kost' => 'Kost Kenanga',
-        'tanggal_pembayaran' => '07/05/2026',
-        'nominal' => 'Rp500.000',
-        'jenis' => 'Bayar Lunas',
-        'status' => 'Lunas',
-        'periode' => 'Mei 2026',
-        'nomor_transaksi' => 'TRS004',
-        'metode' => 'OVO',
-        'waktu' => '07/05/2026 11.45',
-    ],
-    [
-        'id' => 5,
-        'nama' => 'Reza Firmansyah',
-        'nama_kost' => 'Kost Cempaka',
-        'tanggal_pembayaran' => '08/05/2026',
-        'nominal' => 'Rp250.000',
-        'jenis' => 'Cicilan 1',
-        'status' => 'Belum Lunas',
-        'periode' => 'Mei 2026',
-        'nomor_transaksi' => 'TRS005',
-        'metode' => 'Dana',
-        'waktu' => '08/05/2026 08.00',
-    ],
-];
-@endphp
+<div x-data="{
+    modalOpen: false,
+    modalType: null,
+    selectedPembayaran: {},
 
-<div
-    x-data="{
-        modalOpen: false,
-        modalType: null,
-        selectedPembayaran: {},
+    openModal(type, data = {}) {
+        this.selectedPembayaran = data;
+        this.modalOpen = true;
+        this.modalType = type;
+    },
 
-        openModal(type, data = {}) {
-            this.selectedPembayaran = data;
-            this.modalOpen = true;
-            this.modalType = type;
-        },
-
-        closeModal() {
-            this.modalOpen = false;
-            this.modalType = null;
-        }
-    }">
+    closeModal() {
+        this.modalOpen = false;
+        this.modalType = null;
+    }
+}">
 
     {{-- ================= PAGE HEADER ================= --}}
     <x-page-header
@@ -99,9 +27,12 @@ $dummyData = [
     </x-page-header>
 
     {{-- ================= SEARCH ================= --}}
-    <x-search-input
-        name="search_pembayaran"
-        placeholder="Cari" />
+    <form method="GET" action="{{ route('pembayaran-superadmin.superadmin') }}">
+        <x-search-input
+            name="search"
+            placeholder="Cari"
+            value="{{ $search ?? '' }}" />
+    </form>
 
     {{-- ================= TABLE ================= --}}
     <div class="bg-white rounded-lg p-4 lg:p-6 mt-4 mb-6">
@@ -119,15 +50,29 @@ $dummyData = [
                     </x-table.tr>
                 </thead>
                 <tbody>
-                    @foreach($dummyData as $pembayaran)
+                    @forelse ($pembayarans as $pembayaran)
                     <x-table.tr>
-                        <x-table.td class="font-medium">{{ $pembayaran['nama'] }}</x-table.td>
-                        <x-table.td>{{ $pembayaran['nama_kost'] }}</x-table.td>
-                        <x-table.td>{{ $pembayaran['tanggal_pembayaran'] }}</x-table.td>
-                        <x-table.td>{{ $pembayaran['nominal'] }}</x-table.td>
-                        <x-table.td>{{ $pembayaran['jenis'] }}</x-table.td>
+                        <x-table.td class="font-medium">
+                            {{ $pembayaran->user->nama ?? '-' }}
+                        </x-table.td>
                         <x-table.td>
-                            @if($pembayaran['status'] === 'Lunas')
+                            {{ $pembayaran->user->penghuni->kamar->kost->nama_kost ?? '-' }}
+                        </x-table.td>
+                        <x-table.td>
+                            {{ \Carbon\Carbon::parse($pembayaran->tanggal_pembayaran)->format('d/m/Y') }}
+                        </x-table.td>
+                        <x-table.td>
+                            Rp{{ number_format($pembayaran->nominal, 0, ',', '.') }}
+                        </x-table.td>
+                        <x-table.td>
+                            @if ($pembayaran->tipe_pembayaran === 'lunas')
+                                Bayar Lunas
+                            @else
+                                Cicilan {{ $pembayaran->jumlah_cicilan }}
+                            @endif
+                        </x-table.td>
+                        <x-table.td>
+                            @if ($pembayaran->status === 'lunas')
                                 <x-badge type="success">Lunas</x-badge>
                             @else
                                 <x-badge type="danger">Belum Lunas</x-badge>
@@ -136,30 +81,35 @@ $dummyData = [
                         <x-table.td class="text-center">
                             <x-form.button
                                 @click.prevent="openModal('detail-pembayaran', {
-                                    nama: '{{ $pembayaran['nama'] }}',
-                                    nama_kost: '{{ $pembayaran['nama_kost'] }}',
-                                    periode: '{{ $pembayaran['periode'] }}',
-                                    nomor_transaksi: '{{ $pembayaran['nomor_transaksi'] }}',
-                                    jenis: '{{ $pembayaran['jenis'] }}',
-                                    metode: '{{ $pembayaran['metode'] }}',
-                                    waktu: '{{ $pembayaran['waktu'] }}',
-                                    nominal: '{{ $pembayaran['nominal'] }}',
-                                    status: '{{ $pembayaran['status'] }}'
+                                    nama: '{{ addslashes($pembayaran->user->nama ?? '-') }}',
+                                    nama_kost: '{{ addslashes($pembayaran->user->penghuni->kamar->kost->nama_kost ?? '-') }}',
+                                    nomor_transaksi: '{{ $pembayaran->id_pembayaran }}',
+                                    jenis: '{{ $pembayaran->tipe_pembayaran === 'lunas' ? 'Bayar Lunas' : 'Cicilan ' . $pembayaran->jumlah_cicilan }}',
+                                    metode: '{{ addslashes($pembayaran->payment_type ?? '-') }}',
+                                    waktu: '{{ $pembayaran->paid_at ? \Carbon\Carbon::parse($pembayaran->paid_at)->format('d/m/Y H.i') : '-' }}',
+                                    nominal: 'Rp{{ number_format($pembayaran->nominal, 0, ',', '.') }}',
+                                    status: '{{ $pembayaran->status === 'lunas' ? 'Lunas' : 'Belum Lunas' }}'
                                 })"
                                 class="border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">
                                 Detail
                             </x-form.button>
                         </x-table.td>
                     </x-table.tr>
-                    @endforeach
+                    @empty
+                    <x-table.tr>
+                        <x-table.td colspan="7" class="text-center text-neutral py-10">
+                            {{ $search ? 'Tidak ada hasil untuk "' . $search . '".' : 'Belum ada pembayaran.' }}
+                        </x-table.td>
+                    </x-table.tr>
+                    @endforelse
                 </tbody>
             </x-table.index>
         </div>
-        <p class="text-xs text-neutral mt-3">Menampilkan {{ count($dummyData) }} data</p>
+        <div class="flex items-center justify-between mt-4">
+            <p class="text-xs text-neutral mt-3">Menampilkan {{ $pembayarans->count() }} data</p>
+            {{ $pembayarans->links() }}
+        </div>
     </div>
-
-    {{-- ================= PAGINATION ================= --}}
-    <x-pagination />
 
     {{-- ================= MODAL ================= --}}
     <x-modal show="modalOpen" maxWidth="lg:max-w-[500px] max-w-[350px]">
@@ -176,23 +126,19 @@ $dummyData = [
                 <h2 class="text-xl font-bold mb-8">Struk Pembayaran</h2>
 
                 <div class="flex flex-col gap-4">
-
                     <div class="grid grid-cols-3 gap-4 items-start">
                         <div class="flex flex-col gap-1">
                             <p class="text-neutral text-xs">Nama Lengkap</p>
                             <p class="text-black text-xs font-semibold" x-text="selectedPembayaran.nama"></p>
                         </div>
-
                         <div class="flex flex-col gap-1">
                             <p class="text-neutral text-xs">Nama Kost</p>
                             <p class="text-black text-xs font-semibold" x-text="selectedPembayaran.nama_kost"></p>
                         </div>
-
                         <div class="flex justify-end">
                             <template x-if="selectedPembayaran.status === 'Lunas'">
                                 <x-badge type="success">Lunas</x-badge>
                             </template>
-
                             <template x-if="selectedPembayaran.status === 'Belum Lunas'">
                                 <x-badge type="danger">Belum Lunas</x-badge>
                             </template>
@@ -201,10 +147,6 @@ $dummyData = [
                     <hr>
 
                     <div class="flex flex-col gap-4">
-                        <div class="w-full flex justify-between">
-                            <p class="text-xs text-neutral">Periode</p>
-                            <p class="text-xs text-black font-semibold" x-text="selectedPembayaran.periode"></p>
-                        </div>
                         <div class="w-full flex justify-between">
                             <p class="text-xs text-neutral">Nomor Transaksi</p>
                             <p class="text-xs text-black font-semibold" x-text="selectedPembayaran.nomor_transaksi"></p>
@@ -227,7 +169,7 @@ $dummyData = [
                         <p class="text-xs text-black font-medium">Total Dibayar</p>
                         <p class="text-sm font-semibold text-primary" x-text="selectedPembayaran.nominal"></p>
                     </div>
-                        <x-badge type="success" class="text-center">Pembayaran Berhasil</x-badge>
+                    <x-badge type="success" class="text-center">Pembayaran Berhasil</x-badge>
 
                 </div>
             </div>
