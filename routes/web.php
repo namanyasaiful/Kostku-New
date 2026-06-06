@@ -185,6 +185,8 @@ Route::controller(PenilaianPenghuniController::class)->group(function () {
 // Pengaduan - superadmin
 Route::controller(PengaduanSuperAdminController::class)->group(function () {
     Route::get('/superadmin/pengaduan-superadmin', 'viewPengaduanSuperAdmin')->name('pengaduan-superadmin.superadmin');
+    Route::get('/superadmin/pengaduan', 'index')->name('pengaduan.superadmin');
+    Route::get('/superadmin/pengaduan/{pengaduan}', 'show')->name('pengaduan.superadmin.show');
 });
 
 // Pembayaran - superadmin
