@@ -14,37 +14,45 @@
 
     {{-- ================= INFORMATION CARD ================= --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-4 mb-4">
-        <div class="bg-white border border-green-400 rounded-md p-4 lg:p-5">
-
-            <img
-                src="{{ asset('assets/icons/pengelola-pembayaran-pendapatan-icon.png') }}"
-                alt="Kamar Terisi"
-                class="w-9 h-9 lg:w-10 lg:h-10 mb-4">
-
-            <p class="text-xs lg:text-sm text-black mb-1">
-                Pendapatan Bulan ini
-            </p>
-
-            <h2 class="text-2xl lg:text-3xl font-bold text-green-500">
-                Rp. 1000.000
-            </h2>
-
+        <div class="flex flex-col justify-between bg-white border border-none rounded-xl p-4 lg:p-5">
+            <div class="flex justify-between">
+                <div class="flex flex-col gap-1">
+                    <p class="text-xs lg:text-sm text-black">
+                        Pendapatan Bulan Ini
+                    </p>
+                    <h2 class="text-xl lg:text-2xl font-bold text-black">
+                        Rp1.000.000
+                    </h2>
+                </div>
+                <img
+                    src="{{ asset('assets/icons/pendapatan-vers2-icon.png') }}"
+                    alt="Total Penghuni"
+                    class="w-9 h-9 lg:w-14 lg:h-14 mb-4">
+            </div>
+            <div class="flex gap-2 items-center">
+                <img src="{{ asset('assets/icons/down-icon.png') }}" alt="Turun" class="lg:w-6 w-4">
+                <p class="lg:text-sm text-xs text-neutral">Turun dari bulan kemarin</p>
+            </div>
         </div>
-        <div class="bg-white border border-primary rounded-md p-4 lg:p-5">
-
-            <img
-                src="{{ asset('assets/icons/pengelola-dashboard-pendapatan-icon.png') }}"
-                alt="Pendapatan"
-                class="w-9 h-9 lg:w-10 lg:h-10 mb-4">
-
-            <p class="text-xs lg:text-sm text-black mb-1">
-                Total Transaksi
-            </p>
-
-            <h2 class="text-xl lg:text-2xl font-bold text-primary break-words">
-                3
-            </h2>
-
+        <div class="flex flex-col justify-between bg-white border border-none rounded-xl p-4 lg:p-5">
+            <div class="flex justify-between">
+                <div class="flex flex-col gap-1">
+                    <p class="text-xs lg:text-sm text-black">
+                        Total Transaksi
+                    </p>
+                    <h2 class="text-xl lg:text-2xl font-bold text-black">
+                        3
+                    </h2>
+                </div>
+                <img
+                    src="{{ asset('assets/icons/pendapatan-icon.png') }}"
+                    alt="Total Penghuni"
+                    class="w-9 h-9 lg:w-14 lg:h-14 mb-4">
+            </div>
+            <div class="flex gap-2 items-center">
+                <img src="{{ asset('assets/icons/up-icon.png') }}" alt="Naik" class="lg:w-6 w-4">
+                <p class="lg:text-sm text-xs text-neutral">Naik dari hari kemarin</p>
+            </div>
         </div>
     </div>
 
@@ -97,19 +105,9 @@
                         Lunas
                     </x-table.td>
                     <x-table.td>
-
-                        <a
-                            href="#"
+                        <x-form.button
                             @click.prevent="openModal('detail-pembayaran')"
-                            class="w-8 flex justify-center cursor-pointer">
-
-                            <img
-                                src="{{ asset('assets/icons/lihat-detail-icon.png') }}"
-                                alt="Lihat Detail"
-                                class="w-4 h-4">
-
-                        </a>
-
+                            class="w-24 !p-2 border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">Detail</x-form.button>
                     </x-table.td>
                 </x-table.tr>
             </tbody>
@@ -148,7 +146,7 @@
 
                 <div class="flex flex-col gap-4">
 
-                    <div class="flex gap-28">
+                    <div class="flex justify-between">
                         <div class="flex flex-col gap-1">
                             <p class="text-neutral text-xs">Nama Lengkap</p>
                             <p class="text-black text-xs font-semibold">Anton Subagja</p>
@@ -157,6 +155,7 @@
                             <p class="text-neutral text-xs">Nama Kost</p>
                             <p class="text-black text-xs font-semibold">Kost Jaya Abadi</p>
                         </div>
+                        <x-badge type="success" class="!text-[10px] !p-1  !h-fit">Lunas</x-badge>
                     </div>
                     <hr>
 

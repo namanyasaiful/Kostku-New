@@ -12,84 +12,123 @@
 
     </x-page-header>
 
+    {{-- ================= KOST INFORMATION ================= --}}
+    <x-card>
+        <div>
+            <h1 class="lg:text-xl text-md font-bold text-primary mb-4">Informasi Kost Anda</h1>
+            <div class="flex flex-row lg:gap-96 gap-10">
+                <div class="flex lg:gap-4 gap-3 items-center">
+                    <img src="{{ asset('assets/icons/kamar-icon-active.png') }}" alt="Kost" class="w-4 h-auto mb-4">
+                    <div class="flex flex-col">
+                        <p class="text-xs text-neutral mb-1">Nama Kost</p>
+                        <p class="text-black text-sm font-bold">Kost Jaya Abadi</p>
+                    </div>
+                </div>
+                <div class="flex lg:gap-4 gap-2 items-center">
+                    <img src="{{ asset('assets/icons/key-icon.png') }}" alt="Key" class="w-5 h-auto mb-4">
+                    <div class="flex flex-col">
+                        <p class="text-xs text-neutral mb-1">Kode Kost</p>
+                        <p class="text-black text-sm font-bold">JYABD1</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </x-card>
+
 
     {{-- ================= CARD STATISTIK ================= --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
 
         {{-- Total Penghuni --}}
-        <div class="bg-white border border-yellow-400 rounded-md p-4 lg:p-5">
-
-            <img
-                src="{{ asset('assets/icons/pengelola-dashboard-jumlahpenghuni-icon.png') }}"
-                alt="Total Penghuni"
-                class="w-9 h-9 lg:w-10 lg:h-10 mb-4">
-
-            <p class="text-xs lg:text-sm text-black mb-1">
-                Total Penghuni
-            </p>
-
-            <h2 class="text-2xl lg:text-3xl font-bold text-yellow-500">
-                3
-            </h2>
-
+        <div class="flex flex-col justify-between bg-white border border-none rounded-xl p-4 lg:p-5">
+            <div class="flex justify-between">
+                <div class="flex flex-col gap-1">
+                    <p class="text-xs lg:text-sm text-black">
+                        Total Penghuni
+                    </p>
+                    <h2 class="text-xl lg:text-2xl font-bold text-black">
+                        3
+                    </h2>
+                </div>
+                <img
+                    src="{{ asset('assets/icons/total-penghuni-icon.png') }}"
+                    alt="Total Penghuni"
+                    class="w-9 h-9 lg:w-14 lg:h-14 mb-4">
+            </div>
+            <div class="flex gap-2 items-center">
+                <img src="{{ asset('assets/icons/up-icon.png') }}" alt="Naik" class="lg:w-6 w-4">
+                <p class="lg:text-sm text-xs text-neutral">Naik dari hari kemarin</p>
+            </div>
         </div>
 
 
         {{-- Kamar Terisi --}}
-        <div class="bg-white border border-green-400 rounded-md p-4 lg:p-5">
-
-            <img
-                src="{{ asset('assets/icons/pengelola-dashboard-kamarterisi-icon.png') }}"
-                alt="Kamar Terisi"
-                class="w-9 h-9 lg:w-10 lg:h-10 mb-4">
-
-            <p class="text-xs lg:text-sm text-black mb-1">
-                Kamar Terisi
-            </p>
-
-            <h2 class="text-2xl lg:text-3xl font-bold text-green-500">
-                3
-            </h2>
-
+        <div class="flex flex-col justify-between bg-white border border-none rounded-xl p-4 lg:p-5">
+            <div class="flex justify-between">
+                <div class="flex flex-col gap-1">
+                    <p class="text-xs lg:text-sm text-black">
+                        Kamar Terisi
+                    </p>
+                    <h2 class="text-xl lg:text-2xl font-bold text-black">
+                        3
+                    </h2>
+                </div>
+                <img
+                    src="{{ asset('assets/icons/kamar-terisi-icon.png') }}"
+                    alt="Total Penghuni"
+                    class="w-9 h-9 lg:w-14 lg:h-14 mb-4">
+            </div>
+            <div class="flex gap-2 items-center">
+                <img src="{{ asset('assets/icons/up-icon.png') }}" alt="Naik" class="lg:w-6 w-4">
+                <p class="lg:text-sm text-xs text-neutral">Naik dari hari kemarin</p>
+            </div>
         </div>
 
 
 
         {{-- Kamar Kosong --}}
-        <div class="bg-white border border-red-400 rounded-md p-4 lg:p-5">
-
-            <img
-                src="{{ asset('assets/icons/pengelola-dashboard-kamarkosong-icon.png') }}"
-                alt="Kamar Kosong"
-                class="w-9 h-9 lg:w-10 lg:h-10 mb-4">
-
-            <p class="text-xs lg:text-sm text-black mb-1">
-                Kamar Kosong
-            </p>
-
-            <h2 class="text-2xl lg:text-3xl font-bold text-red-500">
-                3
-            </h2>
-
+        <div class="flex flex-col justify-between bg-white border border-none rounded-xl p-4 lg:p-5">
+            <div class="flex justify-between">
+                <div class="flex flex-col gap-1">
+                    <p class="text-xs lg:text-sm text-black">
+                        Kamar Kosong
+                    </p>
+                    <h2 class="text-xl lg:text-2xl font-bold text-black">
+                        3
+                    </h2>
+                </div>
+                <img
+                    src="{{ asset('assets/icons/kamar-kosong-icon.png') }}"
+                    alt="Total Penghuni"
+                    class="w-9 h-9 lg:w-14 lg:h-14 mb-4">
+            </div>
+            <div class="flex gap-2 items-center">
+                <img src="{{ asset('assets/icons/down-icon.png') }}" alt="Turun" class="lg:w-6 w-4">
+                <p class="lg:text-sm text-xs text-neutral">Turung dari hari kemarin</p>
+            </div>
         </div>
 
 
         {{-- Pendapatan --}}
-        <div class="bg-white border border-primary rounded-md p-4 lg:p-5">
-
-            <img
-                src="{{ asset('assets/icons/pengelola-dashboard-pendapatan-icon.png') }}"
-                alt="Pendapatan"
-                class="w-9 h-9 lg:w-10 lg:h-10 mb-4">
-
-            <p class="text-xs lg:text-sm text-black mb-1">
-                Pendapatan Bulan Ini
-            </p>
-
-            <h2 class="text-xl lg:text-2xl font-bold text-primary break-words">
-                Rp1.000.000
-            </h2>
-
+        <div class="flex flex-col justify-between bg-white border border-none rounded-xl p-4 lg:p-5">
+            <div class="flex justify-between">
+                <div class="flex flex-col gap-1">
+                    <p class="text-xs lg:text-sm text-black">
+                        Pendapatan Bulan Ini
+                    </p>
+                    <h2 class="text-xl lg:text-2xl font-bold text-black">
+                        Rp.1.000.000
+                    </h2>
+                </div>
+                <img
+                    src="{{ asset('assets/icons/pendapatan-icon.png') }}"
+                    alt="Total Penghuni"
+                    class="w-9 h-9 lg:w-14 lg:h-14 mb-4">
+            </div>
+            <div class="flex gap-2 items-center">
+                <img src="{{ asset('assets/icons/up-icon.png') }}" alt="Naik" class="lg:w-6 w-4">
+                <p class="lg:text-sm text-xs text-neutral">Naik dari hari kemarin</p>
+            </div>
         </div>
 
     </div>
@@ -187,9 +226,7 @@
                         P001 - Anto Subagja
                     </p>
 
-                    <span class="px-3 py-1 rounded-lg text-[10px] lg:text-xs bg-red-200 text-red-700">
-                        Baru
-                    </span>
+                    <x-badge type="info">Baru</x-badge>
 
                 </div>
 
@@ -199,9 +236,7 @@
                         P002 - Tono Sukamto
                     </p>
 
-                    <span class="px-3 py-1 rounded-lg text-[10px] lg:text-xs bg-yellow-200 text-yellow-700">
-                        Proses
-                    </span>
+                    <x-badge type="warning">Proses</x-badge>
 
                 </div>
 
@@ -211,9 +246,7 @@
                         P003 - Saifullah Fattah
                     </p>
 
-                    <span class="px-3 py-1 rounded-lg text-[10px] lg:text-xs bg-green-200 text-green-700">
-                        Selesai
-                    </span>
+                    <x-badge type="success">Selesai</x-badge>
 
                 </div>
 
