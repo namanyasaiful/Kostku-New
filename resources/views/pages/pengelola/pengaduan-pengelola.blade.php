@@ -90,34 +90,33 @@
             <tbody>
 
                 @foreach ($pengaduans as $pengaduan)
-                    <x-table.tr>
-                        <x-table.td class="font-medium text-heading">
-                            {{ $pengaduan->user->nama }}
-                        </x-table.td>
+                <x-table.tr>
+                    <x-table.td class="font-medium text-heading">
+                        {{ $pengaduan->user->nama }}
+                    </x-table.td>
 
-                        <x-table.td class="font-medium text-heading">
-                            {{ $pengaduan->user->penghuni->first()->kamar->nomor_kamar ?? '-' }}
-                        </x-table.td>
+                    <x-table.td class="font-medium text-heading">
+                        {{ $pengaduan->user->penghuni->first()->kamar->nomor_kamar ?? '-' }}
+                    </x-table.td>
 
-                        <x-table.td class="font-medium text-heading">
-                            {{ $pengaduan->created_at->format('d/m/Y') }}
-                        </x-table.td>
+                    <x-table.td class="font-medium text-heading">
+                        {{ $pengaduan->created_at->format('d/m/Y') }}
+                    </x-table.td>
 
-                        <x-table.td>
-                            @if ($pengaduan->status === 'baru')
-                                <x-badge type="danger">Baru</x-badge>
-                            @elseif($pengaduan->status === 'proses')
-                                <x-badge type="warning">Diproses</x-badge>
-                            @elseif($pengaduan->status === 'selesai')
-                                <x-badge type="success">Selesai</x-badge>
-                            @endif
-                        </x-table.td>
+                    <x-table.td>
+                        @if ($pengaduan->status === 'baru')
+                        <x-badge type="info">Baru</x-badge>
+                        @elseif($pengaduan->status === 'proses')
+                        <x-badge type="warning">Diproses</x-badge>
+                        @elseif($pengaduan->status === 'selesai')
+                        <x-badge type="success">Selesai</x-badge>
+                        @endif
+                    </x-table.td>
 
-                        {{-- ================= DETAIL BUTTON ================= --}}
-                        <x-table.td>
-                            <a
-                                href="#"
-                                @click.prevent="openModal('detail-pengaduan', {
+                    {{-- ================= DETAIL BUTTON ================= --}}
+                    <x-table.td>
+                        <x-form.button
+                            @click.prevent="openModal('detail-pengaduan', {
                                     id: {{ $pengaduan->id }},
                                     judul: '{{ addslashes($pengaduan->judul) }}',
                                     isi: '{{ addslashes($pengaduan->isi) }}',
@@ -126,16 +125,9 @@
                                     status: '{{ $pengaduan->status }}',
                                     balasan: '{{ addslashes($pengaduan->balasan) }}'
                                 })"
-                                class="w-28 flex justify-center cursor-pointer">
-
-                                <img
-                                    src="{{ asset('assets/icons/lihat-detail-icon.png') }}"
-                                    alt="Lihat Detail"
-                                    class="w-4 h-4">
-
-                            </a>
-                        </x-table.td>
-                    </x-table.tr>
+                            class="w-24 !p-2 border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">Detail</x-form.button>
+                    </x-table.td>
+                </x-table.tr>
                 @endforeach
 
             </tbody>
@@ -145,15 +137,13 @@
     </x-card>
 
     {{-- ================= PAGINATION ================= --}}
-    <div class="mt-4">
-        {{ $pengaduans->links() }}
-    </div>
+    <x-pagination />
 
     {{-- ================= MODAL ================= --}}
-    <x-modal show="modalOpen" maxWidth="lg:max-w-[500px] max-w-[350px]">
+    <x-modal show="modalOpen" maxWidth="lg:max-w-[450px] max-w-[350px]">
 
         {{-- ================= DETAIL PENGADUAN ================= --}}
-        <template x-if="modalType === 'detail-pengaduan'">
+        <!-- <template x-if="modalType === 'detail-pengaduan'">
 
             <div class="relative">
 
@@ -237,6 +227,96 @@
 
             </div>
 
+        </template> -->
+        <template x-if="modalType === 'detail-pengaduan'">
+            <div class="lg:!max-w-[450px] !max-w-[350px] -mx-8 -my-16 p-8 bg-[#f5f6fa] rounded-md">
+                <div class="relative">
+                    <button
+                        type="button"
+                        class="absolute top-0 right-0 text-neutral hover:text-black text-xl font-bold"
+                        @click="modalOpen = false; modalType = null;">
+                        ✕
+                    </button>
+                    <h2 class="text-xl font-bold mb-8">Detail Pengaduan</h2>
+                    <div class="flex flex-col gap-4 lg:h-[450px] h-[300px] overflow-auto">
+                        <div>
+                            <div class="bg-white rounded-md shadow-md lg:px-4 px-2 lg:py-5 py-3">
+                                <div class="flex lg:gap-12 gap-4 mb-2">
+                                    <div>
+                                        <label for="nama" class="lg:text-xs text-[10px] text-neutral">Nama</label>
+                                        <p class="lg:text-md text-[12px] font-medium">Anton Subagja</p>
+                                    </div>
+                                    <div>
+                                        <label for="nama" class="lg:text-xs text-[10px] text-neutral">Kamar</label>
+                                        <p class="lg:text-md text-[12px] font-medium">KM001</p>
+                                    </div>
+                                    <div>
+                                        <label for="nama" class="lg:text-xs text-[10px] text-neutral">Tanggal Pengaduan</label>
+                                        <p class="lg:text-md text-[12px] font-medium" x-text="tanggalPengaduan"></p>
+                                    </div>
+                                </div>
+                                <hr class="mb-2">
+                                <div class="flex justify-between h-32">
+                                    <div class="w-60 h-full overflow-auto">
+                                        <p class="lg:text-md text-xs text-black font-medium mb-1" x-text="judul"></p>
+                                        <p class="text-xs text-neutral mb-3" x-text="isi"></p>
+                                    </div>
+                                    <div x-show="bukti" class="lg:w-28 w-32 lg:pl-3 pl-2">
+                                        <label class="lg:text-xs text-[10px] text-black font-medium mb-1 block">Bukti</label>
+                                        {{-- Jika gambar (jpg/png) --}}
+                                        <template x-if="bukti && (bukti.endsWith('.jpg') || bukti.endsWith('.jpeg') || bukti.endsWith('.png'))">
+                                            <a :href="bukti" target="_blank">
+                                                <img
+                                                    :src="bukti"
+                                                    class="lg:w-24 w-20 lg:h-24 h-20 object-cover rounded-md border border-gray-200 hover:opacity-80 transition">
+                                            </a>
+                                        </template>
+                                        {{-- Jika PDF --}}
+                                        <template x-if="bukti && bukti.endsWith('.pdf')">
+                                            :href="bukti"
+                                            target="_blank"
+                                            class="flex items-center gap-2 text-xs text-primary underline hover:opacity-80 transition">
+                                            <img src="{{ asset('assets/icons/pdf-icon.png') }}" class="lg:w-10 w-8 lg:h-10 h-8">
+                                            Lihat PDF
+                                            </a>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-md shadow-md lg:px-4 px-2 lg:py-5 py-3">
+                            <label class="block text-sm font-medium text-black mb-1">Respon Anda (Opsional)</label>
+                            <p class="text-xs text-neutral mb-2">Anda hanya dapat membalas sekali dan tidak dapat dibatalkan</p>
+                            <x-form.textarea
+                                name="balasan"
+                                x-model="balasan"
+                                rows="3"
+                                placeholder="Tulis respon untuk pengaduan ini"
+                                class="bg-[#F8F8F8] text-xs mb-2" />
+                            <x-form.button type="submit">
+                                Kirim Pengaduan
+                            </x-form.button>
+                        </div>
+                        <div class="bg-white rounded-md shadow-md lg:px-4 px-2 lg:py-5 py-3">
+                            <label class="block text-sm font-medium text-black mb-1">Status</label>
+                            <x-form.select
+                                name="status-pengaduan"
+                                x-model="selectedStatus"
+                                class="!bg-[#F8F8F8] border-[#E2E2E2] text-xs mb-4">
+                                <option value="proses">
+                                    Diproses
+                                </option>
+                                <option value="selesai">
+                                    Selesai
+                                </option>
+                            </x-form.select>
+                            <x-form.button type="submit">
+                                Kirim Status
+                            </x-form.button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </template>
 
         {{-- ================= SUCCESS MODAL ================= --}}
@@ -266,7 +346,7 @@
 
                     <template x-if="status === 'selesai'">
                         <span>
-                            Pengaduan berhasil diselesaikan
+                            Status disimpan
                         </span>
                     </template>
 

@@ -21,7 +21,7 @@ use App\Http\Controllers\Pengelola\KamarPengelolaController;
 use App\Http\Controllers\Pengelola\PembayaranPengelolaController;
 use App\Http\Controllers\Pengelola\PengaduanPengelolaController;
 use App\Http\Controllers\Pengelola\PenghuniPengelolaController;
-
+use App\Http\Controllers\Pengelola\RiwayatPenilaianPenghuniController;
 // Super Admin
 use App\Http\Controllers\SuperAdmin\DashboardSuperAdminController;
 use App\Http\Controllers\SuperAdmin\ManajemenPengelolaController;
@@ -150,6 +150,11 @@ Route::controller(PenghuniPengelolaController::class)->group(function () {
     Route::post('/pengelola/penghuni-pengelola/keluar/{penghuni}', 'approveKeluar')->name('penghuni.approve_keluar');
 });
 
+// Riwayat Penilaian Penghuni
+Route::controller(RiwayatPenilaianPenghuniController::class)->group(function () {
+    Route::get('/pengelola/riwayat-penilaian-penghuni', 'viewRiwayatPenilaianPenghuni')->name('riwayat-penilaian.pengelola');
+});
+
 /*
 |--------------------------------------------------------------------------
 | SUPER ADMIN
@@ -162,12 +167,12 @@ Route::controller(DashboardSuperAdminController::class)->group(function () {
 });
 
 // Manajemen Pengelola - superadmin
-Route::controller(ManajemenPengelolaController::class)->group(function(){
-    Route::get('/superadmin/manajemen-pengelola','viewManajemenPengelola')->name('manajemen-pengelola.superadmin');
+Route::controller(ManajemenPengelolaController::class)->group(function () {
+    Route::get('/superadmin/manajemen-pengelola', 'viewManajemenPengelola')->name('manajemen-pengelola.superadmin');
     Route::post('/superadmin/manajemen-pengelola/setujui/{pengelola}', 'setujuiPengelola')->name('pengelola.setujui');
     Route::post('/superadmin/manajemen-pengelola/tolak/{pengelola}',   'tolakPengelola')->name('pengelola.tolak');
     Route::post('/superadmin/manajemen-pengelola/batasi/{pengelola}',  'batasiPengelola')->name('pengelola.batasi');
-    Route::post('/superadmin/manajemen-pengelola/aktifkan/{pengelola}','aktifkanPengelola')->name('pengelola.aktifkan');
+    Route::post('/superadmin/manajemen-pengelola/aktifkan/{pengelola}', 'aktifkanPengelola')->name('pengelola.aktifkan');
 });
 
 // Manajemen Penghuni - superadmin
