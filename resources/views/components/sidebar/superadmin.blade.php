@@ -1,5 +1,18 @@
 <div
-    x-data="{ sidebarOpen: false }"
+    x-data="{ 
+    sidebarOpen: false,
+        notifOpen: false,
+        modalOpen: false,
+        modalType: null,
+        openModal(type) {
+            this.modalOpen = true;
+            this.modalType = type;
+        },
+        closeModal() {
+            this.modalOpen = false;
+            this.modalType = null;
+        }
+    }"
     class="min-h-screen flex">
 
     {{-- ================= SIDEBAR OVERLAY MOBILE ================= --}}
@@ -90,10 +103,11 @@
             <div class="border-secondary border border-1 rounded-sm my-4"></div>
 
             {{-- LOGOUT --}}
+
             <a
                 href="#"
                 class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[#F5F6FA] cursor-pointer"
-                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                @click.prevent="openModal('confirm-logout')">
 
                 <img src="{{ asset('assets/icons/logout-icon.png') }}" class="w-5 h-5">
 
@@ -119,7 +133,7 @@
                     bg-white
                     border-b border-gray-200
                     px-4 lg:px-8
-                    py-2
+                    py-5
                 ">
 
             <div class="flex items-center justify-between">
@@ -166,5 +180,42 @@
         </main>
 
     </div>
+
+    <x-modal show="modalOpen" maxWidth="lg:max-w-[450px] max-w-[350px]">
+        {{-- ====================================================== --}}
+        {{-- ================= LOGOUT CONFIRMATION ================ --}}
+        {{-- ====================================================== --}}
+        <template x-if="modalType === 'confirm-logout'">
+            <div class="relative">
+                <button
+                    type="button"
+                    class="absolute top-0 right-0 text-xl"
+                    @click="closeModal()">
+                    ✕
+                </button>
+                <h2 class="text-xl font-bold mb-4">
+                    Konfirmasi Keluar Akun
+                </h2>
+                <p class="text-xs text-neutral">Apakah Anda yakin ingin keluar dari akun?</p>
+                <div class="flex gap-3 mt-8">
+                    <x-form.button
+                        type="button"
+                        class="w-full !text-neutral !bg-transparent border-2 !border-neutral hover:!bg-neutral hover:!text-white"
+                        @click="closeModal()">
+                        Batal
+                    </x-form.button>
+                    <x-form.button
+                        type="button"
+                        class="w-full !text-white !bg-red-600 hover:!bg-red-100 hover:!text-red-600"
+                        @click="$refs.logoutForm.submit()">
+                        Logout
+                    </x-form.button>
+                </div>
+                <form x-ref="logoutForm" action="{{ route('penghuni.logout') }}" method="POST" class="hidden">
+                    @csrf
+                </form>
+            </div>
+        </template>
+    </x-modal>
 
 </div>
