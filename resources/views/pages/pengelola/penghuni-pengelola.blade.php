@@ -173,7 +173,7 @@
                                             alamat: '{{ $penghuni->user->alamat ?? '-' }}',
                                             nomor_kamar: '{{ $penghuni->kamar->nomor_kamar }}',
                                             tanggal_masuk: '{{ \Carbon\Carbon::parse($penghuni->tanggal_masuk)->format('d/m/Y') }}'
-                                        })" class="border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">Detail</x-form.button>
+                                        })" class="w-24 !p-2 border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">Detail</x-form.button>
                                 </div>
                             </td>
                         </tr>
@@ -238,7 +238,7 @@
                                             alamat: '{{ $penghuni->user->alamat ?? '-' }}',
                                             requested_kamar: '{{ $penghuni->kamar->nomor_kamar }}',
                                             requested_kamar_id: {{ $penghuni->nomor_kamar }}
-                                        })" class="w-[150px] border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">Detail</x-form.button>
+                                        })" class="w-24 !p-2 border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">Detail</x-form.button>
                                 </div>
                             </td>
                         </tr>
@@ -302,7 +302,7 @@
                                             no_hp: '{{ $penghuni->user->telpon }}',
                                             alamat: '{{ $penghuni->user->alamat }}',
                                             notes: '{{ $penghuni->notes_penghuni }}'
-                                        })" class="w-[150px] border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">Detail</x-form.button>
+                                        })" class="w-24 !p-2 border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">Detail</x-form.button>
                                 </div>
                             </td>
                         </tr>
@@ -377,8 +377,7 @@
 
                     <div class="flex flex-col gap-4">
                         <div class="w-full flex justify-between">
-                            <p class="text-sm font-medium text-primary">Track Record</p>
-                            <a href="#" class="text-xs no-underline text-neutral">Lihat selengkapnya</a>
+                            <p class="text-sm font-medium text-primary">Penilaian Penghuni</p>
                         </div>
                         <div class="w-full flex justify-between">
                             <p class="text-xs text-neutral">Pembayaran</p>
@@ -441,8 +440,8 @@
                     <hr>
                     <div class="flex flex-col gap-4">
                         <div class="w-full flex justify-between">
-                            <p class="text-sm font-medium text-primary">Track Record</p>
-                            <a href="#" class="text-xs no-underline text-neutral">Lihat selengkapnya</a>
+                            <p class="text-sm font-medium text-primary">Penilaian Penghuni</p>
+                            <a href="{{ route('riwayat-penilaian.pengelola') }}" class="text-xs no-underline text-neutral">Lihat selengkapnya</a>
                         </div>
                         <div class="w-full flex justify-between">
                             <p class="text-xs text-neutral">Pembayaran</p>
@@ -576,7 +575,7 @@
                         <x-form.select
                             label="Pilih Kamar"
                             name="nomor_kamar"
-                            x-model="selectedPenghuni.requested_kamar_id">
+                            x-model="selectedPenghuni.requested_kamar_id" class="!bg-[#F8F8F8]">
 
                             @foreach($kamarKosong as $kamar)
                             <option value="{{ $kamar->id }}">{{ $kamar->nomor_kamar }}</option>
@@ -654,13 +653,13 @@
                     <div class="flex gap-3 mt-8">
                         <x-form.button
                             type="button"
-                            class="w-full text-white bg-red-600 hover:bg-red-100 hover:text-red-600"
+                            class="w-full !text-white !bg-red-600 hover:!bg-red-100 hover:!text-red-600"
                             @click="modalType = 'confirm-tolak-keluar'">
                             Tolak
                         </x-form.button>
                         <x-form.button
                             type="button"
-                            class="w-full text-white bg-green-600 hover:bg-green-100 hover:text-[#5BBA43]"
+                            class="w-full !text-white !bg-green-600 hover:!bg-green-100 hover:!text-[#5BBA43]"
                             @click="modalType = 'setujui-keluar'">
                             Setuju
                         </x-form.button>
@@ -756,7 +755,7 @@
 
                     <x-form.select
                         label="Ketertiban pembayaran"
-                        name="ketertiban-bayar" placeholder="Status">
+                        name="ketertiban-bayar" placeholder="Status" class="!bg-[#F8F8F8] text-xs">
                         <option value="baik">
                             Baik
                         </option>
@@ -769,7 +768,7 @@
                     </x-form.select>
                     <x-form.select
                         label="Sikap"
-                        name="sikap" placeholder="Status">
+                        name="sikap" placeholder="Status" class="!bg-[#F8F8F8] text-xs">
                         <option value="baik">
                             Baik
                         </option>
@@ -782,7 +781,7 @@
                     </x-form.select>
                     <x-form.select
                         label="Perawatan fasilitas"
-                        name="perawatan-fasilitas" placeholder="Status">
+                        name="perawatan-fasilitas" placeholder="Status" class="!bg-[#F8F8F8] text-xs">
                         <option value="baik">
                             Baik
                         </option>
@@ -793,7 +792,7 @@
                             Buruk
                         </option>
                     </x-form.select>
-
+                    <x-form.input label="Catatan Tambahan" name="catatan-tambahan" type="text" class="!p-4 bg-[#F8F8F8] text-xs" placeholder="Tuliskan catatan tambahan jika ada" />
                     {{-- FILE UPLOAD --}}
                     <div x-data="{
                                 file: null,
@@ -886,6 +885,7 @@
                             x-ref="file"
                             @change="handleFile($event)">
                     </div>
+
                 </div>
                 <div class="flex gap-3 lg:mt-6 mt-10">
                     <x-form.button
