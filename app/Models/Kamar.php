@@ -30,6 +30,6 @@ class Kamar extends Model
 
     public function penghuni()
     {
-        return $this->belongsTo(Penghuni::class);
+        return $this->hasMany(Penghuni::class);
     }
 }
