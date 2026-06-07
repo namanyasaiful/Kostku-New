@@ -46,7 +46,7 @@
                         @csrf
 
                         {{-- STEP 1 --}}
-                        <div x-show="step === 1" x-transition>
+                        <div x-show="step === 1" x-transition style="display: block">
 
                             <h1 class="lg:text-3xl text-xl font-bold mb-4">Daftar Pengelola</h1>
                             <p class="text-neutral text-sm mb-6">Buat akun untuk mengelola aktivitas Anda.</p>
@@ -66,7 +66,7 @@
                         </div>
 
                         {{-- STEP 2 --}}
-                        <div x-show="step === 2" x-transition>
+                        <div x-show="step === 2" x-transition style="display: block">
 
                             {{-- Back Button --}}
                             <button
@@ -182,7 +182,7 @@
                             <x-form.button
                                 type="button"
                                 class="w-full my-4"
-                                @click="$dispatch('open-modal', 'pending'); $el.closest('form').submit()">
+                                @click="$el.closest('form').submit()">
                                 Daftar
                             </x-form.button>
                             <div class="flex justify-center">
@@ -230,6 +230,10 @@
                     Akun Anda sedang diperiksa oleh admin (max 3 hari)
                 </div>
 
+                <a href="{{ route('login') }}" class="block w-full text-center bg-primary text-white rounded-lg py-2 text-sm font-medium mt-4 hover:opacity-90">
+                    Kembali ke Login
+                </a>
+
             </x-modal>
 
             <!-- modal akun disetujui -->
@@ -261,5 +265,14 @@
         </div>
 
     </div>
+
+    @if(session('registered'))
+    <script>
+        window.addEventListener('load', () => {
+            window.dispatchEvent(new CustomEvent('open-modal', { detail: 'pending' }));
+        });
+    </script>
+    @endif
+
 
     @endsection

@@ -21,7 +21,7 @@
                     <form action="{{ route('sessionLogin') }}" method="POST">
                         @csrf
                         <div>
-                            <x-form.input
+                            <x-form.input 
                                 label="Email"
                                 name="email"
                                 type="email"

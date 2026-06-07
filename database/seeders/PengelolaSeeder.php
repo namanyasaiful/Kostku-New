@@ -54,6 +54,7 @@ class PengelolaSeeder extends Seeder
                     'alamat' => $data['alamat'],
                     'password' => Hash::make('password'),
                     'role' => 'pengelola',
+                    'status' => 'Aktif'
                 ]
             );
 
