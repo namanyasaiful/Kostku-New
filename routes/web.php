@@ -178,13 +178,18 @@ Route::controller(ManajemenPengelolaController::class)->group(function () {
 // Manajemen Penghuni - superadmin
 Route::controller(ManajemenPenghuniController::class)->group(function(){
     Route::get('/superadmin/manajemen-penghuni','viewManajemenPenghuni')->name('manajemen-penghuni.superadmin');
-    Route::post('/superadmin/manajemen-penghuni/batasi/{penghuni}',  'batasipenghuni')->name('penghuni.batasi');
-    Route::post('/superadmin/manajemen-penghuni/aktifkan/{penghuni}','aktifkanpenghuni')->name('penghuni.aktifkan');
+    Route::post('/superadmin/manajemen-penghuni/batasi/{penghuni}',  'batasiPenghuni')->name('penghuni.batasi');
+    Route::post('/superadmin/manajemen-penghuni/aktifkan/{penghuni}','aktifkanPenghuni')->name('penghuni.aktifkan');
 });
 
 // Penilaian Penghuni - superadmin
 Route::controller(PenilaianPenghuniController::class)->group(function () {
     Route::get('/superadmin/penilaian-penghuni', 'viewPenilaianPenghuni')->name('penilaian-penghuni.superadmin');
+    Route::post('/superadmin/penilaian-penghuni/setujui/{record}', 'setujuiRecord')->name('penilaian.setujui');
+    Route::post('/superadmin/penilaian-penghuni/tolak/{record}', 'tolakRecord')->name('penilaian.tolak');
+
+    // Lihat selengkapnya dari manajemen penghuni superadmin
+    Route::get('/superadmin/penilaian-penghuni/riwayat/{userId}', 'viewRiwayatPenghuni')->name('riwayat-penilaian.superadmin');
 });
 
 // Pengaduan - superadmin

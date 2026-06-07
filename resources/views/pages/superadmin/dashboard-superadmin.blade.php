@@ -135,7 +135,7 @@
             </h2>
 
             <a
-                href="{{ route('pembayaran.pengelola') }}"
+                href="{{ route('pembayaran-superadmin.superadmin') }}"
                 class="text-primary text-xs lg:text-sm hover:underline">
 
                 Lihat Semua
@@ -197,7 +197,7 @@
             </h2>
 
             <a
-                href="{{ route('pengaduan.pengelola') }}"
+                href="{{ route('pengaduan-superadmin.superadmin') }}"
                 class="text-primary text-xs lg:text-sm hover:underline">
 
                 Lihat Semua
