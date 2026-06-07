@@ -3,7 +3,6 @@
 
 @section('content')
 @php
-// Mengambil data penghuni aktif milik user
 $penghuni = \App\Models\Penghuni::where('user_id', Auth::id())
 ->latest()
 ->first();
@@ -12,21 +11,22 @@ $status = 'not_joined';
 $leaveStatus = 'none';
 
 if ($penghuni) {
-    if ($penghuni->status_request === 'menunggu') {
-        $status = 'pending';
-    } elseif ($penghuni->status_request === 'disetujui') {
-        $status = 'joined';
 
-        // Jika penghuni sudah minta keluar tapi belum disetujui admin
-        if ($penghuni->tanggal_keluar !== null) {
-            $leaveStatus = 'pending';
-        }
+if ($penghuni->status_request === 'menunggu') {
 
-        // Cek apakah kamar sudah dilepaskan oleh admin
-        if ($penghuni->kamar && $penghuni->kamar->user_id != Auth::id()) {
-            $status = 'not_joined';
-        }
-    }
+$status = 'pending';
+
+} elseif (
+$penghuni->status_request === 'disetujui'
+&& !is_null($penghuni->tanggal_keluar)
+) {
+
+$status = 'leave_pending';
+
+} elseif ($penghuni->status_request === 'disetujui') {
+
+$status = 'joined';
+}
 }
 @endphp
 
@@ -133,6 +133,25 @@ if ($penghuni) {
     </template>
 
     {{-- ====================================================== --}}
+    {{-- ================= LEAVE PENDING ====================== --}}
+    {{-- ====================================================== --}}
+    <template x-if="status === 'leave_pending'">
+
+        <div class="space-y-6">
+
+            <div class="grid lg:grid-cols-2 gap-6">
+
+                @include('pages.penghuni.dashboard.sections.kost-info-card')
+
+                @include('pages.penghuni.dashboard.sections.leave-pending-card')
+
+            </div>
+
+        </div>
+
+    </template>
+
+    {{-- ====================================================== --}}
     {{-- ================= MODAL ============================== --}}
     {{-- ====================================================== --}}
     <x-modal show="modalOpen" maxWidth="lg:max-w-[450px] max-w-[350px]">
@@ -169,10 +188,10 @@ if ($penghuni) {
                     @csrf
                     <div class="mb-1">
                         <x-form.input
+                            x-model="kodeKost"
                             label="Kode Kost"
                             name="kode_kost"
                             placeholder="Masukkan kode kost"
-                            x-model="kodeKost"
                             class="text-black"
                             required />
                     </div>
@@ -244,8 +263,7 @@ if ($penghuni) {
                         </x-form.button>
                         <form
                             action="{{ route('penghuni.join') }}"
-                            method="POST"
-                            class="w-full">
+                            method="POST" class="w-full">
 
                             @csrf
 
@@ -253,17 +271,10 @@ if ($penghuni) {
                                 type="hidden"
                                 name="kode_kost"
                                 :value="kodeKost">
-                            <x-form.button
-                                type="button"
-                                class="w-full"
-                                @click="
-                                    modalType = 'pending-success';
 
-                                    setTimeout(() => {
-                                        closeModal();
-                                        status = 'pending';
-                                    }, 2500);
-                                ">
+                            <x-form.button
+                                type="submit"
+                                class="w-full">
                                 Gabung Sekarang
                             </x-form.button>
 
@@ -419,7 +430,10 @@ if ($penghuni) {
                     Selesai Kost
                 </h2>
 
-                <form action="{{ route('penghuni.out') }}" method="POST">
+                <form
+                    action="{{ route('penghuni.leave') }}"
+                    method="POST">
+
                     @csrf
 
                     <x-form.textarea
@@ -427,16 +441,16 @@ if ($penghuni) {
                         name="alasan_keluar"
                         rows="4"
                         placeholder="Masukkan alasan keluar kost..."
-                        class="text-black"
-                        required />
+                        class="text-black" />
 
                     <div class="mt-6">
 
                         <x-form.button
                             type="submit"
-                            class="w-full rounded-md !bg-[#E73D2E] !text-white lg:!text-md !text-sm !font-medium hover:!bg-[#FFC5BF] hover:!text-[#E73D2E] !transition"
-                            >
+                            class="w-full rounded-md !bg-[#E73D2E] !text-white">
+
                             Ajukan Permintaan
+
                         </x-form.button>
 
                     </div>

@@ -88,7 +88,7 @@ class PenghuniPengelolaController extends Controller
         return redirect()->back()->with('success', 'Penghuni berhasil disetujui.');
     }
 
-    public function rejectPenghuni($id)
+    public function rejectPermintaanKeluar($id)
     {
         $penghuni = Penghuni::findOrFail($id);
 
@@ -100,6 +100,16 @@ class PenghuniPengelolaController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Permintaan berhasil ditolak.');
+    }
+
+    public function rejectPermintaanMasuk($id)
+    {
+        Penghuni::findOrFail($id)->delete();
+
+        return back()->with(
+            'success',
+            'Permintaan masuk berhasil ditolak.'
+        );
     }
 
 
@@ -122,7 +132,12 @@ class PenghuniPengelolaController extends Controller
                 $request->input('skor_perawatan_fasilitas') === 'Buruk'
             ) ? 'yes' : 'no';
 
-            $buktiFilePath = $request->file('bukti')->store('bukti', 'public');
+            // $buktiFilePath = $request->file('bukti')->store('bukti', 'public');
+            $buktiFilePath = null;
+
+            if ($request->hasFile('bukti')) {
+                $buktiFilePath = $request->file('bukti')->store('bukti', 'public');
+            }
 
             if ($penghuni->kamar) {
                 $penghuni->kamar->update([

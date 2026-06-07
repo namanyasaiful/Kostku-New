@@ -90,6 +90,7 @@ Route::controller(DashboardPenghuniController::class)->group(function () {
     Route::get('/penghuni/dashboard-penghuni', 'viewDashboard')->name('dashboard.penghuni');
     Route::get('/penghuni/kode-kost', 'kodeKost')->name('kodekost.penghuni');
     Route::post('/penghuni/dashboard-penghuni/join', 'joinKost')->name('penghuni.join');
+    Route::post('/penghuni/dashboard-penghuni/leave', 'leaveKost')->name('penghuni.leave');
 });
 
 // Pembayaran Penghuni
@@ -158,7 +159,8 @@ Route::controller(PengaduanPengelolaController::class)->group(function () {
 Route::controller(PenghuniPengelolaController::class)->group(function () {
     Route::get('/pengelola/penghuni-pengelola', 'viewPenghuni')->name('penghuni.pengelola');
     Route::post('/pengelola/penghuni-pengelola/approve/{penghuni}', 'approvePenghuni')->name('penghuni.approve');
-    Route::post('/pengelola/penghuni-pengelola/reject/{penghuni}', 'rejectPenghuni')->name('penghuni.reject');
+    Route::post('/pengelola/penghuni-pengelola/reject-masuk/{id}', [PenghuniPengelolaController::class, 'rejectPermintaanMasuk'])->name('penghuni.reject.masuk');
+    Route::post('/pengelola/penghuni-pengelola/reject-keluar/{id}', [PenghuniPengelolaController::class, 'rejectPermintaanKeluar'])->name('penghuni.reject.keluar');
     Route::post('/pengelola/penghuni-pengelola/keluar/{penghuni}', 'approveKeluar')->name('penghuni.approve_keluar');
 });
 
@@ -188,10 +190,10 @@ Route::controller(ManajemenPengelolaController::class)->group(function () {
 });
 
 // Manajemen Penghuni - superadmin
-Route::controller(ManajemenPenghuniController::class)->group(function(){
-    Route::get('/superadmin/manajemen-penghuni','viewManajemenPenghuni')->name('manajemen-penghuni.superadmin');
+Route::controller(ManajemenPenghuniController::class)->group(function () {
+    Route::get('/superadmin/manajemen-penghuni', 'viewManajemenPenghuni')->name('manajemen-penghuni.superadmin');
     Route::post('/superadmin/manajemen-penghuni/batasi/{penghuni}',  'batasiPenghuni')->name('penghuni.batasi');
-    Route::post('/superadmin/manajemen-penghuni/aktifkan/{penghuni}','aktifkanPenghuni')->name('penghuni.aktifkan');
+    Route::post('/superadmin/manajemen-penghuni/aktifkan/{penghuni}', 'aktifkanPenghuni')->name('penghuni.aktifkan');
 });
 
 // Penilaian Penghuni - superadmin

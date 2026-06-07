@@ -20,15 +20,19 @@ class DashboardPenghuniController extends Controller
     public function joinKost(Request $request)
     {
         $request->validate([
-            'kode_kost' => 'required|string',
+            'kode_kost' => 'required'
         ]);
 
-        $kodeKost = trim($request->kode_kost);
-
-        $kost = Kost::where('kode_kost', $kodeKost)->first();
+        $kost = Kost::where(
+            'kode_kost',
+            trim($request->kode_kost)
+        )->first();
 
         if (!$kost) {
-            return redirect()->back()->with('error', 'Kode kost tidak valid.');
+            return back()->with(
+                'error',
+                'Kode kost tidak ditemukan'
+            );
         }
 
         $kamar = Kamar::where('kode_kost', $kost->id)
@@ -36,25 +40,110 @@ class DashboardPenghuniController extends Controller
             ->first();
 
         if (!$kamar) {
-            return redirect()->back()->with('error', 'Maaf, tidak ada kamar kosong tersedia di kost ini.');
+            return back()->with(
+                'error',
+                'Tidak ada kamar kosong'
+            );
         }
 
-        $activeRequest = Penghuni::where('user_id', Auth::id())
-            ->whereIn('status_request', ['menunggu', 'disetujui'])
+        $existing = Penghuni::where(
+            'user_id',
+            Auth::id()
+        )
             ->whereNull('tanggal_keluar')
+            ->whereIn('status_request', [
+                'menunggu',
+                'disetujui'
+            ])
             ->exists();
 
-        if ($activeRequest) {
-            return redirect()->back()->with('error', 'Anda masih memiliki permintaan aktif atau sudah menghuni kost.');
+        if ($existing) {
+            return back()->with(
+                'error',
+                'Anda sudah memiliki pengajuan aktif'
+            );
         }
 
         Penghuni::create([
             'user_id' => Auth::id(),
             'nomor_kamar' => $kamar->id,
             'status_request' => 'menunggu',
-            'tanggal_masuk' => Carbon::now(),
+            'tanggal_masuk' => now(),
         ]);
 
-        return redirect()->back()->with('success', 'Permintaan bergabung berhasil dikirim. Menunggu persetujuan pengelola.');
+        return redirect()
+            ->route('dashboard.penghuni')
+            ->with(
+                'success',
+                'Permintaan bergabung berhasil dikirim'
+            );
+
+        // dd($request->all());
     }
+
+    public function leaveKost(Request $request)
+    {
+        $request->validate([
+            'alasan_keluar' => 'required|string'
+        ]);
+
+        $penghuni = Penghuni::where('user_id', Auth::id())
+            ->where('status_request', 'disetujui')
+            ->whereNull('tanggal_keluar')
+            ->first();
+
+        if (!$penghuni) {
+            return back()->with('error', 'Data penghuni tidak ditemukan.');
+        }
+
+        $penghuni->update([
+            'tanggal_keluar' => now(),
+        ]);
+
+        return back()->with(
+            'success',
+            'Permintaan keluar berhasil dikirim.'
+        );
+    }
+
+    // public function joinKost(Request $request)
+    // {
+    //     $request->validate([
+    //         'kode_kost' => 'required|string',
+    //     ]);
+
+    //     $kodeKost = trim($request->kode_kost);
+
+    //     $kost = Kost::where('kode_kost', $kodeKost)->first();
+
+    //     if (!$kost) {
+    //         return redirect()->back()->with('error', 'Kode kost tidak valid.');
+    //     }
+
+    //     $kamar = Kamar::where('kode_kost', $kost->id)
+    //         ->where('status', 'kosong')
+    //         ->first();
+
+    //     if (!$kamar) {
+    //         return redirect()->back()->with('error', 'Maaf, tidak ada kamar kosong tersedia di kost ini.');
+    //     }
+
+    //     $activeRequest = Penghuni::where('user_id', Auth::id())
+    //         ->whereIn('status_request', ['menunggu', 'disetujui'])
+    //         ->whereNull('tanggal_keluar')
+    //         ->exists();
+
+    //     if ($activeRequest) {
+    //         return redirect()->back()->with('error', 'Anda masih memiliki permintaan aktif atau sudah menghuni kost.');
+    //     }
+
+    //     Penghuni::create([
+    //         'user_id' => Auth::id(),
+    //         'nomor_kamar' => $kamar->id,
+    //         'status_request' => 'menunggu',
+    //         'tanggal_masuk' => Carbon::now(),
+    //     ]);
+
+    //     return redirect()->back()->with('success', 'Permintaan bergabung berhasil dikirim. Menunggu persetujuan pengelola.');
+    // }
 }
