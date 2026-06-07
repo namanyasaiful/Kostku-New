@@ -8,23 +8,33 @@ use Illuminate\Http\Request;
 
 class LoginController extends Controller
 {
-    public function view(){
+    public function view()
+    {
         return view('pages.auth.login');
     }
 
     public function sessionLogin(Request $request)
     {
         $credentials = $request->validate([
-            'email' => 'required|string|email|max:255',
+            'email'    => 'required|string|email|max:255',
             'password' => 'required|string|min:8',
         ]);
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
+            $user = Auth::user();
 
-            if (Auth::user()->role == 'penghuni') {
+            // Block pengelola yang belum aktif
+            if ($user->role === 'pengelola' && $user->status !== 'Aktif') {
+                Auth::logout();
+                return back()->withErrors([
+                    'email' => 'Akun Anda belum disetujui atau sedang dibatasi.',
+                ]);
+            }
+
+            if ($user->role === 'penghuni') {
                 return redirect()->route('dashboard.penghuni');
-            } elseif (Auth::user()->role == 'pengelola') {
+            } elseif ($user->role === 'pengelola') {
                 return redirect()->route('dashboard.pengelola');
             } else {
                 return redirect()->route('dashboard.superadmin');

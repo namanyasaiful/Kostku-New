@@ -3,76 +3,6 @@
 
 @section('content')
 
-{{-- DATA DUMMY --}}
-@php
-$dummyData = [
-    [
-        'id' => 1,
-        'nama' => 'Andi Marito',
-        'email' => 'andimarito@gmail.com',
-        'telpon' => '081234567892',
-        'nama_kost' => 'Kost Jaya Abadi',
-        'kode_kost' => 'JYABD1',
-        'alamat' => 'Jl. Merdeka No. 123, Jakarta',
-        'tanggal_daftar' => '08/01/2026',
-        'status' => 'Aktif',
-        'sertifikat' => 'https://www.w3.org/WAI/WCAG21/Techniques/pdf/pdf-sample.pdf',
-    ],
-    [
-        'id' => 2,
-        'nama' => 'Siti Rahayu',
-        'email' => 'siti@gmail.com',
-        'telpon' => '082345678901',
-        'nama_kost' => 'Kost Mawar',
-        'kode_kost' => '-',
-        'alamat' => 'Jl. Sudirman No. 5, Bandung',
-        'tanggal_daftar' => '15/02/2025',
-        'status' => 'Menunggu',
-        'sertifikat' => 'https://www.w3.org/WAI/WCAG21/Techniques/pdf/pdf-sample.pdf',
-    ],
-    [
-        'id' => 3,
-        'nama' => 'Ahmad Fauzi',
-        'email' => 'ahmad@gmail.com',
-        'telpon' => '083456789012',
-        'nama_kost' => 'Kost Anggrek',
-        'kode_kost' => 'ANGRK3',
-        'alamat' => 'Jl. Diponegoro No. 22, Bandung',
-        'tanggal_daftar' => '10/03/2025',
-        'status' => 'Dibatasi',
-        'sertifikat' => 'https://www.w3.org/WAI/WCAG21/Techniques/pdf/pdf-sample.pdf',
-    ],
-    [
-        'id' => 4,
-        'nama' => 'Dewi Lestari',
-        'email' => 'dewi@gmail.com',
-        'telpon' => '084567890123',
-        'nama_kost' => 'Kost Kenanga',
-        'kode_kost' => 'KNNGG4',
-        'alamat' => 'Jl. Gatot Subroto No. 8, Bandung',
-        'tanggal_daftar' => '20/03/2025',
-        'status' => 'Aktif',
-        'sertifikat' => 'https://www.w3.org/WAI/WCAG21/Techniques/pdf/pdf-sample.pdf',
-    ],
-    [
-        'id' => 5,
-        'nama' => 'Reza Firmansyah',
-        'email' => 'reza@gmail.com',
-        'telpon' => '085678901234',
-        'nama_kost' => 'Kost Cempaka',
-        'kode_kost' => '-',
-        'alamat' => 'Jl. Asia Afrika No. 3, Bandung',
-        'tanggal_daftar' => '05/04/2025',
-        'status' => 'Menunggu',
-        'sertifikat' => 'https://www.w3.org/WAI/WCAG21/Techniques/pdf/pdf-sample.pdf',
-    ],
-];
-
-$semuaPengelola = $dummyData;
-$aktifPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Aktif');
-$menungguPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Menunggu');
-$dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibatasi');
-@endphp
 
 <div
     x-data="{
@@ -119,9 +49,12 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
     </x-page-header>
 
     {{-- ================= SEARCH ================= --}}
-    <x-search-input
-        name="search_pengelola"
-        placeholder="Cari" />
+    <form method="GET" action="{{ route('manajemen-pengelola.superadmin') }}">
+        <x-search-input
+            name="search"
+            placeholder="Cari"
+            value="{{ $search ?? '' }}" />
+    </form>
 
     {{-- ================= TABLE ================= --}}
     <div class="bg-white rounded-lg p-4 lg:p-6 mt-4 mb-6">
@@ -131,28 +64,28 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
 
             <button
                 @click="activeTab = 'semua'"
-                :class="activeTab === 'semua' ? 'border-primary text-primary font-bold' : 'border-transparent text-black font-medium'"
+                :class="activeTab === 'semua' ? 'border-primary text-primary font-bold' : 'border-transparent text-black font-medium break-all'"
                 class="pb-3 border-b-2 text-xs lg:text-sm transition">
                 Semua
             </button>
 
             <button
                 @click="activeTab = 'aktif'"
-                :class="activeTab === 'aktif' ? 'border-primary text-primary font-bold' : 'border-transparent text-black font-medium'"
+                :class="activeTab === 'aktif' ? 'border-primary text-primary font-bold' : 'border-transparent text-black font-medium break-all'"
                 class="pb-3 border-b-2 text-xs lg:text-sm transition">
                 Aktif
             </button>
 
             <button
                 @click="activeTab = 'menunggu'"
-                :class="activeTab === 'menunggu' ? 'border-primary text-primary font-bold' : 'border-transparent text-black font-medium'"
+                :class="activeTab === 'menunggu' ? 'border-primary text-primary font-bold' : 'border-transparent text-black font-medium break-all'"
                 class="pb-3 border-b-2 text-xs lg:text-sm transition">
                 Menunggu
             </button>
 
             <button
                 @click="activeTab = 'dibatasi'"
-                :class="activeTab === 'dibatasi' ? 'border-primary text-primary font-bold' : 'border-transparent text-black font-medium'"
+                :class="activeTab === 'dibatasi' ? 'border-primary text-primary font-bold' : 'border-transparent text-black font-medium break-all'"
                 class="pb-3 border-b-2 text-xs lg:text-sm transition">
                 Dibatasi
             </button>
@@ -176,32 +109,31 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
                     <tbody>
                         @foreach($semuaPengelola as $pengelola)
                         <x-table.tr>
-                            <x-table.td class="font-medium">{{ $pengelola['nama'] }}</x-table.td>
-                            <x-table.td>{{ $pengelola['email'] }}</x-table.td>
-                            <x-table.td>{{ $pengelola['nama_kost'] }}</x-table.td>
-                            <x-table.td>{{ $pengelola['kode_kost'] }}</x-table.td>
+                            <x-table.td class="font-medium break-all">{{ $pengelola->nama }}</x-table.td>
+                            <x-table.td>{{ $pengelola->email }}</x-table.td>
+                            <x-table.td>{{ $pengelola->kosts->nama_kost ?? '-' }}</x-table.td>
+                            <x-table.td>{{ $pengelola->kosts->kode_kost ?? '-' }}</x-table.td>
                             <x-table.td>
-                                @if($pengelola['status'] === 'Aktif')
+                                @if($pengelola->status === 'Aktif')
                                     <x-badge type="success">Aktif</x-badge>
-                                @elseif($pengelola['status'] === 'Menunggu')
+                                @elseif($pengelola->status === 'Menunggu')
                                     <x-badge type="warning">Menunggu</x-badge>
-                                @elseif($pengelola['status'] === 'Dibatasi')
+                                @elseif($pengelola->status === 'Dibatasi')
                                     <x-badge type="danger">Dibatasi</x-badge>
                                 @endif
                             </x-table.td>
                             <x-table.td class="text-center">
                                 <x-form.button
-                                    @click.prevent="openModal('detail-{{ $pengelola['status'] === 'Aktif' ? 'aktif' : ($pengelola['status'] === 'Menunggu' ? 'menunggu' : 'dibatasi') }}', {
+                                    @click.prevent="openModal('detail-{{ $pengelola->status === 'Aktif' ? 'aktif' : ($pengelola->status === 'Menunggu' ? 'menunggu' : 'dibatasi') }}', {
                                         id: {{ $pengelola['id'] }},
-                                        name: '{{ $pengelola['nama'] }}',
-                                        no_hp: '{{ $pengelola['telpon'] }}',
-                                        email: '{{ $pengelola['email'] }}',
-                                        nama_kost: '{{ $pengelola['nama_kost'] }}',
-                                        kode_kost: '{{ $pengelola['kode_kost'] }}',
-                                        alamat: '{{ $pengelola['alamat'] }}',
-                                        tanggal_daftar: '{{ $pengelola['tanggal_daftar'] }}',
-                                        sertifikat: '{{ $pengelola['sertifikat'] }}'
-                                    })"
+                                        nama: '{{ $pengelola->nama }}',
+                                        no_hp: '{{ $pengelola->telpon }}',
+                                        email: '{{ $pengelola->email }}',
+                                        nama_kost: '{{ $pengelola->kosts->nama_kost ?? '-' }}',
+                                        kode_kost: '{{ $pengelola->kode_kost ?? '-' }}',
+                                        alamat: '{{ $pengelola->alamat }}',
+                                        tanggal_daftar: '{{ $pengelola->created_at->format('d/m/Y') }}',
+                                        sertifikat: '{{ $pengelola->kosts && $pengelola->kosts->sertifikat ? asset('storage/'.$pengelola->kosts->sertifikat) : '' }}'                                       })"
                                     class="border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">
                                     Detail
                                 </x-form.button>
@@ -211,7 +143,7 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
                     </tbody>
                 </x-table.index>
             </div>
-            <p class="text-xs text-neutral mt-3">Menampilkan {{ count($semuaPengelola) }} data</p>
+            <p class="text-xs text-neutral mt-3">Menampilkan {{ $semuaPengelola->count() }} data</p>
         </div>
 
         {{-- ================= AKTIF ================= --}}
@@ -231,10 +163,10 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
                     <tbody>
                         @foreach($aktifPengelola as $pengelola)
                         <x-table.tr>
-                            <x-table.td class="font-medium">{{ $pengelola['nama'] }}</x-table.td>
-                            <x-table.td>{{ $pengelola['email'] }}</x-table.td>
-                            <x-table.td>{{ $pengelola['nama_kost'] }}</x-table.td>
-                            <x-table.td>{{ $pengelola['kode_kost'] }}</x-table.td>
+                            <x-table.td class="font-medium break-all">{{ $pengelola->nama }}</x-table.td>
+                            <x-table.td>{{ $pengelola->email }}</x-table.td>
+                            <x-table.td>{{ $pengelola->kosts->nama_kost ?? '-' }}</x-table.td>
+                            <x-table.td>{{ $pengelola->kosts->kode_kost ?? '-' }}</x-table.td>
                             <x-table.td>
                                 <x-badge type="success">Aktif</x-badge>
                             </x-table.td>
@@ -242,15 +174,14 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
                                 <x-form.button
                                     @click.prevent="openModal('detail-aktif', {
                                         id: {{ $pengelola['id'] }},
-                                        name: '{{ $pengelola['nama'] }}',
-                                        no_hp: '{{ $pengelola['telpon'] }}',
-                                        email: '{{ $pengelola['email'] }}',
-                                        nama_kost: '{{ $pengelola['nama_kost'] }}',
-                                        kode_kost: '{{ $pengelola['kode_kost'] }}',
-                                        alamat: '{{ $pengelola['alamat'] }}',
-                                        tanggal_daftar: '{{ $pengelola['tanggal_daftar'] }}',
-                                        sertifikat: '{{ $pengelola['sertifikat'] }}'
-                                    })"
+                                        nama: '{{ $pengelola->nama }}',
+                                        no_hp: '{{ $pengelola->telpon }}',
+                                        email: '{{ $pengelola->email }}',
+                                        nama_kost: '{{ $pengelola->kosts->nama_kost ?? '-' }}',
+                                        kode_kost: '{{ $pengelola->kosts->kode_kost ?? '-' }}',
+                                        alamat: '{{ $pengelola->alamat }}',
+                                        tanggal_daftar: '{{ $pengelola->created_at->format('d/m/Y') }}',
+                                        sertifikat: '{{ $pengelola->kosts && $pengelola->kosts->sertifikat ? asset('storage/'.$pengelola->kosts->sertifikat) : '' }}'                                       })"
                                     class="border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">
                                     Detail
                                 </x-form.button>
@@ -260,7 +191,7 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
                     </tbody>
                 </x-table.index>
             </div>
-            <p class="text-xs text-neutral mt-3">Menampilkan {{ count($aktifPengelola) }} data</p>
+            <p class="text-xs text-neutral mt-3">Menampilkan {{ $aktifPengelola->count() }} data</p>
         </div>
 
         {{-- ================= MENUNGGU ================= --}}
@@ -280,10 +211,10 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
                     <tbody>
                         @foreach($menungguPengelola as $pengelola)
                         <x-table.tr>
-                            <x-table.td class="font-medium">{{ $pengelola['nama'] }}</x-table.td>
-                            <x-table.td>{{ $pengelola['email'] }}</x-table.td>
-                            <x-table.td>{{ $pengelola['nama_kost'] }}</x-table.td>
-                            <x-table.td>{{ $pengelola['kode_kost'] }}</x-table.td>
+                            <x-table.td class="font-medium break-all">{{ $pengelola->nama }}</x-table.td>
+                            <x-table.td>{{ $pengelola->email }}</x-table.td>
+                            <x-table.td>{{ $pengelola->kosts->nama_kost ?? '-' }}</x-table.td>
+                            <x-table.td>{{ $pengelola->kosts->kode_kost ?? '-' }}</x-table.td>
                             <x-table.td>
                                 <x-badge type="warning">Menunggu</x-badge>
                             </x-table.td>
@@ -291,15 +222,14 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
                                 <x-form.button
                                     @click.prevent="openModal('detail-menunggu', {
                                         id: {{ $pengelola['id'] }},
-                                        name: '{{ $pengelola['nama'] }}',
-                                        no_hp: '{{ $pengelola['telpon'] }}',
-                                        email: '{{ $pengelola['email'] }}',
-                                        nama_kost: '{{ $pengelola['nama_kost'] }}',
-                                        kode_kost: '{{ $pengelola['kode_kost'] }}',
-                                        alamat: '{{ $pengelola['alamat'] }}',
-                                        tanggal_daftar: '{{ $pengelola['tanggal_daftar'] }}',
-                                        sertifikat: '{{ $pengelola['sertifikat'] }}'
-                                    })"
+                                        nama: '{{ $pengelola->nama }}',
+                                        no_hp: '{{ $pengelola->telpon }}',
+                                        email: '{{ $pengelola->email }}',
+                                        nama_kost: '{{ $pengelola->kosts->nama_kost ?? '-' }}',
+                                        kode_kost: '{{ $pengelola->kosts->kode_kost ?? '-' }}',
+                                        alamat: '{{ $pengelola->alamat }}',
+                                        tanggal_daftar: '{{ $pengelola->created_at->format('d/m/Y') }}',
+                                        sertifikat: '{{ $pengelola->kosts && $pengelola->kosts->sertifikat ? asset('storage/'.$pengelola->kosts->sertifikat) : '' }}'                                       })"
                                     class="border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">
                                     Detail
                                 </x-form.button>
@@ -309,7 +239,7 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
                     </tbody>
                 </x-table.index>
             </div>
-            <p class="text-xs text-neutral mt-3">Menampilkan {{ count($menungguPengelola) }} data</p>
+            <p class="text-xs text-neutral mt-3">Menampilkan {{ $menungguPengelola->count() }} data</p>
         </div>
 
         {{-- ================= DIBATASI ================= --}}
@@ -329,10 +259,10 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
                     <tbody>
                         @foreach($dibatasiPengelola as $pengelola)
                         <x-table.tr>
-                            <x-table.td class="font-medium">{{ $pengelola['nama'] }}</x-table.td>
-                            <x-table.td>{{ $pengelola['email'] }}</x-table.td>
-                            <x-table.td>{{ $pengelola['nama_kost'] }}</x-table.td>
-                            <x-table.td>{{ $pengelola['kode_kost'] }}</x-table.td>
+                            <x-table.td class="font-medium break-all">{{ $pengelola->nama }}</x-table.td>
+                            <x-table.td>{{ $pengelola->email }}</x-table.td>
+                            <x-table.td>{{ $pengelola->kosts->nama_kost ?? '-' }}</x-table.td>
+                            <x-table.td>{{ $pengelola->kosts->kode_kost ?? '-' }}</x-table.td>
                             <x-table.td>
                                 <x-badge type="danger">Dibatasi</x-badge>
                             </x-table.td>
@@ -340,15 +270,14 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
                                 <x-form.button
                                     @click.prevent="openModal('detail-dibatasi', {
                                         id: {{ $pengelola['id'] }},
-                                        name: '{{ $pengelola['nama'] }}',
-                                        no_hp: '{{ $pengelola['telpon'] }}',
-                                        email: '{{ $pengelola['email'] }}',
-                                        nama_kost: '{{ $pengelola['nama_kost'] }}',
-                                        kode_kost: '{{ $pengelola['kode_kost'] }}',
-                                        alamat: '{{ $pengelola['alamat'] }}',
-                                        tanggal_daftar: '{{ $pengelola['tanggal_daftar'] }}',
-                                        sertifikat: '{{ $pengelola['sertifikat'] }}'
-                                    })"
+                                        nama: '{{ $pengelola->nama }}',
+                                        no_hp: '{{ $pengelola->telpon }}',
+                                        email: '{{ $pengelola->email }}',
+                                        nama_kost: '{{ $pengelola->kosts->nama_kost ?? '-' }}',
+                                        kode_kost: '{{ $pengelola->kosts->kode_kost ?? '-' }}',
+                                        alamat: '{{ $pengelola->alamat }}',
+                                        tanggal_daftar: '{{ $pengelola->created_at->format('d/m/Y') }}',
+                                        sertifikat: '{{ $pengelola->kosts && $pengelola->kosts->sertifikat ? asset('storage/'.$pengelola->kosts->sertifikat) : '' }}'                                       })"
                                     class="border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">
                                     Detail
                                 </x-form.button>
@@ -358,7 +287,7 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
                     </tbody>
                 </x-table.index>
             </div>
-            <p class="text-xs text-neutral mt-3">Menampilkan {{ count($dibatasiPengelola) }} data</p>
+            <p class="text-xs text-neutral mt-3">Menampilkan {{ $dibatasiPengelola->count() }} data</p>
         </div>
 
     </div>
@@ -387,15 +316,15 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
                     <div class="grid grid-cols-3 gap-4">
                         <div>
                             <p class="text-xs text-neutral mb-1">Nama Lengkap</p>
-                            <p class="text-xs font-medium" x-text="selectedPengelola.name"></p>
+                            <p class="text-xs font-medium break-all" x-text="selectedPengelola.nama"></p>
                         </div>
                         <div>
                             <p class="text-xs text-neutral mb-1">Nomor Telepon</p>
-                            <p class="text-xs font-medium" x-text="selectedPengelola.no_hp"></p>
+                            <p class="text-xs font-medium break-all" x-text="selectedPengelola.no_hp"></p>
                         </div>
                         <div>
                             <p class="text-xs text-neutral mb-1">Email</p>
-                            <p class="text-xs font-medium" x-text="selectedPengelola.email"></p>
+                            <p class="text-xs font-medium break-all" x-text="selectedPengelola.email"></p>
                         </div>
                     </div>
                     
@@ -405,11 +334,11 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <p class="text-xs text-neutral mb-1">Nama Kost</p>
-                            <p class="text-xs font-medium" x-text="selectedPengelola.nama_kost"></p>
+                            <p class="text-xs font-medium break-all" x-text="selectedPengelola.nama_kost"></p>
                         </div>
                         <div>
                             <p class="text-xs text-neutral mb-1">Kode Kost</p>
-                            <p class="text-xs font-medium" x-text="selectedPengelola.kode_kost"></p>
+                            <p class="text-xs font-medium break-all" x-text="selectedPengelola.kode_kost"></p>
                         </div>
                     </div>
                     <hr>
@@ -418,11 +347,11 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <p class="text-xs text-neutral mb-1">Alamat</p>
-                            <p class="text-xs font-medium" x-text="selectedPengelola.alamat"></p>
+                            <p class="text-xs font-medium break-all" x-text="selectedPengelola.alamat"></p>
                         </div>
                         <div>
                             <p class="text-xs text-neutral mb-1">Tanggal Daftar</p>
-                            <p class="text-xs font-medium" x-text="selectedPengelola.tanggal_daftar"></p>
+                            <p class="text-xs font-medium break-all" x-text="selectedPengelola.tanggal_daftar"></p>
                         </div>
                     </div>
 
@@ -434,7 +363,7 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
                                 class="flex items-center gap-3 bg-[#F8F8F8] rounded-xl px-4 py-3 w-full hover:bg-gray-100 transition no-underline">
                                 <img src="{{ asset('assets/icons/pdf-icon.png') }}" class="w-8 h-8 shrink-0">
                                 <div class="flex-1 min-w-0">
-                                    <p class="text-xs font-medium text-black truncate">Sertifikat Kost</p>
+                                    <p class="text-xs font-medium break-all text-black truncate">Sertifikat Kost</p>
                                     <p class="text-[10px] text-gray-500 mt-0.5">Klik untuk membuka</p>
                                 </div>
                             </a>
@@ -477,15 +406,15 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
                     <div class="grid grid-cols-3 gap-4">
                         <div>
                             <p class="text-xs text-neutral mb-1">Nama Lengkap</p>
-                            <p class="text-xs font-medium" x-text="selectedPengelola.name"></p>
+                            <p class="text-xs font-medium break-all" x-text="selectedPengelola.nama"></p>
                         </div>
                         <div>
                             <p class="text-xs text-neutral mb-1">Nomor Telepon</p>
-                            <p class="text-xs font-medium" x-text="selectedPengelola.no_hp"></p>
+                            <p class="text-xs font-medium break-all" x-text="selectedPengelola.no_hp"></p>
                         </div>
                         <div>
                             <p class="text-xs text-neutral mb-1">Email</p>
-                            <p class="text-xs font-medium" x-text="selectedPengelola.email"></p>
+                            <p class="text-xs font-medium break-all" x-text="selectedPengelola.email"></p>
                         </div>
                     </div>                  
                     <hr>
@@ -493,7 +422,7 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
                     {{-- SECTION 2 --}}
                     <div>
                         <p class="text-xs text-neutral mb-1">Nama Kost</p>
-                        <p class="text-xs font-medium" x-text="selectedPengelola.nama_kost"></p>
+                        <p class="text-xs font-medium break-all" x-text="selectedPengelola.nama_kost"></p>
                     </div>
                     <hr>
 
@@ -501,11 +430,11 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <p class="text-xs text-neutral mb-1">Alamat</p>
-                            <p class="text-xs font-medium" x-text="selectedPengelola.alamat"></p>
+                            <p class="text-xs font-medium break-all" x-text="selectedPengelola.alamat"></p>
                         </div>
                         <div>
                             <p class="text-xs text-neutral mb-1">Tanggal Daftar</p>
-                            <p class="text-xs font-medium" x-text="selectedPengelola.tanggal_daftar"></p>
+                            <p class="text-xs font-medium break-all" x-text="selectedPengelola.tanggal_daftar"></p>
                         </div>
                     </div>
 
@@ -517,7 +446,7 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
                                 class="flex items-center gap-3 bg-[#F8F8F8] rounded-xl px-4 py-3 w-full hover:bg-gray-100 transition no-underline">
                                 <img src="{{ asset('assets/icons/pdf-icon.png') }}" class="w-8 h-8 shrink-0">
                                 <div class="flex-1 min-w-0">
-                                    <p class="text-xs font-medium text-black truncate">Sertifikat Kost</p>
+                                    <p class="text-xs font-medium break-all text-black truncate">Sertifikat Kost</p>
                                     <p class="text-[10px] text-gray-500 mt-0.5">Klik untuk membuka</p>
                                 </div>
                             </a>
@@ -566,15 +495,15 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
                     <div class="grid grid-cols-3 gap-4">
                         <div>
                             <p class="text-xs text-neutral mb-1">Nama Lengkap</p>
-                            <p class="text-xs font-medium" x-text="selectedPengelola.name"></p>
+                            <p class="text-xs font-medium break-all" x-text="selectedPengelola.nama"></p>
                         </div>
                         <div>
                             <p class="text-xs text-neutral mb-1">Nomor Telepon</p>
-                            <p class="text-xs font-medium" x-text="selectedPengelola.no_hp"></p>
+                            <p class="text-xs font-medium break-all" x-text="selectedPengelola.no_hp"></p>
                         </div>
                         <div>
                             <p class="text-xs text-neutral mb-1">Email</p>
-                            <p class="text-xs font-medium" x-text="selectedPengelola.email"></p>
+                            <p class="text-xs font-medium break-all" x-text="selectedPengelola.email"></p>
                         </div>
                     </div>                    
                     <hr>
@@ -583,11 +512,11 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <p class="text-xs text-neutral mb-1">Nama Kost</p>
-                            <p class="text-xs font-medium" x-text="selectedPengelola.nama_kost"></p>
+                            <p class="text-xs font-medium break-all" x-text="selectedPengelola.nama_kost"></p>
                         </div>
                         <div>
                             <p class="text-xs text-neutral mb-1">Kode Kost</p>
-                            <p class="text-xs font-medium" x-text="selectedPengelola.kode_kost"></p>
+                            <p class="text-xs font-medium break-all" x-text="selectedPengelola.kode_kost"></p>
                         </div>
                     </div>
                     <hr>
@@ -596,11 +525,11 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <p class="text-xs text-neutral mb-1">Alamat</p>
-                            <p class="text-xs font-medium" x-text="selectedPengelola.alamat"></p>
+                            <p class="text-xs font-medium break-all" x-text="selectedPengelola.alamat"></p>
                         </div>
                         <div>
                             <p class="text-xs text-neutral mb-1">Tanggal Daftar</p>
-                            <p class="text-xs font-medium" x-text="selectedPengelola.tanggal_daftar"></p>
+                            <p class="text-xs font-medium break-all" x-text="selectedPengelola.tanggal_daftar"></p>
                         </div>
                     </div>
 
@@ -612,7 +541,7 @@ $dibatasiPengelola = array_filter($dummyData, fn($p) => $p['status'] === 'Dibata
                                 class="flex items-center gap-3 bg-[#F8F8F8] rounded-xl px-4 py-3 w-full hover:bg-gray-100 transition no-underline">
                                 <img src="{{ asset('assets/icons/pdf-icon.png') }}" class="w-8 h-8 shrink-0">
                                 <div class="flex-1 min-w-0">
-                                    <p class="text-xs font-medium text-black truncate">Sertifikat Kost</p>
+                                    <p class="text-xs font-medium break-all text-black truncate">Sertifikat Kost</p>
                                     <p class="text-[10px] text-gray-500 mt-0.5">Klik untuk membuka</p>
                                 </div>
                             </a>
