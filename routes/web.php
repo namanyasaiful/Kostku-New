@@ -166,7 +166,7 @@ Route::controller(PenghuniPengelolaController::class)->group(function () {
 
 // Riwayat Penilaian Penghuni
 Route::controller(RiwayatPenilaianPenghuniController::class)->group(function () {
-    Route::get('/pengelola/riwayat-penilaian-penghuni', 'viewRiwayatPenilaianPenghuni')->name('riwayat-penilaian.pengelola');
+    Route::get('/pengelola/riwayat-penilaian-penghuni/{userId}', 'viewRiwayatPenilaianPenghuni')->name('riwayat-penilaian.pengelola');
 });
 
 /*
