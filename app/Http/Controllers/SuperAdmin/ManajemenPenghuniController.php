@@ -22,9 +22,9 @@ class ManajemenPenghuniController extends Controller
                 });
             });
 
-        $semuaPenghuni    = (clone $query)->get();
-        $aktifPenghuni    = (clone $query)->where('status', 'Aktif')->get();
-        $dibatasiPenghuni = (clone $query)->where('status', 'Dibatasi')->get();
+        $semuaPenghuni    = (clone $query)->paginate(10, ['*'], 'semua_page');
+        $aktifPenghuni    = (clone $query)->where('status', 'Aktif')->paginate(10, ['*'], 'aktif_page');
+        $dibatasiPenghuni = (clone $query)->where('status', 'Dibatasi')->paginate(10, ['*'], 'dibatasi_page');
 
         return view('pages.superadmin.manajemen-penghuni', compact(
             'semuaPenghuni',

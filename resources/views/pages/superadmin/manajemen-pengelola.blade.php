@@ -187,7 +187,7 @@
                                 </x-form.button>
                             </x-table.td>
                         </x-table.tr>
-                        @endforeach
+                        @endforeach                        
                     </tbody>
                 </x-table.index>
             </div>
@@ -293,7 +293,10 @@
     </div>
 
     {{-- ================= PAGINATION ================= --}}
-    <x-pagination />
+    <div x-show="activeTab === 'semua'"><x-pagination :paginator="$semuaPengelola" /></div>
+    <div x-show="activeTab === 'aktif'"><x-pagination :paginator="$aktifPengelola" /></div>
+    <div x-show="activeTab === 'menunggu'"><x-pagination :paginator="$menungguPengelola" /></div>
+    <div x-show="activeTab === 'dibatasi'"><x-pagination :paginator="$dibatasiPengelola" /></div>
 
     {{-- ================= MODAL ================= --}}
     <x-modal show="modalOpen" maxWidth="lg:max-w-[500px] max-w-[350px]">

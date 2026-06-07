@@ -16,14 +16,18 @@ class PenilaianPenghuniController extends Controller
             ->when($search, function ($q) use ($search) {
                 $q->whereHas('user', function ($q2) use ($search) {
                     $q2->where('nama', 'like', "%$search%")
-                       ->orWhere('email', 'like', "%$search%");
+                    ->orWhere('email', 'like', "%$search%");
+                })
+                ->orWhereHas('kamar.kost', function ($q2) use ($search) {
+                    $q2->where('nama_kost', 'like', "%$search%")
+                    ->orWhere('kode_kost', 'like', "%$search%");
                 });
             });
 
-        $semuaRecord     = (clone $query)->get();
-        $menungguRecord  = (clone $query)->where('status', 'Menunggu')->get();
-        $disetujuiRecord = (clone $query)->where('status', 'Disetujui')->get();
-        $ditolakRecord   = (clone $query)->where('status', 'Ditolak')->get();
+        $semuaRecord     = (clone $query)->paginate(10, ['*'], 'semua_page');
+        $menungguRecord  = (clone $query)->where('status', 'Menunggu')->paginate(10, ['*'], 'menunggu_page');
+        $disetujuiRecord = (clone $query)->where('status', 'Disetujui')->paginate(10, ['*'], 'disetujui_page');
+        $ditolakRecord   = (clone $query)->where('status', 'Ditolak')->paginate(10, ['*'], 'ditolak_page');
 
         return view('pages.superadmin.penilaian-penghuni', compact(
             'semuaRecord',

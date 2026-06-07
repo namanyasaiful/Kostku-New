@@ -226,6 +226,8 @@
 
     </x-modal>
 
+    <x-pagination :paginator="$pengaduans" />
+
 </div>
 
 @endsection
