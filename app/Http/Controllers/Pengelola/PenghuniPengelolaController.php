@@ -132,20 +132,17 @@ class PenghuniPengelolaController extends Controller
             }
 
             \App\Models\Record::create([
-                'user_id' => $penghuni->user_id,
-                'kamar_id' => $penghuni->nomor_kamar,
-
-                'tanggal_masuk' => $penghuni->tanggal_masuk,
-                'tanggal_keluar' => now(),
-
-                'is_redflag' => $isRedflag,
-
-                'skor_pembayaran' => $request->input('skor_pembayaran'),
-                'skor_sikap' => $request->input('skor_sikap'),
-                'skor_perawatan_fasilitas' => $request->input('skor_perawatan_fasilitas'),
-
-                'catatan' => $request->input('catatan'),
-                'bukti' => $buktiFilePath,
+                'user_id'                    => $penghuni->user_id,
+                'kamar_id'                   => $penghuni->nomor_kamar,
+                'tanggal_masuk'              => $penghuni->tanggal_masuk,
+                'tanggal_keluar'             => now(),
+                'is_redflag'                 => $isRedflag,
+                'skor_pembayaran'            => $request->input('skor_pembayaran'),
+                'skor_sikap'                 => $request->input('skor_sikap'),
+                'skor_perawatan_fasilitas'   => $request->input('skor_perawatan_fasilitas'),
+                'catatan'                    => $request->input('catatan'),
+                'bukti'                      => $buktiFilePath,
+                'status'                     => 'Menunggu', // <-- tambahan ini
             ]);
 
             $penghuni->delete();

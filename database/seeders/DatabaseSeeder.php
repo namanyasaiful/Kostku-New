@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             PengelolaSeeder::class,
             PenghuniSeeder::class,
             SuperAdminSeeder::class,
+            RecordSeeder::class,
         ]);
     }
 }
