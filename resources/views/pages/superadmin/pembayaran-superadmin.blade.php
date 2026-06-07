@@ -107,7 +107,6 @@
         </div>
         <div class="flex items-center justify-between mt-4">
             <p class="text-xs text-neutral mt-3">Menampilkan {{ $pembayarans->count() }} data</p>
-            {{ $pembayarans->links() }}
         </div>
     </div>
 
@@ -175,6 +174,7 @@
             </div>
         </template>
     </x-modal>
+    <x-pagination :paginator="$pembayarans" />
 
 </div>
 
