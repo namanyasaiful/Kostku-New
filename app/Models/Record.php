@@ -18,7 +18,8 @@ class Record extends Model
     'skor_sikap',
     'skor_perawatan_fasilitas',
     'catatan',
-    'bukti'
+    'bukti',
+    'status',
     ];
 
     public function user()
