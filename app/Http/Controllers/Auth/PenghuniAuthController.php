@@ -29,6 +29,7 @@ class PenghuniAuthController extends Controller
             'password' => bcrypt($request->password),
             'alamat' => $request->alamat,
             'role' => 'penghuni',
+            'status' => 'Aktif',
         ]);
         return redirect()->route('login')->withSuccess('Registration successful! You can now login!');
     }
