@@ -441,7 +441,7 @@
                     <div class="flex flex-col gap-4">
                         <div class="w-full flex justify-between">
                             <p class="text-sm font-medium text-primary">Penilaian Penghuni</p>
-                            <a href="{{ route('riwayat-penilaian.pengelola') }}" class="text-xs no-underline text-neutral">Lihat selengkapnya</a>
+                            <a :href="'/pengelola/riwayat-penilaian-penghuni/' + selectedPenghuni.id" class="text-xs no-underline text-neutral">Lihat selengkapnya</a>
                         </div>
                         <div class="w-full flex justify-between">
                             <p class="text-xs text-neutral">Pembayaran</p>
