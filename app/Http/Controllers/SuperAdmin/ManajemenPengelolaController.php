@@ -24,10 +24,10 @@ class ManajemenPengelolaController extends Controller
             })
             ->with('kosts');
 
-        $semuaPengelola    = (clone $query)->get();
-        $aktifPengelola    = (clone $query)->where('status', 'Aktif')->get();
-        $menungguPengelola = (clone $query)->where('status', 'Menunggu')->get();
-        $dibatasiPengelola = (clone $query)->where('status', 'Dibatasi')->get();
+        $semuaPengelola    = (clone $query)->paginate(10, ['*'], 'semua_page');
+        $aktifPengelola    = (clone $query)->where('status', 'Aktif')->paginate(10, ['*'], 'aktif_page');
+        $menungguPengelola = (clone $query)->where('status', 'Menunggu')->paginate(10, ['*'], 'menunggu_page');
+        $dibatasiPengelola = (clone $query)->where('status', 'Dibatasi')->paginate(10, ['*'], 'dibatasi_page');
 
         return view('pages.superadmin.manajemen-pengelola', compact(
             'semuaPengelola',

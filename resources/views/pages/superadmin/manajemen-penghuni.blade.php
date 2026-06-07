@@ -170,7 +170,7 @@
     </div>
 
     {{-- PAGINATION --}}
-    <x-pagination />
+    <x-pagination :paginator="$penghuniList" />
 
     {{-- MODAL --}}
     <x-modal show="modalOpen" maxWidth="lg:max-w-[500px] max-w-[350px]">
