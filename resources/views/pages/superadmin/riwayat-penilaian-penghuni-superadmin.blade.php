@@ -1,9 +1,9 @@
-@extends('layouts.pengelola')
+@extends('layouts.superadmin')
 @section('title', 'Riwayat Penilaian Penghuni')
 
 @section('content')
 
-<a href="{{ route('penghuni.pengelola') }}" class="text-sm text-[#313131] flex items-center gap-2 mb-4">
+<a href="{{ route('manajemen-penghuni.superadmin') }}" class="text-sm text-[#313131] flex items-center gap-2 mb-4">
     <span class="text-2xl pb-1 text-[#313131]"><</span>
     Kembali
 </a>
@@ -16,7 +16,7 @@
     </x-page-header>
 
     @if($records->isEmpty())
-        <div class="text-center text-neutral text-sm">
+        <div class= "text-center text-neutral text-sm">
             Belum ada riwayat penilaian untuk penghuni ini.
         </div>
     @else
