@@ -24,6 +24,21 @@ class PengelolaAuthController extends Controller
             'nama_kost'   => 'required|string|max:255',
             'alamat_kost' => 'required|string|max:255',
             'sertifikat'  => 'required|file|max:10240|mimes:pdf',
+        ], [
+            'nama.required'        => 'Nama wajib diisi.',
+            'telpon.required'      => 'Nomor telepon wajib diisi.',
+            'telpon.numeric'       => 'Nomor telepon harus berupa angka.',
+            'alamat.required'      => 'Alamat wajib diisi.',
+            'email.required'       => 'Email wajib diisi.',
+            'email.email'          => 'Format email tidak valid.',
+            'email.unique'         => 'Email sudah terdaftar.',
+            'password.required'    => 'Password wajib diisi.',
+            'password.min'         => 'Password minimal 8 karakter.',
+            'nama_kost.required'   => 'Nama kost wajib diisi.',
+            'alamat_kost.required' => 'Alamat kost wajib diisi.',
+            'sertifikat.required'  => 'Sertifikat wajib diunggah.',
+            'sertifikat.mimes'     => 'Sertifikat harus berformat PDF.',
+            'sertifikat.max'       => 'Ukuran sertifikat maksimal 10MB.',
         ]);
 
         $user = User::create([

@@ -319,7 +319,15 @@
     </div>
 
     {{-- ================= PAGINATION ================= --}}
-    <x-pagination />
+    <div x-show="activeTab === 'daftar'">
+    <x-pagination :paginator="$daftarPenghuni" />
+    </div>
+    <div x-show="activeTab === 'masuk'">
+        <x-pagination :paginator="$permintaanMasuk" />
+    </div>
+    <div x-show="activeTab === 'keluar'">
+        <x-pagination :paginator="$permintaanKeluar" />
+    </div>
 
     {{-- ================= MODAL ================= --}}
     <x-modal show="modalOpen" maxWidth="lg:max-w-[500px] max-w-[350px]">
