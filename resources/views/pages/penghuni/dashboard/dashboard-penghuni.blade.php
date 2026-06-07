@@ -35,6 +35,14 @@ $status = 'joined';
     leaveStatus: '{{ $leaveStatus }}',
 
     kodeKost: '',
+    kodeKostError: '',
+
+    kostInfo: {
+    id: '',
+    nama_kost: '',
+    alamat: '',
+    pemilik: ''
+    },
 
     modalOpen: false,
     modalType: null,
@@ -50,18 +58,26 @@ $status = 'joined';
     },
 
     init() {
-        @if(session('success'))
-            this.modalOpen = true;
-            @if(session('success') == 'Permintaan keluar kost telah dikirim ke pengelola.')
-                this.modalType = 'leave-kost-success';
-            @else
-                this.modalType = 'joined-success';
-            @endif
-            setTimeout(() => {
-                this.closeModal();
-            }, 2500);
-        @endif
-    },
+
+    @if(session('join_success'))
+        this.modalOpen = true;
+        this.modalType = 'pending-success';
+
+        setTimeout(() => {
+            this.closeModal();
+        }, 2500);
+    @endif
+
+    @if(session('leave_success'))
+        this.modalOpen = true;
+        this.modalType = 'leave-kost-success';
+
+        setTimeout(() => {
+            this.closeModal();
+        }, 2500);
+    @endif
+
+}
 }">
 
     {{-- ================= PAGE HEADER ================= --}}
@@ -194,6 +210,11 @@ $status = 'joined';
                             placeholder="Masukkan kode kost"
                             class="text-black"
                             required />
+                        <p
+                            x-show="kodeKostError"
+                            x-text="kodeKostError"
+                            class="text-red-500 text-xs mt-1">
+                        </p>
                     </div>
 
                     <p class="text-xs text-neutral mb-6">
@@ -203,7 +224,40 @@ $status = 'joined';
                     <x-form.button
                         type="button"
                         class="w-full"
-                        @click="modalType = 'informasi-kost'">
+                        @click="
+                            if(!kodeKost.trim()){
+                                kodeKostError = 'Kode kost wajib diisi.';
+                                return;
+                            }
+
+                            kodeKostError = '';
+
+                            fetch('{{ route('penghuni.validasi-kost') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({
+                                    kode_kost: kodeKost
+                                })
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+
+                                if(data.success){
+
+                                    kostInfo = data.data;
+                                    modalType = 'informasi-kost';
+
+                                } else {
+
+                                    kodeKostError = data.message;
+
+                                }
+
+                            });
+                        ">
                         Validasi Kode
                     </x-form.button>
                 </form>
@@ -239,25 +293,25 @@ $status = 'joined';
                     <div class="flex lg:gap-28 gap-20">
                         <div>
                             <p class="text-xs text-neutral mb-1">Nama Kost</p>
-                            <p class="text-xs font-medium">Kost Abadi Jaya</p>
+                            <p class="text-xs font-medium" x-text="kostInfo.nama_kost"></p>
                         </div>
 
                         <div>
                             <p class="text-xs text-neutral mb-1">Nama Pemilik</p>
-                            <p class="text-xs font-medium">Budi Santoso</p>
+                            <p class="text-xs font-medium" x-text="kostInfo.pemilik"></p>
                         </div>
                     </div>
                     <hr>
 
                     <div class="my-2">
                         <p class="text-xs text-neutral mb-1">Alamat</p>
-                        <p class="text-xs font-medium">Jl. Cibiru No. 123, Bandung</p>
+                        <p class="text-xs font-medium" x-text="kostInfo.alamat"></p>
                     </div>
                     <hr>
                     <div class="flex gap-3 pt-2 mt-4">
                         <x-form.button
                             type="button"
-                            class="w-full bg-transparent border-2 border-neutral !text-neutral hover:bg-[#E2E2E2] hover:border-[#E2E2E2] hover:!text-neutral"
+                            class="w-full bg-transparent border-2 !border-neutral !text-neutral hover:!bg-[#E2E2E2] hover:!border-[#E2E2E2] hover:!text-neutral"
                             @click="modalType = 'join-kost'">
                             Kembali
                         </x-form.button>
@@ -432,7 +486,10 @@ $status = 'joined';
 
                 <form
                     action="{{ route('penghuni.leave') }}"
-                    method="POST">
+                    method="POST"
+                    x-data="{
+                    alasan: '',
+                    error: ''}">
 
                     @csrf
 
@@ -441,13 +498,20 @@ $status = 'joined';
                         name="alasan_keluar"
                         rows="4"
                         placeholder="Masukkan alasan keluar kost..."
-                        class="text-black" />
+                        class="text-black"
+                        x-model="alasan" />
 
+                    <p
+                        x-show="error"
+                        x-text="error"
+                        class="text-red-500 text-xs mt-1">
+                    </p>
                     <div class="mt-6">
 
                         <x-form.button
-                            type="submit"
-                            class="w-full rounded-md !bg-[#E73D2E] !text-white">
+                            type="button"
+                            class="w-full rounded-md !bg-[#E73D2E] !text-white"
+                            @click="if(!alasan.trim()){error = 'Alasan keluar wajib diisi.'; return;} error = ''; $el.closest('form').submit();">
 
                             Ajukan Permintaan
 

@@ -1,3 +1,11 @@
+@php
+$penghuni = \App\Models\Penghuni::where('user_id', Auth::id())
+->where('status_request', 'disetujui')
+->whereNull('tanggal_keluar')
+->first();
+
+$canAccessFeature = $penghuni ? true : false;
+@endphp
 <div
     x-data="{ 
         sidebarOpen: false,
@@ -62,17 +70,37 @@
                     :route="route('dashboard.penghuni')"
                     :active="request()->routeIs('dashboard.penghuni')" />
 
+                @if($canAccessFeature)
                 <x-sidebar.item
                     title="Pembayaran"
                     icon="pembayaran-icon"
                     :route="route('pembayaran.penghuni')"
                     :active="request()->routeIs('pembayaran.penghuni')" />
+                @else
+                <div
+                    class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 cursor-not-allowed opacity-60">
+                    <img
+                        src="{{ asset('assets/icons/pembayaran-icon.png') }}"
+                        class="w-5 h-5 grayscale">
+                    <span>Pembayaran</span>
+                </div>
+                @endif
 
+                @if($canAccessFeature)
                 <x-sidebar.item
                     title="Pengaduan"
                     icon="pengaduan-icon"
                     :route="route('pengaduan.penghuni')"
                     :active="request()->routeIs('pengaduan.penghuni')" />
+                @else
+                <div
+                    class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 cursor-not-allowed opacity-60">
+                    <img
+                        src="{{ asset('assets/icons/pengaduan-icon.png') }}"
+                        class="w-5 h-5 grayscale">
+                    <span>Pengaduan</span>
+                </div>
+                @endif
 
             </nav>
 
@@ -134,7 +162,7 @@
                     <div class="flex items-center gap-3">
                         <div class="block">
                             <p class="lg:text-sm text-xs font-semibold">
-                                Saifulloh Fattah
+                                {{ Auth::user()->nama }}
                             </p>
                         </div>
                     </div>

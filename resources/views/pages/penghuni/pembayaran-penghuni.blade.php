@@ -2,22 +2,22 @@
 @section('title', 'Pembayaran Penghuni')
 
 @section('content')
-<div x-data="pembayaranPage({{ json_encode($pending ? ['id' => $pending->id, 'id_pembayaran' => $pending->id_pembayaran, 'nominal' => $pending->nominal, 'tipe_pembayaran' => $pending->tipe_pembayaran, 'tanggal_pembayaran' => $pending->tanggal_pembayaran] : null) }})" @if(session('payment_status') === 'finish') @init="pollHistoryAfterPayment()" data-payment-finish @endif>
+<div x-data="pembayaranPage({{ json_encode($pending ? ['id' => $pending->id, 'id_pembayaran' => $pending->id_pembayaran, 'nominal' => $pending->nominal, 'tipe_pembayaran' => $pending->tipe_pembayaran, 'tanggal_pembayaran' => $pending->tanggal_pembayaran] : null) }})" @if(session('payment_status')==='finish' ) @init="pollHistoryAfterPayment()" data-payment-finish @endif>
     <x-page-header
         title="Pembayaran"
         description="Tagihan dan riwayat pembayaran Anda">
     </x-page-header>
 
     @if(session('payment_status'))
-        <div class="mb-4 p-4 rounded-lg bg-green-50 border border-green-200 text-green-800" x-data @if(session('payment_status') === 'finish') x-init="setTimeout(() => window.location.reload(), 2000)" @endif>
-            @if(session('payment_status') === 'finish')
-                ✅ Pembayaran berhasil. Terima kasih. Halaman akan dimuat ulang...
-            @elseif(session('payment_status') === 'unfinish')
-                Pembayaran belum selesai. Silakan lanjutkan kembali.
-            @elseif(session('payment_status') === 'error')
-                Terjadi kesalahan pada proses pembayaran.
-            @endif
-        </div>
+    <div class="mb-4 p-4 rounded-lg bg-green-50 border border-green-200 text-green-800" x-data @if(session('payment_status')==='finish' ) x-init="setTimeout(() => window.location.reload(), 2000)" @endif>
+        @if(session('payment_status') === 'finish')
+        ✅ Pembayaran berhasil. Terima kasih. Halaman akan dimuat ulang...
+        @elseif(session('payment_status') === 'unfinish')
+        Pembayaran belum selesai. Silakan lanjutkan kembali.
+        @elseif(session('payment_status') === 'error')
+        Terjadi kesalahan pada proses pembayaran.
+        @endif
+    </div>
     @endif
 
     <x-card class="mb-4">
@@ -26,9 +26,9 @@
                 <p class="text-neutral text-xs font-medium mb-2">Total Tagihan</p>
                 <h1 class="text-primary lg:text-3xl text-2xl font-bold">
                     @if($pending)
-                        Rp{{ number_format($pending->nominal, 0, ',', '.') }}
+                    Rp{{ number_format($pending->nominal, 0, ',', '.') }}
                     @else
-                        Rp0
+                    Rp0
                     @endif
                 </h1>
             </div>
@@ -37,9 +37,9 @@
                     <p class="text-xs text-neutral mb-2">Periode Tagihan</p>
                     <p class="text-black text-sm font-bold">
                         @if($pending)
-                            {{ \Carbon\Carbon::parse($pending->tanggal_pembayaran)->format('F Y') }}
+                        {{ \Carbon\Carbon::parse($pending->tanggal_pembayaran)->format('F Y') }}
                         @else
-                            -
+                        -
                         @endif
                     </p>
                 </div>
@@ -47,30 +47,30 @@
                     <p class="text-xs text-neutral mb-2">Jatuh Tempo</p>
                     <p class="text-black text-sm font-bold">
                         @if($pending)
-                            {{ \Carbon\Carbon::parse($pending->tanggal_pembayaran)->format('d F Y') }}
+                        {{ \Carbon\Carbon::parse($pending->tanggal_pembayaran)->format('d F Y') }}
                         @else
-                            -
+                        -
                         @endif
                     </p>
                 </div>
             </div>
 
             @if($pending)
-                <div class="flex gap-8">
-                    <button
-                        @click="modalOpen = true"
-                        class="w-full bg-primary hover:bg-secondary text-white hover:text-primary lg:text-md text-sm font-bold lg:p-3 p-2 rounded-md">
-                        @if($pending->tipe_pembayaran === 'cicilan') Bayar Cicilan @else Bayar Sekarang @endif
-                    </button>
-                </div>
+            <div class="flex gap-8">
+                <button
+                    @click="modalOpen = true"
+                    class="w-full bg-primary hover:bg-secondary text-white hover:text-primary lg:text-md text-sm font-bold lg:p-3 p-2 rounded-md">
+                    @if($pending->tipe_pembayaran === 'cicilan') Bayar Cicilan @else Bayar Sekarang @endif
+                </button>
+            </div>
             @else
-                <div class="flex gap-8">
-                    <button
-                        disabled
-                        class="w-full bg-gray-200 text-gray-400 cursor-not-allowed lg:text-md text-sm font-bold lg:p-3 p-2 rounded-md">
-                        Tidak ada tagihan aktif
-                    </button>
-                </div>
+            <div class="flex gap-8">
+                <button
+                    disabled
+                    class="w-full bg-gray-200 text-gray-400 cursor-not-allowed lg:text-md text-sm font-bold lg:p-3 p-2 rounded-md">
+                    Tidak ada tagihan aktif
+                </button>
+            </div>
             @endif
 
         </div>
@@ -91,21 +91,21 @@
                 </thead>
                 <tbody>
                     @forelse($history as $item)
-                        <x-table.tr>
-                            <x-table.td class="font-medium text-heading">{{ \Carbon\Carbon::parse($item->tanggal_pembayaran)->format('d/m/Y') }}</x-table.td>
-                            <x-table.td>{{ $item->tipe_pembayaran === 'cicilan' ? 'Cicilan' : 'Lunas' }}</x-table.td>
-                            <x-table.td>Rp{{ number_format($item->nominal, 0, ',', '.') }}</x-table.td>
-                            <x-table.td>
-                                <x-badge type="success">Berhasil</x-badge>
-                            </x-table.td>
-                            <x-table.td>
-                                <a href="#" class="font-medium text-primary hover:underline">Lihat Struk</a>
-                            </x-table.td>
-                        </x-table.tr>
+                    <x-table.tr>
+                        <x-table.td class="font-medium text-heading">{{ \Carbon\Carbon::parse($item->tanggal_pembayaran)->format('d/m/Y') }}</x-table.td>
+                        <x-table.td>{{ $item->tipe_pembayaran === 'cicilan' ? 'Cicilan' : 'Lunas' }}</x-table.td>
+                        <x-table.td>Rp{{ number_format($item->nominal, 0, ',', '.') }}</x-table.td>
+                        <x-table.td>
+                            <x-badge type="success">Berhasil</x-badge>
+                        </x-table.td>
+                        <x-table.td>
+                            <a href="#" class="font-medium text-primary hover:underline">Lihat Struk</a>
+                        </x-table.td>
+                    </x-table.tr>
                     @empty
-                        <x-table.tr>
-                            <x-table.td colspan="5" class="text-center text-neutral">Belum ada riwayat pembayaran.</x-table.td>
-                        </x-table.tr>
+                    <x-table.tr>
+                        <x-table.td colspan="5" class="text-center text-neutral">Belum ada riwayat pembayaran.</x-table.td>
+                    </x-table.tr>
                     @endforelse
                 </tbody>
             </x-table.index>
@@ -145,7 +145,7 @@
             <button
                 type="button"
                 class="w-full bg-primary hover:bg-secondary text-white hover:text-primary lg:text-md text-sm font-bold lg:p-3 p-2 rounded-md mt-8"
-:disabled="isLoading || !payment"
+                :disabled="isLoading || !payment"
                 @click="payNow()">
                 <span x-text="isLoading ? 'Memproses...' : 'Bayar Sekarang'"></span>
             </button>
@@ -172,42 +172,43 @@
                     this.alertMessage = null;
 
                     axios.post('/payment/create', {
-                        pembayaran_id: this.payment.id,
-                    })
-                    .then(response => {
-                        const snapToken = response.data.snap_token;
-                        const paymentId = response.data.payment_id;
+                            pembayaran_id: this.payment.id,
+                        })
+                        .then(response => {
+                            const snapToken = response.data.snap_token;
+                            const paymentId = response.data.payment_id;
 
-                        // Midtrans proses VA & konfirmasi final dilakukan oleh callback/webhook,
-                        // sehingga di sini cukup lakukan polling status sampai menjadi 'lunas'.
-                        this.pollPaymentStatus();
+                            // Midtrans proses VA & konfirmasi final dilakukan oleh callback/webhook,
+                            // sehingga di sini cukup lakukan polling status sampai menjadi 'lunas'.
+                            this.pollPaymentStatus();
 
-                        if (!snapToken) {
-                            throw new Error('Token pembayaran tidak ditemukan.');
-                        }
-
-                        window.snap.pay(snapToken, {
-                            onSuccess: (result) => {
-                                window.location.href = '/payment/finish';
-                            },
-                            onPending: (result) => {
-                                window.location.href = `/payment/pending/${paymentId}`;
-                            },
-                            onError: (result) => {
-                                this.alertMessage = 'Terjadi kesalahan pada proses pembayaran. Silakan coba lagi.';
-                                console.error(result);
-                            },
-                            onClose: () => {
-                                this.alertMessage = 'Pembayaran dibatalkan. Silakan coba lagi.';
+                            if (!snapToken) {
+                                throw new Error('Token pembayaran tidak ditemukan.');
                             }
+
+                            window.snap.pay(snapToken, {
+                                onSuccess: (result) => {
+                                    window.location.href = '/payment/finish';
+                                },
+                                onPending: (result) => {
+                                    window.location.href = `/payment/pending/${paymentId}`;
+                                },
+                                onError: (result) => {
+                                    this.alertMessage = 'Terjadi kesalahan pada proses pembayaran. Silakan coba lagi.';
+                                    console.error(result);
+                                },
+                                onClose: () => {
+                                    this.alertMessage = 'Pembayaran dibatalkan. Silakan coba lagi.';
+                                }
+                            });
+                        })
+                        .catch(error => {
+                            this.alertMessage = error.response?.data?.message || error.message;
+                        })
+                        .finally(() => {
+                            this.isLoading = false;
                         });
-                    })
-                    .catch(error => {
-                        this.alertMessage = error.response?.data?.message || error.message;
-                    })
-                    .finally(() => {
-                        this.isLoading = false;
-                    });                },
+                },
 
                 pollHistoryAfterPayment() {
                     if (!document.querySelector('[data-payment-finish]')) {
@@ -239,7 +240,8 @@
                             });
                     };
 
-                    check();                },
+                    check();
+                },
 
                 extractVaNumber(result) {
                     if (!result) {

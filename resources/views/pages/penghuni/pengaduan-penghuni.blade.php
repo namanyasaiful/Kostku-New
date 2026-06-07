@@ -8,7 +8,7 @@
     modalType: null,
 
     id: null,
-    batalId: null, 
+    batalId: null,
     judul: '',
     isi: '',
     balasan: '',
@@ -27,8 +27,21 @@
             this.tanggalPengaduan = data.tanggal_pengaduan || '';
             this.bukti = data.bukti || '';
         }
+
         this.modalOpen = true;
         this.modalType = type;
+
+        // otomatis tutup setelah 2 detik
+        if (
+            type === 'kirim-success' ||
+            type === 'kirim-failed' ||
+            type === 'success-dibatalkan'
+        ) {
+            setTimeout(() => {
+                this.modalOpen = false;
+                this.modalType = null;
+            }, 2000);
+        }
     },
 
     formatStatus(status) {
@@ -37,7 +50,21 @@
         if (status === 'selesai') return 'Selesai';
         return status;
     }
-}">
+}"
+
+    x-init="
+@if(session('success_pengaduan'))
+    openModal('kirim-success')
+@endif
+
+@if(session('failed_pengaduan'))
+    openModal('kirim-failed')
+@endif
+
+@if(session('success_dibatalkan'))
+    openModal('success-dibatalkan')
+@endif
+">
 
     {{-- ================= FORM BUAT PENGADUAN ================= --}}
     <form action="{{ route('penghuni.pengaduan.store') }}" method="POST" enctype="multipart/form-data">
@@ -54,7 +81,13 @@
                 <x-form.input
                     name="judul"
                     placeholder="Contoh: WiFi ngelag"
-                    class="mb-4 bg-[#F8F8F8]" />
+                    class="mb-1 bg-[#F8F8F8]" />
+
+                @error('judul')
+                <p class="text-red-500 text-xs mt-1">
+                    {{ $message }}
+                </p>
+                @enderror
             </div>
 
             <div class="lg:flex justify-between lg:gap-8 gap-4 mb-4">
@@ -66,7 +99,8 @@
                         name="isi"
                         rows="6"
                         placeholder="Jelaskan masalah Anda secara detail..."
-                        class="mb-4 bg-[#F8F8F8] text-sm"></x-form.textarea>
+                        class="mb-1 bg-[#F8F8F8] text-sm">
+                    </x-form.textarea>
                 </div>
                 <div class="w-full">
                     <h3 class="lg:text-md text-sm text-black font-semibold mb-2">
@@ -209,7 +243,7 @@
                         <x-form.button
                             type="button"
                             @click="openModal('batal-pengaduan', { id: '{{ $pengaduan->id }}' })"
-                            class="lg:!w-[150px] !w-[100px] !py-2 !px-4 border border-red-500 bg-transparent !text-red-500 hover:bg-red-50 hover:border-red-600">
+                            class="lg:!w-[150px] !w-[100px] !py-2 !px-4 border !border-red-500 !bg-transparent !text-red-500 hover:!bg-red-50 hover:!border-red-600">
                             Batalkan
                         </x-form.button>
                         @endif
@@ -284,11 +318,13 @@
                                         </template>
                                         {{-- Jika PDF --}}
                                         <template x-if="bukti && bukti.endsWith('.pdf')">
-                                            :href="bukti"
-                                            target="_blank"
-                                            class="flex items-center gap-2 text-xs text-primary underline hover:opacity-80 transition">
-                                            <img src="{{ asset('assets/icons/pdf-icon.png') }}" class="lg:w-10 w-8 lg:h-10 h-8">
-                                            Lihat PDF
+                                            <a
+                                                :href="bukti"
+                                                target="_blank"
+                                                class="flex items-center gap-2 text-xs text-primary underline hover:opacity-80 transition">
+                                                <img
+                                                    src="{{ asset('assets/icons/pdf-icon.png') }}"
+                                                    class="lg:w-10 w-8 lg:h-10 h-8">
                                             </a>
                                         </template>
                                     </div>
@@ -372,11 +408,11 @@
         </template>
 
         {{-- SUCCESS DIBATALKAN --}}
-        <template x-if="modalType === 'kirim-failed'">
+        <template x-if="modalType === 'success-dibatalkan'">
             <div class="text-center">
                 <div class="flex justify-center mb-4">
                     <div class="w-20 h-20 flex items-center justify-center">
-                        <img src="{{ asset('assets/icons/failed-modal-icon.png') }}" class="w-12">
+                        <img src="{{ asset('assets/icons/success-modal-icon.png') }}" class="w-12">
                     </div>
                 </div>
                 <h2 class="lg:text-xl text-md font-bold mb-2">

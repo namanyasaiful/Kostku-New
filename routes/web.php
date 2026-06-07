@@ -89,6 +89,7 @@ Route::controller(SuperAdminAuthController::class)->group(function () {
 Route::controller(DashboardPenghuniController::class)->group(function () {
     Route::get('/penghuni/dashboard-penghuni', 'viewDashboard')->name('dashboard.penghuni');
     Route::get('/penghuni/kode-kost', 'kodeKost')->name('kodekost.penghuni');
+    Route::post('/penghuni/validasi-kost', [DashboardPenghuniController::class, 'validasiKode'])->name('penghuni.validasi-kost');
     Route::post('/penghuni/dashboard-penghuni/join', 'joinKost')->name('penghuni.join');
     Route::post('/penghuni/dashboard-penghuni/leave', 'leaveKost')->name('penghuni.leave');
 });
