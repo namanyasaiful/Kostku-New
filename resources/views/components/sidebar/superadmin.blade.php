@@ -92,11 +92,11 @@
                     :route="route('pembayaran-superadmin.superadmin')"
                     :active="request()->routeIs('pembayaran-superadmin.superadmin')" />
 
-                <x-sidebar.item
-                    title="Log Audit"
-                    icon="admin-log-icon"
-                    :route="route('log-audit.superadmin')"
-                    :active="request()->routeIs('log-audit.superadmin')" />
+                {{-- <x-sidebar.item --}}
+                    {{-- title="Log Audit" --}}
+                    {{-- icon="admin-log-icon" --}}
+                    {{-- :route="route('log-audit.superadmin')" --}}
+                    {{-- :active="request()->routeIs('log-audit.superadmin')" /> --}}
 
             </nav>
 
