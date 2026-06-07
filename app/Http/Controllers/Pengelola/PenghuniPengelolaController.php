@@ -10,6 +10,8 @@ use App\Models\Kamar;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Models\Pembayaran;
+
 
 class PenghuniPengelolaController extends Controller
 {
@@ -83,6 +85,30 @@ class PenghuniPengelolaController extends Controller
                 'user_id' => $penghuni->user_id,
                 'status'  => 'terisi'
             ]);
+
+            // Buat tagihan awal otomatis saat penghuni baru disetujui masuk.
+            // (tanggal_pembayaran = sekarang sesuai permintaan Anda)
+            $idPembayaran = 'penghuni-' . $penghuni->id . '-kamar-' . $kamar->id . '-' . now()->format('YmdHis');
+
+            // Anti duplikasi sederhana: kalau id_pembayaran deterministic sudah ada, jangan buat lagi.
+            // Karena id_pembayaran memakai timestamp, duplikasi biasanya hanya terjadi jika approve dipanggil ulang cepat.
+            // Untuk kasus itu, minimal cek berdasarkan user_id + tanggal_pembayaran.
+            $existing = Pembayaran::where('user_id', $penghuni->user_id)
+                ->whereDate('tanggal_pembayaran', now()->toDateString())
+                ->where('nominal', (int) $kamar->harga)
+                ->exists();
+
+            if (!$existing) {
+                Pembayaran::create([
+                    'id_pembayaran' => $idPembayaran,
+                    'user_id' => $penghuni->user_id,
+                    'tanggal_pembayaran' => now()->toDateString(),
+                    'nominal' => (int) $kamar->harga,
+                    'tipe_pembayaran' => null,
+                    'jumlah_cicilan' => 1,
+                    'status' => 'belum_bayar',
+                ]);
+            }
         });
 
         return redirect()->back()->with('success', 'Penghuni berhasil disetujui.');

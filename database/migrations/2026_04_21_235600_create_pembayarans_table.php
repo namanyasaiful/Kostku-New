@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->date('tanggal_pembayaran');
             $table->integer('nominal');
-            $table->enum('tipe_pembayaran', ['lunas', 'cicilan'])->default('lunas');
+            $table->enum('tipe_pembayaran', ['lunas', 'cicilan'])->nullable();
             $table->integer('jumlah_cicilan')->default(1);
             $table->enum('status', ['belum_bayar', 'pending', 'lunas', 'failed'])->default('belum_bayar');
             $table->string('transaction_status')->nullable();

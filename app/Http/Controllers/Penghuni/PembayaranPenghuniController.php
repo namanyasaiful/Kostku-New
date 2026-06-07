@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Penghuni;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Models\Pembayaran;
 use Carbon\Carbon;
 use Midtrans\Snap;
+use Midtrans\Notification;
+use Exception;
 
 class PembayaranPenghuniController extends Controller
 {
@@ -29,7 +32,11 @@ class PembayaranPenghuniController extends Controller
             ->orderBy('tanggal_pembayaran', 'desc')
             ->get();
 
-        $pending = $payments->where('status', 'belum_bayar')->first();
+        // PERBAIKAN: Cari sub-cicilan yang belum bayar terlebih dahulu, jika tidak ada baru ambil data tagihan utama.
+        $pending = $payments->where('status', 'belum_bayar')
+                            ->sortByDesc('id') // Menjamin cicilan ter-update yang diambil
+                            ->first();
+
         $history = $payments->where('status', 'lunas');
 
         return view('pages.penghuni.pembayaran-penghuni', compact('pending', 'history'));
@@ -54,46 +61,140 @@ class PembayaranPenghuniController extends Controller
             'pembayaran_id' => 'required|integer|exists:pembayarans,id',
         ]);
 
-        $pembayaran = Pembayaran::findOrFail($request->pembayaran_id);
+    $pembayaran = Pembayaran::findOrFail($request->pembayaran_id);
 
-        if ($pembayaran->user_id !== Auth::id()) {
-            return response()->json([
-                'message' => 'Akses ke pembayaran ini tidak diizinkan.'
-            ], 403);
-        }
-
-        if ($pembayaran->status !== 'belum_bayar') {
-            return response()->json([
-                'message' => 'Pembayaran sudah selesai.'
-            ], 422);
-        }
-
-        $user = $pembayaran->user;
-
-        $params = [
-            'transaction_details' => [
-                'order_id' => $pembayaran->id_pembayaran,
-                'gross_amount' => $pembayaran->nominal,
-            ],
-            'customer_details' => [
-                'first_name' => $user->nama,
-                'email' => $user->email,
-            ],
-        ];
-
-        $snapToken = Snap::getSnapToken($params);
-
-        $pembayaran->update([
-            'snap_token' => $snapToken,
-        ]);
-
-        return response()->json([
-            'message' => 'Snap token generated',
-            'snap_token' => $snapToken,
-            'payment_id' => $pembayaran->id,
-            'order_id' => $pembayaran->id_pembayaran,
-        ]);
+    if ($pembayaran->user_id !== Auth::id()) {
+        return response()->json(['message' => 'Akses ke pembayaran ini tidak diizinkan.'], 403);
     }
+
+    if ($pembayaran->status !== 'belum_bayar') {
+        return response()->json(['message' => 'Pembayaran sudah selesai.'], 422);
+    }
+
+    $user = $pembayaran->user;
+
+    // Logika Cicilan
+    if ((string) ($pembayaran->tipe_pembayaran ?? '') === 'cicilan') {
+
+        // ==================== PERBAIKAN DI SINI ====================
+        // Jika ID Pembayaran mengandung kata '-c1-' atau '-c2-', artinya ini
+        // adalah data pecahan cicilan. LANGSUNG PROSES, JANGAN DIPOTONG LAGI!
+        if (str_contains($pembayaran->id_pembayaran, '-c1-') || str_contains($pembayaran->id_pembayaran, '-c2-')) {
+            return $this->generateSingleSnapToken($pembayaran, $user);
+        }
+        // ===========================================================
+
+        // Paksa agar trigger cicilan 2x terpenuhi untuk tagihan UTAMA
+        if ((int) $pembayaran->jumlah_cicilan !== 2) {
+            $pembayaran->update(['jumlah_cicilan' => 2]);
+            $pembayaran->refresh();
+        }
+
+        if ((int) $pembayaran->jumlah_cicilan === 2) {
+            $total = (int) $pembayaran->nominal;
+            $cicilan1 = intdiv($total, 2);
+            $cicilan2 = $total - $cicilan1;
+
+            $tanggal1 = $pembayaran->tanggal_pembayaran ? Carbon::parse($pembayaran->tanggal_pembayaran) : Carbon::now();
+            $tanggal2 = $tanggal1->copy()->addWeeks(2);
+
+            // Gunakan suffix pendek (6 digit jam-menit-detik) agar tidak melebihi 50 karakter Midtrans
+            $orderSuffixBase = now()->format('His');
+            $orderId1 = $pembayaran->id_pembayaran . '-c1-' . $orderSuffixBase;
+            $orderId2 = $pembayaran->id_pembayaran . '-c2-' . $orderSuffixBase;
+
+            $pembayaran1 = Pembayaran::where('id_pembayaran', $orderId1)->first();
+            $pembayaran2 = Pembayaran::where('id_pembayaran', $orderId2)->first();
+
+            if ($pembayaran2 && $pembayaran2->status === 'lunas') {
+                return response()->json([
+                    'message'        => 'Cicilan kedua sudah lunas. Tagihan periode berikutnya akan muncul sesuai jadwal.',
+                    'snap_tokens'    => [],
+                    'payment_ids'    => [],
+                    'order_ids'      => [],
+                ], 422);
+            }
+
+            if (!$pembayaran1) {
+                $pembayaran1 = Pembayaran::create([
+                    'id_pembayaran'      => $orderId1,
+                    'user_id'            => $pembayaran->user_id,
+                    'tanggal_pembayaran' => $tanggal1->toDateString(),
+                    'nominal'            => $cicilan1,
+                    'tipe_pembayaran'    => 'cicilan',
+                    'jumlah_cicilan'     => 1,
+                    'status'             => 'belum_bayar',
+                ]);
+            }
+
+            if (!$pembayaran2) {
+                $pembayaran2 = Pembayaran::create([
+                    'id_pembayaran'      => $orderId2,
+                    'user_id'            => $pembayaran->user_id,
+                    'tanggal_pembayaran' => $tanggal2->toDateString(),
+                    'nominal'            => $cicilan2,
+                    'tipe_pembayaran'    => 'cicilan',
+                    'jumlah_cicilan'     => 1,
+                    'status'             => 'belum_bayar',
+                ]);
+            }
+
+            $snapTokens = [];
+            foreach ([$pembayaran1, $pembayaran2] as $item) {
+                $snapTokens[] = Snap::getSnapToken([
+                    'transaction_details' => [
+                        'order_id'     => $item->id_pembayaran,
+                        'gross_amount' => $item->nominal,
+                    ],
+                    'customer_details' => [
+                        'first_name' => $user->nama,
+                        'email'      => $user->email,
+                    ],
+                ]);
+            }
+
+            [$snapToken1, $snapToken2] = $snapTokens;
+            $pembayaran1->update(['snap_token' => $snapToken1]);
+            $pembayaran2->update(['snap_token' => $snapToken2]);
+
+            return response()->json([
+                'message'     => 'Snap token generated for cicilan 2x',
+                'snap_tokens' => [$snapToken1, $snapToken2],
+                'payment_ids' => [$pembayaran1->id, $pembayaran2->id],
+                'order_ids'   => [$pembayaran1->id_pembayaran, $pembayaran2->id_pembayaran],
+            ]);
+        }
+    }
+
+    // Default: 1 transaksi tunggal (Lunas)
+    return $this->generateSingleSnapToken($pembayaran, $user);
+}
+
+/**
+ * Helper Helper untuk memproses pembayaran tunggal / pelunasan langsung tanpa potong
+ */
+private function generateSingleSnapToken($pembayaran, $user)
+{
+    $snapToken = Snap::getSnapToken([
+        'transaction_details' => [
+            'order_id'     => $pembayaran->id_pembayaran,
+            'gross_amount' => (int) $pembayaran->nominal, // Nominal penuh dari record yang dipilih
+        ],
+        'customer_details' => [
+            'first_name' => $user->nama,
+            'email'      => $user->email,
+        ],
+    ]);
+
+    $pembayaran->update(['snap_token' => $snapToken]);
+
+    return response()->json([
+        'message'    => 'Snap token generated',
+        'snap_token' => $snapToken,
+        'payment_id' => $pembayaran->id,
+        'order_id'   => $pembayaran->id_pembayaran,
+    ]);
+}
 
     public function status(Pembayaran $pembayaran)
     {
@@ -102,19 +203,17 @@ class PembayaranPenghuniController extends Controller
         }
 
         if ($pembayaran->user_id !== Auth::id()) {
-            return response()->json([
-                'message' => 'Akses ke pembayaran ini tidak diizinkan.'
-            ], 403);
+            return response()->json(['message' => 'Akses ke pembayaran ini tidak diizinkan.'], 403);
         }
 
         return response()->json([
-            'status' => $pembayaran->status,
+            'status'             => $pembayaran->status,
             'transaction_status' => $pembayaran->transaction_status,
-            'transaction_id' => $pembayaran->transaction_id,
-            'va_number' => $pembayaran->va_number,
-            'payment_type' => $pembayaran->payment_type,
-            'paid_at' => $pembayaran->paid_at,
-            'snap_token' => $pembayaran->snap_token,
+            'transaction_id'     => $pembayaran->transaction_id,
+            'va_number'          => $pembayaran->va_number,
+            'payment_type'       => $pembayaran->payment_type,
+            'paid_at'            => $pembayaran->paid_at,
+            'snap_token'         => $pembayaran->snap_token,
         ]);
     }
 
@@ -203,6 +302,9 @@ class PembayaranPenghuniController extends Controller
             if ($vaNumber) {
                 $updateData['va_number'] = $vaNumber;
             }
+            if ($vaNumber) {
+                $updateData['va_number'] = $vaNumber;
+            }
 
             // Idempotency check: jika status di DB sudah 'lunas'
             $alreadySettled = ($pembayaran->status === 'lunas');
@@ -267,7 +369,6 @@ class PembayaranPenghuniController extends Controller
             ], 500);
         }
     }
-
 
     public function getHistory()
     {

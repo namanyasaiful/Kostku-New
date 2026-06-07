@@ -8,6 +8,7 @@
         description="Tagihan dan riwayat pembayaran Anda">
     </x-page-header>
 
+    {{-- Notifikasi Status Pembayaran --}}
     @if(session('payment_status'))
     <div class="mb-4 p-4 rounded-lg bg-green-50 border border-green-200 text-green-800" x-data @if(session('payment_status')==='finish' ) x-init="setTimeout(() => window.location.reload(), 2000)" @endif>
         @if(session('payment_status') === 'finish')
@@ -20,10 +21,11 @@
     </div>
     @endif
 
+    {{-- Detail Info Tagihan Aktif --}}
     <x-card class="mb-4">
         <div class="flex flex-col lg:gap-8 gap-4">
             <div>
-                <p class="text-neutral text-xs font-medium mb-2">Total Tagihan</p>
+                <p class="text-neutral text-xs font-medium mb-2">Total Tagihan Sisa</p>
                 <h1 class="text-primary lg:text-3xl text-2xl font-bold">
                     @if($pending)
                     Rp{{ number_format($pending->nominal, 0, ',', '.') }}
@@ -76,6 +78,7 @@
         </div>
     </x-card>
 
+    {{-- Riwayat Pembayaran --}}
     <x-card>
         <h1 class="text-black text-xl font-bold mb-4">Riwayat Pembayaran</h1>
         <div id="historyContainer">
@@ -112,15 +115,10 @@
         </div>
     </x-card>
 
+    {{-- Modal Konfirmasi --}}
     <x-modal show="modalOpen" maxWidth="lg:max-w-[450px] max-w-[350px]">
         <div class="relative">
-            <button
-                type="button"
-                class="absolute top-0 right-0 text-neutral hover:text-black text-xl font-bold"
-                @click="modalOpen = false; alertMessage = null;">
-                ✕
-            </button>
-
+            <button type="button" class="absolute top-0 right-0 text-neutral hover:text-black text-xl font-bold" @click="modalOpen = false; alertMessage = null;">✕</button>
             <h2 class="text-xl font-bold mb-8">Konfirmasi Pembayaran</h2>
 
             <div class="flex flex-col gap-4">
@@ -132,14 +130,12 @@
                 </div>
                 <div class="flex justify-between border-b-2">
                     <p class="text-md text-black font-medium">Jenis Pembayaran</p>
-                    <p class="text-md text-primary font-semibold" x-text="payment ? (payment.tipe_pembayaran === 'cicilan' ? 'Cicilan' : 'Lunas') : '-' "></p>
+                    <p class="text-md text-primary font-semibold" x-text="selectedType === 'cicilan' ? 'Cicilan' : 'Lunas'"></p>
                 </div>
             </div>
 
             <template x-if="alertMessage">
-                <div class="mt-4 p-3 rounded-md bg-red-50 text-red-700">
-                    <p x-text="alertMessage"></p>
-                </div>
+                <div class="mt-4 p-3 rounded-md bg-red-50 text-red-700"><p x-text="alertMessage"></p></div>
             </template>
 
             <button
@@ -152,6 +148,7 @@
         </div>
     </x-modal>
 
+    {{-- Script Midtrans & Alpine.js Logic --}}
     <script src="{{ config('midtrans.isProduction') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}" data-client-key="{{ config('midtrans.clientKey') }}"></script>
     <script>
         function pembayaranPage(payment) {
@@ -161,13 +158,45 @@
                 alertMessage: null,
                 statusPolling: false,
                 payment: payment,
+                selectedType: payment?.tipe_pembayaran ?? null,
 
-                payNow() {
-                    if (!this.payment) {
-                        this.alertMessage = 'Tidak ada tagihan aktif untuk dibayar.';
+                startSnapPay({ snapToken, paymentId, mode }) {
+                    window.snap.pay(snapToken, {
+                        onSuccess: () => {
+                            window.location.href = '/payment/finish';
+                        },
+                        onPending: () => window.location.href = `/payment/pending/${paymentId}`,
+                        onError: (result) => {
+                            this.alertMessage = 'Terjadi kesalahan pada proses pembayaran. Silakan coba lagi.';
+                            console.error(result);
+                        },
+                        onClose: () => this.alertMessage = 'Pembayaran dibatalkan. Silakan coba lagi.'
+                    });
+                },
+
+                handleCreatePaymentResponse(response) {
+                    if (response.data.snap_tokens?.length > 0) {
+                        // Jika backend mengembalikan 2 token untuk sistem cicilan baru
+                        const snapToken = response.data.snap_tokens[0];
+                        const paymentId = response.data.payment_ids[0];
+                        if (!snapToken) throw new Error('Token pembayaran tidak ditemukan.');
+
+                        this.payment = { ...this.payment, id: paymentId };
+                        this.pollPaymentStatus();
+                        this.startSnapPay({ snapToken, paymentId, mode: 'cicilan' });
                         return;
                     }
 
+                    const { snap_token: snapToken, payment_id: paymentId } = response.data;
+                    if (!snapToken) throw new Error('Token pembayaran tidak ditemukan.');
+
+                    this.payment = { ...this.payment, id: paymentId };
+                    this.pollPaymentStatus();
+                    this.startSnapPay({ snapToken, paymentId, mode: 'default' });
+                },
+
+                payNow() {
+                    if (!this.payment) return this.alertMessage = 'Tidak ada tagihan aktif untuk dibayar.';
                     this.isLoading = true;
                     this.alertMessage = null;
 
@@ -211,32 +240,17 @@
                 },
 
                 pollHistoryAfterPayment() {
-                    if (!document.querySelector('[data-payment-finish]')) {
-                        return;
-                    }
-
+                    if (!document.querySelector('[data-payment-finish]')) return;
                     let pollCount = 0;
-                    const maxPolls = 10; // Max 30 detik polling
-
                     const check = () => {
                         axios.get('/payment/history')
                             .then(response => {
-                                if (response.data.history && response.data.history.length > 0) {
-                                    // History berhasil ter-update, refresh halaman
-                                    window.location.reload();
-                                } else {
-                                    pollCount++;
-                                    if (pollCount < maxPolls) {
-                                        setTimeout(check, 3000);
-                                    }
-                                }
+                                if (response.data.history?.length > 0) window.location.reload();
+                                else if (++pollCount < 10) setTimeout(check, 3000);
                             })
                             .catch(error => {
                                 console.error('History poll error:', error);
-                                pollCount++;
-                                if (pollCount < maxPolls) {
-                                    setTimeout(check, 3000);
-                                }
+                                if (++pollCount < 10) setTimeout(check, 3000);
                             });
                     };
 
@@ -264,47 +278,28 @@
                 },
 
                 pollPaymentStatus() {
-                    if (this.statusPolling || !this.payment) {
-                        return;
-                    }
-
+                    if (this.statusPolling || !this.payment) return;
                     this.statusPolling = true;
                     const check = () => {
                         axios.get(`/payment/status/${this.payment.id}`)
                             .then(response => {
-                                if (response.data.status === 'lunas') {
-                                    window.location.href = '/payment/finish';
-                                    return;
-                                }
-
-                                setTimeout(check, 5000);
+                                if (response.data.status === 'lunas') window.location.href = '/payment/finish';
+                                else setTimeout(check, 5000);
                             })
                             .catch(error => {
                                 console.error('Status polling error:', error);
                                 this.statusPolling = false;
                             });
                     };
-
                     check();
                 },
 
-                simulateSettlement() {
-                    if (!this.payment) {
-                        this.alertMessage = 'Tidak ada pembayaran untuk disimulasikan.';
-                        return;
-                    }
+                onClickPaymentType(type) {
+                    if (!this.payment) return this.alertMessage = 'Tidak ada tagihan aktif untuk dibayar.';
+                    this.selectedType = type;
 
-                    this.isLoading = true;
-                    axios.post(`/payment/simulate/${this.payment.id}/settlement`)
-                        .then(() => {
-                            window.location.href = '/payment/finish';
-                        })
-                        .catch(error => {
-                            this.alertMessage = error.response?.data?.message || 'Gagal mensimulasikan pembayaran.';
-                        })
-                        .finally(() => {
-                            this.isLoading = false;
-                        });
+                    // Buka modal konfirmasi terlebih dahulu agar user bisa melihat detail nominal yang akan dibayar
+                    this.modalOpen = true;
                 }
             }
         }

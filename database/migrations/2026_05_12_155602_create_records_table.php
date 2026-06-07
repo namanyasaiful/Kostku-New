@@ -19,10 +19,11 @@ return new class extends Migration
             $table->enum('skor_perawatan_fasilitas', ['Baik', 'Perlu Perhatian', 'Buruk'])->default('Baik');
             $table->string('catatan')->nullable();
             $table->string('bukti')->nullable();
-            $table->foreignId('kamar_id')->references('id')->on('kamars')->OnDelete('set null');
+            $table->foreignId('kamar_id')->nullable()->references('id')->on('kamars')->onDelete('set null');
             $table->date('tanggal_masuk')->nullable();
             $table->date('tanggal_keluar')->nullable();
             $table->enum('is_redflag', ['yes', 'no'])->default('no');
+            $table->enum('status', ['Menunggu', 'Disetujui', 'Ditolak'])->default('Menunggu');
             $table->timestamps();
         });
     }
