@@ -156,7 +156,7 @@
                 {{-- ================= KAMAR TERISI ================= --}}
                 <template x-if="activeTab === 'semua' || activeTab === 'terisi'">
                     <tbody class="divide-y divide-gray-200">
-                        @forelse($allKamars->where('status', 'terisi') as $kamar)
+                        @forelse($terisiKamars as $kamar)
                         <tr class="border-b hover:bg-gray-50 transition">
                             <td class="py-4 px-3 text-sm">
                                 {{ $kamar->nomor_kamar }}
@@ -210,7 +210,7 @@
                 {{-- ================= KAMAR KOSONG ================= --}}
                 <template x-if="activeTab === 'semua' || activeTab === 'kosong'">
                     <tbody class="divide-y divide-gray-200">
-                        @forelse($allKamars->where('status', 'kosong') as $kamar)
+                        @forelse($kosongKamars as $kamar)
                         <tr class="border-b hover:bg-gray-50 transition">
                             <td class="py-4 px-3 text-sm">
                                 {{ $kamar->nomor_kamar }}
@@ -279,7 +279,15 @@
 
 
     {{-- ================= PAGINATION ================= --}}
-    <x-pagination />
+    <div x-show="activeTab === 'semua'">
+    <x-pagination :paginator="$allKamars" />
+    </div>
+    <div x-show="activeTab === 'terisi'">
+        <x-pagination :paginator="$terisiKamars" />
+    </div>
+    <div x-show="activeTab === 'kosong'">
+        <x-pagination :paginator="$kosongKamars" />
+    </div>
 
 
     {{-- ================= MODAL ================= --}}

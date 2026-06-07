@@ -4,7 +4,40 @@
 @section('content')
 
 <div
-    x-data="{ step: 1, open: false, status: null }"
+    x-data="{
+        step: {{ $errors->hasAny(['nama_kost','alamat_kost','sertifikat']) && !$errors->hasAny(['nama','telpon','email','password','alamat']) ? 2 : 1 }},
+        open: false,
+        status: null,
+        errors: {
+            nama: '{{ addslashes($errors->first('nama')) }}',
+            telpon: '{{ addslashes($errors->first('telpon')) }}',
+            email: '{{ addslashes($errors->first('email')) }}',
+            password: '{{ addslashes($errors->first('password')) }}',
+            alamat: '{{ addslashes($errors->first('alamat')) }}',
+        },
+        validateStep1() {
+            this.errors = {};
+            if (!document.querySelector('[name=nama]').value.trim())
+                this.errors.nama = 'Nama wajib diisi.';
+            const telpon = document.querySelector('[name=telpon]').value.trim();
+            if (!telpon)
+                this.errors.telpon = 'Nomor telepon wajib diisi.';
+            else if (!/^\d+$/.test(telpon))
+                this.errors.telpon = 'Nomor telepon harus berupa angka.';
+            const email = document.querySelector('[name=email]').value.trim();
+            if (!email)
+                this.errors.email = 'Email wajib diisi.';
+            else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+                this.errors.email = 'Format email tidak valid.';
+            if (!document.querySelector('[name=password]').value)
+                this.errors.password = 'Password wajib diisi.';
+            else if (document.querySelector('[name=password]').value.length < 8)
+                this.errors.password = 'Password minimal 8 karakter.';
+            if (!document.querySelector('[name=alamat]').value.trim())
+                this.errors.alamat = 'Alamat wajib diisi.';
+            return Object.keys(this.errors).length === 0;
+        }
+    }"
     @open-modal.window="open = true; status = $event.detail"
     class="relative min-h-screen">
 
@@ -51,13 +84,37 @@
                             <h1 class="lg:text-3xl text-xl font-bold mb-4">Daftar Pengelola</h1>
                             <p class="text-neutral text-sm mb-6">Buat akun untuk mengelola aktivitas Anda.</p>
 
-                            <x-form.input label="Nama Pengelola" name="nama" placeholder="Masukkan nama lengkap" placeholder="Masukkan nama lengkap" class="mb-4" />
-                            <x-form.input label="Nomor telepon" name="telpon" placeholder="08xxxxxxxxxx" class="mb-4" />
-                            <x-form.input label="Email" name="email" type="email" placeholder="contoh@gmail.com" class="mb-4" />
-                            <div class="mb-4"><x-form.input label="Password" name="password" placeholder="Masukkan password" type="password" /></div>
-                            <x-form.input label="Alamat" name="alamat" placeholder="Masukkan alamat lengkap" class="mb-4" />
+                            {{-- Nama --}}
+                            <div class="mb-4">
+                                <x-form.input label="Nama Pengelola" name="nama" placeholder="Masukkan nama lengkap" :value="old('nama')" />
+                                <p x-show="errors.nama" x-text="errors.nama" class="text-red-500 text-xs mt-1"></p>
+                            </div>
 
-                            <x-form.button type="button" class="w-full my-4" @click="step = 2">
+                            {{-- Telepon --}}
+                            <div class="mb-4">
+                                <x-form.input label="Nomor telepon" name="telpon" placeholder="08xxxxxxxxxx" :value="old('telpon')" />
+                                <p x-show="errors.telpon" x-text="errors.telpon" class="text-red-500 text-xs mt-1"></p>
+                            </div>
+
+                            {{-- Email --}}
+                            <div class="mb-4">
+                                <x-form.input label="Email" name="email" type="email" placeholder="contoh@gmail.com" :value="old('email')" />
+                                <p x-show="errors.email" x-text="errors.email" class="text-red-500 text-xs mt-1"></p>
+                            </div>
+
+                            {{-- Password --}}
+                            <div class="mb-4">
+                                <x-form.input label="Password" name="password" placeholder="Masukkan password" type="password" />
+                                <p x-show="errors.password" x-text="errors.password" class="text-red-500 text-xs mt-1"></p>
+                            </div>
+
+                            {{-- Alamat --}}
+                            <div class="mb-4">
+                                <x-form.input label="Alamat" name="alamat" placeholder="Masukkan alamat lengkap" :value="old('alamat')" />
+                                <p x-show="errors.alamat" x-text="errors.alamat" class="text-red-500 text-xs mt-1"></p>
+                            </div>
+
+                            <x-form.button type="button" class="w-full my-4" @click="if(validateStep1()) step = 2">
                                 Lanjut
                             </x-form.button>
                             <div class="flex justify-center">
@@ -81,8 +138,21 @@
 
                             <h1 class="lg:text-3xl text-xl font-bold mb-4">Daftar Kost</h1>
 
-                            <x-form.input label="Nama Kost" name="nama_kost" placeholder="Masukkan nama kost" class="mb-4" />
-                            <x-form.input label="Alamat Kost" name="alamat_kost" placeholder="Masukkan alamat kost" class="mb-4" />
+                            {{-- Nama Kost --}}
+                            <div class="mb-4">
+                                <x-form.input label="Nama Kost" name="nama_kost" placeholder="Masukkan nama kost" :value="old('nama_kost')" />
+                                @error('nama_kost')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            {{-- Alamat Kost --}}
+                            <div class="mb-4">
+                                <x-form.input label="Alamat Kost" name="alamat_kost" placeholder="Masukkan alamat kost" :value="old('alamat_kost')" />
+                                @error('alamat_kost')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
 
                             {{-- FILE UPLOAD --}}
                             <div x-data="{
@@ -106,7 +176,7 @@
                                 <div x-show="!file">
 
                                     <div
-                                        class="border-2 border-dashed border-gray-300 rounded-xl h-32 cursor-pointer hover:border-primary transition flex items-center justify-center"
+                                        class="border-2 border-dashed {{ $errors->has('sertifikat') ? 'border-red-400' : 'border-gray-300' }} rounded-xl h-32 cursor-pointer hover:border-primary transition flex items-center justify-center"
                                         @click="$refs.file.click()">
 
                                         <div class="flex flex-col items-center justify-center text-body lg:p-2 p-6">
@@ -177,7 +247,12 @@
                                     @change="handleFile($event)">
 
                             </div>
-                            <p class="text-neutral text-xs mb-4">Dokumen ini digunakan untuk verifikasi kepemilikan kost</p>
+
+                            @error('sertifikat')
+                                <p class="text-red-500 text-xs mt-1 mb-2">{{ $message }}</p>
+                            @else
+                                <p class="text-neutral text-xs mb-4">Dokumen ini digunakan untuk verifikasi kepemilikan kost</p>
+                            @enderror
 
                             <x-form.button
                                 type="button"
@@ -275,4 +350,4 @@
     @endif
 
 
-    @endsection
+@endsection

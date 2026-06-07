@@ -17,19 +17,27 @@ class KamarPengelolaController extends Controller
             if (Auth::check() && Auth::user()->role === 'penghuni') {
                 return redirect()->route('dashboard.penghuni');
             }
-
             return redirect()->route('login');
         }
 
         $kosts = Kost::where('user_id', Auth::id())->get();
+        $kostIds = $kosts->pluck('id');
 
-        // Ambil semua kamar dari semua kost milik pengelola ini
-        $allKamars = Kamar::query()
-            ->whereIn('kode_kost', $kosts->pluck('id'))
+        $allKamars = Kamar::whereIn('kode_kost', $kostIds)
             ->with('penghuni')
-            ->get();
+            ->paginate(10);
 
-        return view('pages.pengelola.kamar-pengelola', compact('kosts', 'allKamars'));
+        $terisiKamars = Kamar::whereIn('kode_kost', $kostIds)
+            ->with('penghuni')
+            ->where('status', 'terisi')
+            ->paginate(10);
+
+        $kosongKamars = Kamar::whereIn('kode_kost', $kostIds)
+            ->with('penghuni')
+            ->where('status', 'kosong')
+            ->paginate(10);
+
+        return view('pages.pengelola.kamar-pengelola', compact('kosts', 'allKamars', 'terisiKamars', 'kosongKamars'));
     }
 
     public function storeKamar(Request $request)

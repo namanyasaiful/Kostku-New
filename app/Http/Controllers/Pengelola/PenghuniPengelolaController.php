@@ -45,16 +45,16 @@ class PenghuniPengelolaController extends Controller
         $daftarPenghuni = (clone $query)
             ->where('status_request', 'disetujui')
             ->whereNull('tanggal_keluar')
-            ->get();
+            ->paginate(10, ['*'], 'daftar_page');
 
         $permintaanMasuk = (clone $query)
             ->where('status_request', 'menunggu')
-            ->get();
+            ->paginate(10, ['*'], 'masuk_page');
 
         $permintaanKeluar = (clone $query)
             ->where('status_request', 'disetujui')
             ->whereNotNull('tanggal_keluar')
-            ->get();
+            ->paginate(10, ['*'], 'keluar_page');
 
         $kamarKosong = Kamar::whereIn('kode_kost', $kostIds)->where('status', 'kosong')->get();
 

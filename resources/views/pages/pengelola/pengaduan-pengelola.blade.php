@@ -137,7 +137,7 @@
     </x-card>
 
     {{-- ================= PAGINATION ================= --}}
-    <x-pagination />
+    <x-pagination :paginator="$pengaduans" />
 
     {{-- ================= MODAL ================= --}}
     <x-modal show="modalOpen" maxWidth="lg:max-w-[450px] max-w-[350px]">

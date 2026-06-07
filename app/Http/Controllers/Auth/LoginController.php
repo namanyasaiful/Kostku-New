@@ -18,7 +18,13 @@ class LoginController extends Controller
         $credentials = $request->validate([
             'email'    => 'required|string|email|max:255',
             'password' => 'required|string|min:8',
+        ], [
+            'email.required'    => 'Email wajib diisi.',
+            'email.email'       => 'Format email tidak valid.',
+            'password.required' => 'Password wajib diisi.',
+            'password.min'      => 'Password minimal 8 karakter.',
         ]);
+
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();

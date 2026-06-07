@@ -46,7 +46,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('sessionLogin') }}" method="POST">
+                    <form action="{{ route('sessionLogin') }}" method="POST" novalidate>
                         @csrf
 
                         {{-- Email --}}

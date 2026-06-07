@@ -88,34 +88,44 @@
             </thead>
 
             <tbody>
-                <x-table.tr>
-                    <x-table.td class="font-medium text-heading">
-                        Anto Subagja
-                    </x-table.td>
-                    <x-table.td>
-                        KM001
-                    </x-table.td>
-                    <x-table.td>
-                        08/04/2026
-                    </x-table.td>
-                    <x-table.td>
-                        Rp500.000
-                    </x-table.td>
-                    <x-table.td>
-                        Lunas
-                    </x-table.td>
-                    <x-table.td>
-                        <x-form.button
-                            @click.prevent="openModal('detail-pembayaran')"
-                            class="w-24 !p-2 border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">Detail</x-form.button>
-                    </x-table.td>
-                </x-table.tr>
-            </tbody>
+            @forelse($pembayarans as $bayar)
+            <x-table.tr>
+                <x-table.td class="font-medium text-heading">
+                    {{ $bayar->user->nama ?? '-' }}
+                </x-table.td>
+                <x-table.td>
+                    {{ $bayar->user->penghuni->kamar->nomor_kamar ?? '-' }}
+                </x-table.td>
+                <x-table.td>
+                    {{ \Carbon\Carbon::parse($bayar->tanggal_pembayaran)->format('d/m/Y') }}
+                </x-table.td>
+                <x-table.td>
+                    Rp{{ number_format($bayar->nominal, 0, ',', '.') }}
+                </x-table.td>
+                <x-table.td>
+                    {{ ucfirst($bayar->tipe_pembayaran ?? '-') }}
+                </x-table.td>
+                <x-table.td>
+                    <x-form.button
+                        @click.prevent="openModal('detail-pembayaran')"
+                        class="w-24 !p-2 border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">
+                        Detail
+                    </x-form.button>
+                </x-table.td>
+            </x-table.tr>
+            @empty
+            <x-table.tr>
+                <x-table.td colspan="6" class="text-center text-neutral">
+                    Belum ada data pembayaran.
+                </x-table.td>
+            </x-table.tr>
+            @endforelse
+        </tbody>
         </x-table.index>
     </x-card>
 
     {{-- ================= PAGINATION ================= --}}
-    <x-pagination />
+    <x-pagination :paginator="$pembayarans" />
 
     {{-- ================= MODAL ================= --}}
     <x-modal show="modalOpen" maxWidth="lg:max-w-[500px] max-w-[350px]">
