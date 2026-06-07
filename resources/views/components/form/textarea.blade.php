@@ -38,7 +38,7 @@
         ]) }}>{{ old($name, $slot) }}</textarea>
 
     @error($name)
-    <p class="text-sm text-red-500">
+    <p class="text-xs text-red-500">
         {{ $message }}
     </p>
     @enderror
