@@ -116,7 +116,7 @@
                 </span>
             </a>
 
-            <form id="logout-form" action="{{ route('superadmin.logout') }}" method="POST" class="hidden">
+            <form x-ref="logoutForm" action="{{ route('superadmin.logout') }}" method="POST" class="hidden">
                 @csrf
             </form>
         </div>
@@ -211,7 +211,7 @@
                         Logout
                     </x-form.button>
                 </div>
-                <form x-ref="logoutForm" action="{{ route('penghuni.logout') }}" method="POST" class="hidden">
+                <form x-ref="logoutForm" action="{{ route('superadmin.logout') }}" method="POST" class="hidden">
                     @csrf
                 </form>
             </div>

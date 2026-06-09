@@ -17,49 +17,53 @@
         <div class="flex flex-col justify-between bg-white border border-none rounded-xl p-4 lg:p-5">
             <div class="flex justify-between">
                 <div class="flex flex-col gap-1">
-                    <p class="text-xs lg:text-sm text-black">
-                        Pendapatan Bulan Ini
-                    </p>
+                    <p class="text-xs lg:text-sm text-black">Pendapatan Bulan Ini</p>
                     <h2 class="text-xl lg:text-2xl font-bold text-black">
-                        Rp1.000.000
+                        Rp{{ number_format($pendapatanBulanIni, 0, ',', '.') }}
                     </h2>
                 </div>
-                <img
-                    src="{{ asset('assets/icons/pendapatan-vers2-icon.png') }}"
-                    alt="Total Penghuni"
-                    class="w-9 h-9 lg:w-14 lg:h-14 mb-4">
+                <img src="{{ asset('assets/icons/pendapatan-vers2-icon.png') }}" class="w-9 h-9 lg:w-14 lg:h-14 mb-4">
             </div>
             <div class="flex gap-2 items-center">
-                <img src="{{ asset('assets/icons/down-icon.png') }}" alt="Turun" class="lg:w-6 w-4">
-                <p class="lg:text-sm text-xs text-neutral">Turun dari bulan kemarin</p>
+                @if($pendapatanBulanIni >= $pendapatanBulanLalu)
+                    <img src="{{ asset('assets/icons/up-icon.png') }}" class="lg:w-6 w-4">
+                    <p class="lg:text-sm text-xs text-neutral">Naik dari bulan kemarin</p>
+                @else
+                    <img src="{{ asset('assets/icons/down-icon.png') }}" class="lg:w-6 w-4">
+                    <p class="lg:text-sm text-xs text-neutral">Turun dari bulan kemarin</p>
+                @endif
             </div>
         </div>
+
         <div class="flex flex-col justify-between bg-white border border-none rounded-xl p-4 lg:p-5">
             <div class="flex justify-between">
                 <div class="flex flex-col gap-1">
-                    <p class="text-xs lg:text-sm text-black">
-                        Total Transaksi
-                    </p>
+                    <p class="text-xs lg:text-sm text-black">Total Transaksi</p>
                     <h2 class="text-xl lg:text-2xl font-bold text-black">
-                        3
+                        {{ $totalTransaksiBulanIni }}
                     </h2>
                 </div>
-                <img
-                    src="{{ asset('assets/icons/pendapatan-icon.png') }}"
-                    alt="Total Penghuni"
-                    class="w-9 h-9 lg:w-14 lg:h-14 mb-4">
+                <img src="{{ asset('assets/icons/pendapatan-icon.png') }}" class="w-9 h-9 lg:w-14 lg:h-14 mb-4">
             </div>
             <div class="flex gap-2 items-center">
-                <img src="{{ asset('assets/icons/up-icon.png') }}" alt="Naik" class="lg:w-6 w-4">
-                <p class="lg:text-sm text-xs text-neutral">Naik dari hari kemarin</p>
+                @if($totalTransaksiBulanIni >= $totalTransaksiKemarin)
+                    <img src="{{ asset('assets/icons/up-icon.png') }}" class="lg:w-6 w-4">
+                    <p class="lg:text-sm text-xs text-neutral">Naik dari hari kemarin</p>
+                @else
+                    <img src="{{ asset('assets/icons/down-icon.png') }}" class="lg:w-6 w-4">
+                    <p class="lg:text-sm text-xs text-neutral">Turun dari hari kemarin</p>
+                @endif
             </div>
         </div>
     </div>
 
     {{-- ================= SEARCH ================= --}}
-    <x-search-input
-        name="search_pembayaran"
-        placeholder="Cari" />
+    <form method="GET" action="{{ route('pembayaran.pengelola') }}" class="mb-4">
+        <x-search-input
+            name="search_pembayaran"
+            placeholder="Cari"
+            value="{{ request('search_pembayaran') }}" />
+    </form>
 
     {{-- ================= TABLE ================= --}}
     <x-card class="mt-4 mb-6">
@@ -113,15 +117,21 @@
                     </x-form.button>
                 </x-table.td>
             </x-table.tr>
+
             @empty
             <x-table.tr>
-                <x-table.td colspan="6" class="text-center text-neutral">
-                    Belum ada data pembayaran.
+                <x-table.td colspan="5" class="text-center text-neutral py-10">
+                    {{ request('search_pembayaran') ? 'Tidak ada hasil untuk "' . request('search_pembayaran') . '".' : 'Belum ada riwayat pembayaran.' }}
                 </x-table.td>
             </x-table.tr>
             @endforelse
         </tbody>
         </x-table.index>
+
+        {{-- MENAMPILKAN DATA --}}
+        <div class="flex items-center justify-between mt-4">
+            <p class="text-xs text-neutral mt-3">Menampilkan {{ $pembayarans->count() }} data</p>
+        </div>
     </x-card>
 
     {{-- ================= PAGINATION ================= --}}

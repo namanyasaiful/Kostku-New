@@ -21,14 +21,14 @@
                     <img src="{{ asset('assets/icons/kamar-icon-active.png') }}" alt="Kost" class="w-4 h-auto mb-4">
                     <div class="flex flex-col">
                         <p class="text-xs text-neutral mb-1">Nama Kost</p>
-                        <p class="text-black text-sm font-bold">Kost Jaya Abadi</p>
+                        <p class="text-black text-sm font-bold"> {{ $kost->nama_kost ?? '-' }}</p>
                     </div>
                 </div>
                 <div class="flex lg:gap-4 gap-2 items-center">
                     <img src="{{ asset('assets/icons/key-icon.png') }}" alt="Key" class="w-5 h-auto mb-4">
                     <div class="flex flex-col">
                         <p class="text-xs text-neutral mb-1">Kode Kost</p>
-                        <p class="text-black text-sm font-bold">JYABD1</p>
+                        <p class="text-black text-sm font-bold">{{ $kost->kode_kost ?? '-' }}</p>
                     </div>
                 </div>
             </div>
@@ -47,7 +47,7 @@
                         Total Penghuni
                     </p>
                     <h2 class="text-xl lg:text-2xl font-bold text-black">
-                        3
+                        {{ $totalPenghuni }}
                     </h2>
                 </div>
                 <img
@@ -56,8 +56,17 @@
                     class="w-9 h-9 lg:w-14 lg:h-14 mb-4">
             </div>
             <div class="flex gap-2 items-center">
+                @if($penghuniCurrent >= $penghuniYesterday)
                 <img src="{{ asset('assets/icons/up-icon.png') }}" alt="Naik" class="lg:w-6 w-4">
-                <p class="lg:text-sm text-xs text-neutral">Naik dari hari kemarin</p>
+                <p class="lg:text-sm text-xs text-neutral">
+                    Naik dari hari kemarin
+                </p>
+                @else
+                <img src="{{ asset('assets/icons/down-icon.png') }}" alt="Turun" class="lg:w-6 w-4">
+                <p class="lg:text-sm text-xs text-neutral">
+                    Turun dari hari kemarin
+                </p>
+                @endif
             </div>
         </div>
 
@@ -69,7 +78,7 @@
                         Kamar Terisi
                     </p>
                     <h2 class="text-xl lg:text-2xl font-bold text-black">
-                        3
+                        {{ $kamarTerisi }}
                     </h2>
                 </div>
                 <img
@@ -78,8 +87,17 @@
                     class="w-9 h-9 lg:w-14 lg:h-14 mb-4">
             </div>
             <div class="flex gap-2 items-center">
+                @if($penghuniCurrent >= $penghuniYesterday)
                 <img src="{{ asset('assets/icons/up-icon.png') }}" alt="Naik" class="lg:w-6 w-4">
-                <p class="lg:text-sm text-xs text-neutral">Naik dari hari kemarin</p>
+                <p class="lg:text-sm text-xs text-neutral">
+                    Naik dari hari kemarin
+                </p>
+                @else
+                <img src="{{ asset('assets/icons/down-icon.png') }}" alt="Turun" class="lg:w-6 w-4">
+                <p class="lg:text-sm text-xs text-neutral">
+                    Turun dari hari kemarin
+                </p>
+                @endif
             </div>
         </div>
 
@@ -91,7 +109,7 @@
                         Kamar Kosong
                     </p>
                     <h2 class="text-xl lg:text-2xl font-bold text-black">
-                        3
+                        {{ $kamarKosong }}
                     </h2>
                 </div>
                 <img
@@ -100,8 +118,17 @@
                     class="w-9 h-9 lg:w-14 lg:h-14 mb-4">
             </div>
             <div class="flex gap-2 items-center">
+                @if($penghuniCurrent >= $penghuniYesterday)
+                <img src="{{ asset('assets/icons/up-icon.png') }}" alt="Naik" class="lg:w-6 w-4">
+                <p class="lg:text-sm text-xs text-neutral">
+                    Naik dari hari kemarin
+                </p>
+                @else
                 <img src="{{ asset('assets/icons/down-icon.png') }}" alt="Turun" class="lg:w-6 w-4">
-                <p class="lg:text-sm text-xs text-neutral">Turun dari hari kemarin</p>
+                <p class="lg:text-sm text-xs text-neutral">
+                    Turun dari hari kemarin
+                </p>
+                @endif
             </div>
         </div>
 
@@ -113,7 +140,7 @@
                         Pendapatan Bulan Ini
                     </p>
                     <h2 class="text-xl lg:text-2xl font-bold text-black">
-                        Rp.1.000.000
+                        Rp{{ number_format($pendapatanBulanIni, 0, ',', '.') }}
                     </h2>
                 </div>
                 <img
@@ -122,8 +149,17 @@
                     class="w-9 h-9 lg:w-14 lg:h-14 mb-4">
             </div>
             <div class="flex gap-2 items-center">
+                @if($penghuniCurrent >= $penghuniYesterday)
                 <img src="{{ asset('assets/icons/up-icon.png') }}" alt="Naik" class="lg:w-6 w-4">
-                <p class="lg:text-sm text-xs text-neutral">Naik dari hari kemarin</p>
+                <p class="lg:text-sm text-xs text-neutral">
+                    Naik dari hari kemarin
+                </p>
+                @else
+                <img src="{{ asset('assets/icons/down-icon.png') }}" alt="Turun" class="lg:w-6 w-4">
+                <p class="lg:text-sm text-xs text-neutral">
+                    Turun dari hari kemarin
+                </p>
+                @endif
             </div>
         </div>
 
@@ -154,41 +190,30 @@
 
             <div class="space-y-4">
 
-                <div class="flex items-center justify-between border-b pb-3 gap-3">
-
-                    <p class="text-xs lg:text-sm">
-                        P001 - Anto Subagja
-                    </p>
-
-                    <p class="text-xs lg:text-sm font-medium">
-                        Rp500.000
-                    </p>
-
-                </div>
+                @forelse($pembayaranTerbaru as $item)
 
                 <div class="flex items-center justify-between border-b pb-3 gap-3">
 
                     <p class="text-xs lg:text-sm">
-                        P002 - Tono Sukamto
+                        {{ $item->id_pembayaran }} -
+                        {{ $item->user->nama }}
                     </p>
 
                     <p class="text-xs lg:text-sm font-medium">
-                        Rp500.000
+                        Rp{{ number_format($item->nominal,0,',','.') }}
                     </p>
 
                 </div>
 
-                <div class="flex items-center justify-between gap-3">
+                @empty
 
-                    <p class="text-xs lg:text-sm">
-                        P003 - Saifullah Fattah
+                <div class="text-center py-6">
+                    <p class="text-sm text-gray-500">
+                        Belum ada data pembayaran.
                     </p>
-
-                    <p class="text-xs lg:text-sm font-medium">
-                        Rp500.000
-                    </p>
-
                 </div>
+
+                @endforelse
 
             </div>
 
@@ -216,35 +241,33 @@
 
             <div class="space-y-4">
 
+                @forelse($pengaduanTerbaru as $item)
+
                 <div class="flex items-center justify-between border-b pb-3 gap-3">
 
                     <p class="text-xs lg:text-sm">
-                        P001 - Anto Subagja
+                        {{ $item->user->nama }}
                     </p>
 
+                    @if($item->status == 'baru')
                     <x-badge type="info">Baru</x-badge>
-
-                </div>
-
-                <div class="flex items-center justify-between border-b pb-3 gap-3">
-
-                    <p class="text-xs lg:text-sm">
-                        P002 - Tono Sukamto
-                    </p>
-
+                    @elseif($item->status == 'proses')
                     <x-badge type="warning">Proses</x-badge>
-
-                </div>
-
-                <div class="flex items-center justify-between gap-3">
-
-                    <p class="text-xs lg:text-sm">
-                        P003 - Saifullah Fattah
-                    </p>
-
+                    @else
                     <x-badge type="success">Selesai</x-badge>
+                    @endif
 
                 </div>
+
+                @empty
+
+                <div class="text-center py-6">
+                    <p class="text-sm text-gray-500">
+                        Belum ada data pengaduan.
+                    </p>
+                </div>
+
+                @endforelse
 
             </div>
 

@@ -5,34 +5,40 @@
 
 <div
     x-data="{
-        activeTab: 'daftar',
+    activeTab: 'daftar',
 
-        modalOpen: false,
-        modalType: null,
-        selectedPenghuni: {},
+    modalOpen: false,
+    modalType: null,
+    selectedPenghuni: {},
 
-        openModal(type, data = {}) {
-            this.selectedPenghuni = data;
-            this.modalOpen = true;
-            this.modalType = type;
-        },
+    successMessage: '',
 
-        closeModal() {
-            this.modalOpen = false;
-            this.modalType = null;
-        },
+    openModal(type, data = {}) {
+        this.selectedPenghuni = data;
+        this.modalOpen = true;
+        this.modalType = type;
+    },
 
-        successMessage: '',
+    closeModal() {
+        this.modalOpen = false;
+        this.modalType = null;
+    },
 
-        showSuccess(message) {
-            this.successMessage = message;
-            this.modalType = 'success';
+    showSuccess(message) {
+        this.successMessage = message;
+        this.modalOpen = true;
+        this.modalType = 'success';
 
-            setTimeout(() => {
-                this.closeModal();
-            }, 2500);
-        }
-    }">
+        setTimeout(() => {
+            this.closeModal();
+        }, 2500);
+    }
+}"
+    x-init="
+@if(session('success'))
+    showSuccess('{{ session('success') }}');
+@endif
+">
 
     {{-- ================= PAGE HEADER ================= --}}
     <x-page-header
@@ -41,9 +47,15 @@
     </x-page-header>
 
     {{-- ================= SEARCH ================= --}}
-    <x-search-input
-        name="search_penghuni"
-        placeholder="Cari" />
+    <form
+        method="GET"
+        x-data>
+        <x-search-input
+            name="search"
+            placeholder="Cari nama atau nomor HP"
+            :value="request('search')"
+            x-on:input.debounce.500ms="$el.form.submit()" />
+    </form>
 
     {{-- ================= TABLE ================= --}}
     <div class="bg-white rounded-lg p-4 lg:p-6 mt-4 mb-6">
@@ -145,7 +157,7 @@
                     </thead>
 
                     <tbody>
-
+                        @if($daftarPenghuni->count())
                         @foreach($daftarPenghuni as $penghuni)
                         <tr class="border-b">
 
@@ -169,21 +181,33 @@
                                 <div class="flex justify-center">
                                     <x-form.button @click.prevent="openModal('detail-penghuni', {
                                             name: '{{ $penghuni->user->nama }}',
-                                            no_hp: '{{ $penghuni->user->no_hp }}',
+                                            no_hp: '{{ $penghuni->user->telpon }}',
                                             alamat: '{{ $penghuni->user->alamat ?? '-' }}',
                                             nomor_kamar: '{{ $penghuni->kamar->nomor_kamar }}',
-                                            tanggal_masuk: '{{ \Carbon\Carbon::parse($penghuni->tanggal_masuk)->format('d/m/Y') }}'
-                                        })" class="w-24 !p-2 border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">Detail</x-form.button>
+                                            tanggal_masuk: '{{ \Carbon\Carbon::parse($penghuni->tanggal_masuk)->format('d/m/Y') }}',
+                                            skor_pembayaran: '{{ optional($penghuni->user->records->last())->skor_pembayaran ?? 'Belum Ada Data' }}',
+                                            skor_sikap: '{{ optional($penghuni->user->records->last())->skor_sikap ?? 'Belum Ada Data' }}',
+                                            skor_perawatan_fasilitas: '{{ optional($penghuni->user->records->last())->skor_perawatan_fasilitas ?? 'Belum Ada Data' }}',
+                                        })" class="!w-24 !p-2 border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">Detail</x-form.button>
                                 </div>
                             </td>
                         </tr>
                         @endforeach
+                        @else
+
+                        <tr>
+                            <td colspan="5" class="text-center py-8">
+                                Belum ada daftar penghuni
+                            </td>
+                        </tr>
+
+                        @endif
 
                     </tbody>
 
                 </table>
-
             </div>
+            <p class="text-xs text-neutral mt-3">Menampilkan {{ $daftarPenghuni->count() }} data</p>
 
         </div>
 
@@ -217,7 +241,7 @@
                     </thead>
 
                     <tbody>
-
+                        @if($permintaanMasuk->count())
                         @foreach($permintaanMasuk as $penghuni)
                         <tr class="border-b">
 
@@ -232,23 +256,34 @@
                             <td class="py-4 px-2">
                                 <div class="flex justify-center gap-2">
                                     <x-form.button @click.prevent="openModal('permintaan-masuk', {
-                                            id: {{ $penghuni->id }},
-                                            name: '{{ $penghuni->user->nama }}',
-                                            no_hp: '{{ $penghuni->user->telpon }}',
-                                            alamat: '{{ $penghuni->user->alamat ?? '-' }}',
-                                            requested_kamar: '{{ optional($penghuni->kamar)->nomor_kamar }}',
-                                            requested_kamar_id: '{{ $penghuni->nomor_kamar }}',
-                                        })" class="w-24 !p-2 border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">Detail</x-form.button>
+                                    id: {{ $penghuni->id }},
+                                    user_id: {{ $penghuni->user_id }},
+                                    name: '{{ $penghuni->user->nama }}',
+                                    no_hp: '{{ $penghuni->user->telpon }}',
+                                    alamat: '{{ $penghuni->user->alamat ?? '-' }}',
+                                    skor_pembayaran: '{{ optional($penghuni->user->records->last())->skor_pembayaran ?? 'Belum Ada Data' }}',
+                                    skor_sikap: '{{ optional($penghuni->user->records->last())->skor_sikap ?? 'Belum Ada Data' }}',
+                                    skor_perawatan_fasilitas: '{{ optional($penghuni->user->records->last())->skor_perawatan_fasilitas ?? 'Belum Ada Data' }}',
+                                    })" class="!w-24 !p-2 border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">Detail</x-form.button>
                                 </div>
                             </td>
                         </tr>
                         @endforeach
+                        @else
 
+                        <tr>
+                            <td colspan="5" class="text-center py-8">
+                                Belum ada permintaan masuk
+                            </td>
+                        </tr>
+
+                        @endif
                     </tbody>
 
                 </table>
 
             </div>
+            <p class="text-xs text-neutral mt-3">Menampilkan {{ $permintaanMasuk->count() }} data</p>
 
         </div>
 
@@ -282,7 +317,7 @@
                     </thead>
 
                     <tbody>
-
+                        @if($permintaanKeluar->count())
                         @foreach($permintaanKeluar as $penghuni)
                         <tr class="border-b">
 
@@ -301,18 +336,26 @@
                                             name: '{{ $penghuni->user->nama }}',
                                             no_hp: '{{ $penghuni->user->telpon }}',
                                             alamat: '{{ $penghuni->user->alamat }}',
-                                            notes: '{{ $penghuni->notes_penghuni }}'
-                                        })" class="w-24 !p-2 border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">Detail</x-form.button>
+                                            notes: '{{ $penghuni->notes_penghuni }}',
+                                        })" class="!w-24 !p-2 border border-primary bg-transparent !text-primary hover:bg-secondary hover:border-secondary">Detail</x-form.button>
                                 </div>
                             </td>
                         </tr>
                         @endforeach
+                        @else
 
+                        <tr>
+                            <td colspan="5" class="text-center py-8">
+                                Belum ada permintaan keluar
+                            </td>
+                        </tr>
+
+                        @endif
                     </tbody>
 
                 </table>
-
             </div>
+            <p class="text-xs text-neutral mt-3">Menampilkan {{ $permintaanKeluar->count() }} data</p>
 
         </div>
 
@@ -320,7 +363,7 @@
 
     {{-- ================= PAGINATION ================= --}}
     <div x-show="activeTab === 'daftar'">
-    <x-pagination :paginator="$daftarPenghuni" />
+        <x-pagination :paginator="$daftarPenghuni" />
     </div>
     <div x-show="activeTab === 'masuk'">
         <x-pagination :paginator="$permintaanMasuk" />
@@ -389,15 +432,63 @@
                         </div>
                         <div class="w-full flex justify-between">
                             <p class="text-xs text-neutral">Pembayaran</p>
-                            <x-badge type="success">Baik</x-badge>
+
+                            <template x-if="selectedPenghuni.skor_pembayaran == 'Baik'">
+                                <x-badge type="success">Baik</x-badge>
+                            </template>
+
+                            <template x-if="selectedPenghuni.skor_pembayaran == 'Perlu Perhatian'">
+                                <x-badge type="warning">Perlu Perhatian</x-badge>
+                            </template>
+
+                            <template x-if="selectedPenghuni.skor_pembayaran == 'Buruk'">
+                                <x-badge type="danger">Buruk</x-badge>
+                            </template>
+                            <template x-if="selectedPenghuni.skor_sikap == 'Belum Ada Data'">
+                                <span class="text-xs text-gray-500 italic">
+                                    Belum Ada Penilaian
+                                </span>
+                            </template>
                         </div>
                         <div class="w-full flex justify-between">
                             <p class="text-xs text-neutral">Sikap</p>
-                            <x-badge type="warning">Perlu perhatian</x-badge>
+
+                            <template x-if="selectedPenghuni.skor_sikap == 'Baik'">
+                                <x-badge type="success">Baik</x-badge>
+                            </template>
+
+                            <template x-if="selectedPenghuni.skor_sikap == 'Perlu Perhatian'">
+                                <x-badge type="warning">Perlu Perhatian</x-badge>
+                            </template>
+
+                            <template x-if="selectedPenghuni.skor_sikap == 'Buruk'">
+                                <x-badge type="danger">Buruk</x-badge>
+                            </template>
+                            <template x-if="selectedPenghuni.skor_sikap == 'Belum Ada Data'">
+                                <span class="text-xs text-gray-500 italic">
+                                    Belum Ada Penilaian
+                                </span>
+                            </template>
                         </div>
                         <div class="w-full flex justify-between">
                             <p class="text-xs text-neutral">Perawatan Fasilitas</p>
-                            <x-badge type="success">Baik</x-badge>
+
+                            <template x-if="selectedPenghuni.skor_perawatan_fasilitas == 'Baik'">
+                                <x-badge type="success">Baik</x-badge>
+                            </template>
+
+                            <template x-if="selectedPenghuni.skor_perawatan_fasilitas == 'Perlu Perhatian'">
+                                <x-badge type="warning">Perlu Perhatian</x-badge>
+                            </template>
+
+                            <template x-if="selectedPenghuni.skor_perawatan_fasilitas == 'Buruk'">
+                                <x-badge type="danger">Buruk</x-badge>
+                            </template>
+                            <template x-if="selectedPenghuni.skor_sikap == 'Belum Ada Data'">
+                                <span class="text-xs text-gray-500 italic">
+                                    Belum Ada Penilaian
+                                </span>
+                            </template>
                         </div>
                     </div>
 
@@ -449,19 +540,67 @@
                     <div class="flex flex-col gap-4">
                         <div class="w-full flex justify-between">
                             <p class="text-sm font-medium text-primary">Penilaian Penghuni</p>
-                            <a :href="'/pengelola/riwayat-penilaian-penghuni/' + selectedPenghuni.id" class="text-xs no-underline text-neutral">Lihat selengkapnya</a>
+                            <a :href="'/pengelola/riwayat-penilaian-penghuni/' + selectedPenghuni.user_id" class="text-xs no-underline text-neutral hover:underline">Lihat selengkapnya</a>
                         </div>
                         <div class="w-full flex justify-between">
                             <p class="text-xs text-neutral">Pembayaran</p>
-                            <x-badge type="success">Baik</x-badge>
+
+                            <template x-if="selectedPenghuni.skor_pembayaran == 'Baik'">
+                                <x-badge type="success">Baik</x-badge>
+                            </template>
+
+                            <template x-if="selectedPenghuni.skor_pembayaran == 'Perlu Perhatian'">
+                                <x-badge type="warning">Perlu Perhatian</x-badge>
+                            </template>
+
+                            <template x-if="selectedPenghuni.skor_pembayaran == 'Buruk'">
+                                <x-badge type="danger">Buruk</x-badge>
+                            </template>
+                            <template x-if="selectedPenghuni.skor_sikap == 'Belum Ada Data'">
+                                <span class="text-xs text-gray-500 italic">
+                                    Belum Ada Penilaian
+                                </span>
+                            </template>
                         </div>
                         <div class="w-full flex justify-between">
                             <p class="text-xs text-neutral">Sikap</p>
-                            <x-badge type="warning">Perlu perhatian</x-badge>
+
+                            <template x-if="selectedPenghuni.skor_sikap == 'Baik'">
+                                <x-badge type="success">Baik</x-badge>
+                            </template>
+
+                            <template x-if="selectedPenghuni.skor_sikap == 'Perlu Perhatian'">
+                                <x-badge type="warning">Perlu Perhatian</x-badge>
+                            </template>
+
+                            <template x-if="selectedPenghuni.skor_sikap == 'Buruk'">
+                                <x-badge type="danger">Buruk</x-badge>
+                            </template>
+                            <template x-if="selectedPenghuni.skor_sikap == 'Belum Ada Data'">
+                                <span class="text-xs text-gray-500 italic">
+                                    Belum Ada Penilaian
+                                </span>
+                            </template>
                         </div>
                         <div class="w-full flex justify-between">
                             <p class="text-xs text-neutral">Perawatan Fasilitas</p>
-                            <x-badge type="success">Baik</x-badge>
+
+                            <template x-if="selectedPenghuni.skor_perawatan_fasilitas == 'Baik'">
+                                <x-badge type="success">Baik</x-badge>
+                            </template>
+
+                            <template x-if="selectedPenghuni.skor_perawatan_fasilitas == 'Perlu Perhatian'">
+                                <x-badge type="warning">Perlu Perhatian</x-badge>
+                            </template>
+
+                            <template x-if="selectedPenghuni.skor_perawatan_fasilitas == 'Buruk'">
+                                <x-badge type="danger">Buruk</x-badge>
+                            </template>
+                            <template x-if="selectedPenghuni.skor_sikap == 'Belum Ada Data'">
+                                <span class="text-xs text-gray-500 italic">
+                                    Belum Ada Penilaian
+                                </span>
+                            </template>
                         </div>
                     </div>
                 </div>
@@ -470,7 +609,8 @@
                     <x-form.button
                         type="button"
                         class="w-full text-white !bg-red-600 hover:!bg-red-100 hover:!text-red-600"
-                        @click="$refs.formRejectMasuk.submit()">
+                        @click="modalType = 'confirm-tolak'">
+
                         Tolak
                     </x-form.button>
                     <x-form.button
@@ -479,15 +619,6 @@
                         @click="modalType = 'setujui-penghuni'">
                         Setuju
                     </x-form.button>
-
-                    <form
-                        x-ref="formRejectMasuk"
-                        :action="'/pengelola/penghuni-pengelola/reject-masuk/' + selectedPenghuni.id"
-                        method="POST"
-                        class="hidden">
-                        @csrf
-                    </form>
-
                 </div>
 
             </div>
@@ -525,10 +656,14 @@
                     <x-form.button
                         type="submit"
                         class="w-full !text-white !bg-red-600 hover:!bg-red-100 hover:!text-red-600"
-                        @click="$refs.formReject.submit()">
+                        @click="$refs.formRejectMasuk.submit()">
                         Tolak
                     </x-form.button>
-                    <form x-ref="formReject" :action="'/pengelola/penghuni-pengelola/reject/' + selectedPenghuni.id" method="POST" class="hidden">
+                    <form
+                        x-ref="formRejectMasuk"
+                        :action="'/pengelola/penghuni-pengelola/reject-masuk/' + selectedPenghuni.id"
+                        method="POST"
+                        class="hidden">
                         @csrf
                     </form>
 
@@ -580,15 +715,31 @@
 
                     <form :action="'/pengelola/penghuni-pengelola/approve/' + selectedPenghuni.id" method="POST">
                         @csrf
+                        @if($kamarKosong->count() > 0)
+
                         <x-form.select
                             label="Pilih Kamar"
                             name="nomor_kamar"
-                            x-model="selectedPenghuni.requested_kamar_id" class="!bg-[#F8F8F8]">
+                            x-model="selectedPenghuni.requested_kamar_id"
+                            class="!bg-[#F8F8F8]">
 
                             @foreach($kamarKosong as $kamar)
-                            <option value="{{ $kamar->id }}">{{ $kamar->nomor_kamar }}</option>
+                            <option value="{{ $kamar->id }}">
+                                {{ $kamar->nomor_kamar }}
+                            </option>
                             @endforeach
+
                         </x-form.select>
+
+                        @else
+
+                        <div class="p-3 bg-red-50 border border-red-200 rounded-md">
+                            <p class="text-sm text-red-600">
+                                Tidak ada kamar kosong yang tersedia.
+                            </p>
+                        </div>
+
+                        @endif
 
                         <div class="flex gap-3 pt-2 mt-4">
                             <x-form.button
@@ -597,13 +748,26 @@
                                 @click="modalType = 'permintaan-masuk'">
                                 Kembali
                             </x-form.button>
+                            @if($kamarKosong->count() > 0)
+
                             <x-form.button
                                 type="submit"
                                 class="w-full">
                                 Simpan
                             </x-form.button>
-                        </div>
 
+                            @else
+
+                            <x-form.button
+                                type="button"
+                                class="w-full"
+                                @click="modalType = 'cannot-approve'">
+                                Simpan
+                            </x-form.button>
+
+                            @endif
+                        </div>
+                    </form>
                 </div>
 
             </div>
@@ -732,6 +896,36 @@
         {{-- ================= SETUJUI PENGHUNI KELUAR ================= --}}
         <template x-if="modalType === 'setujui-keluar'">
             <form
+                x-data="{
+        skor_pembayaran:'',
+        skor_sikap:'',
+        skor_perawatan_fasilitas:'',
+        catatan:'',
+
+        errors:{},
+
+        validate(){
+            this.errors = {};
+
+            if(!this.skor_pembayaran){
+                this.errors.skor_pembayaran = 'Ketertiban pembayaran wajib dipilih';
+            }
+
+            if(!this.skor_sikap){
+                this.errors.skor_sikap = 'Sikap wajib dipilih';
+            }
+
+            if(!this.skor_perawatan_fasilitas){
+                this.errors.skor_perawatan_fasilitas = 'Perawatan fasilitas wajib dipilih';
+            }
+
+            if(!this.catatan.trim()){
+                this.errors.catatan = 'Catatan wajib diisi';
+            }
+
+            return Object.keys(this.errors).length === 0;
+        }
+    }"
                 :action="'/pengelola/penghuni-pengelola/keluar/' + selectedPenghuni.id"
                 method="POST"
                 enctype="multipart/form-data">
@@ -778,45 +972,66 @@
                         <x-form.select
                             label="Ketertiban Pembayaran"
                             name="skor_pembayaran"
+                            x-model="skor_pembayaran"
                             class="!bg-[#F8F8F8] text-xs">
-
+                            <option value="">Pilih Penilaian</option>
                             <option value="Baik">Baik</option>
                             <option value="Perlu Perhatian">Perlu Perhatian</option>
                             <option value="Buruk">Buruk</option>
-
                         </x-form.select>
+                        <p
+                            x-show="errors.skor_pembayaran"
+                            x-text="errors.skor_pembayaran"
+                            class="text-red-500 text-xs mt-1">
+                        </p>
 
                         {{-- Sikap --}}
                         <x-form.select
                             label="Sikap"
                             name="skor_sikap"
+                            x-model="skor_sikap"
                             class="!bg-[#F8F8F8] text-xs">
-
+                            <option value="">Pilih Penilaian</option>
                             <option value="Baik">Baik</option>
                             <option value="Perlu Perhatian">Perlu Perhatian</option>
                             <option value="Buruk">Buruk</option>
-
                         </x-form.select>
+                        <p
+                            x-show="errors.skor_sikap"
+                            x-text="errors.skor_sikap"
+                            class="text-red-500 text-xs mt-1">
+                        </p>
 
                         {{-- Perawatan Fasilitas --}}
                         <x-form.select
                             label="Perawatan Fasilitas"
                             name="skor_perawatan_fasilitas"
+                            x-model="skor_perawatan_fasilitas"
                             class="!bg-[#F8F8F8] text-xs">
-
+                            <option value="">Pilih Penilaian</option>
                             <option value="Baik">Baik</option>
                             <option value="Perlu Perhatian">Perlu Perhatian</option>
                             <option value="Buruk">Buruk</option>
-
                         </x-form.select>
+                        <p
+                            x-show="errors.skor_perawatan_fasilitas"
+                            x-text="errors.skor_perawatan_fasilitas"
+                            class="text-red-500 text-xs mt-1">
+                        </p>
 
                         {{-- Catatan --}}
                         <x-form.input
                             label="Catatan Tambahan"
                             name="catatan"
                             type="text"
+                            x-model="catatan"
                             class="!p-4 bg-[#F8F8F8] text-xs"
                             placeholder="Tuliskan catatan tambahan jika ada" />
+                        <p
+                            x-show="errors.catatan"
+                            x-text="errors.catatan"
+                            class="text-red-500 text-xs mt-1">
+                        </p>
 
                         {{-- Upload Bukti --}}
                         <div
@@ -951,11 +1166,14 @@
                         </x-form.button>
 
                         <x-form.button
-                            type="submit"
-                            class="w-full">
-
+                            type="button"
+                            class="w-full"
+                            @click="
+        if(validate()){
+            $el.closest('form').submit();
+        }
+    ">
                             Simpan
-
                         </x-form.button>
 
                     </div>
@@ -981,6 +1199,46 @@
                 <h2 class="text-lg font-bold">
                     <span x-text="successMessage"></span>
                 </h2>
+
+            </div>
+
+        </template>
+
+        {{-- ================= CANNOT APPROVE KAMAR KOSONG ================= --}}
+        <template x-if="modalType === 'cannot-approve'">
+
+            <div class="relative lg:px-2 px-1 pt-2 pb-1">
+
+                <button
+                    type="button"
+                    @click="closeModal()"
+                    class="absolute top-0 right-0 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">
+
+                    ✕
+
+                </button>
+
+                <div class="text-center">
+
+                    <div class="flex justify-center mb-4">
+                        <img
+                            src="{{ asset('assets/icons/failed-modal-icon.png') }}"
+                            class="w-14">
+                    </div>
+
+                    <div class="text-center pt-6">
+
+                        <h2 class="lg:text-lg text-sm font-bold mb-2 text-black">
+                            Tidak dapat menambahkan penghuni
+                        </h2>
+
+                        <p class="lg:text-sm text-xs text-neutral leading-relaxed">
+                            Tidak ada kamar kosong yang tersedia untuk penghuni ini.
+                        </p>
+
+                    </div>
+
+                </div>
 
             </div>
 

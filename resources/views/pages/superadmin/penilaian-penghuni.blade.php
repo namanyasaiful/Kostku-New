@@ -380,10 +380,11 @@
                     </div>
                     <hr>
 
-                    <x-form.input label="Ketertiban Pembayaran" name="ketertiban-pembayaran" value="Baik" class="!bg-[#F8F8F8] text-xs" disabled />
-                    <x-form.input label="Sikap" name="sikap" value="Baik" class="!bg-[#F8F8F8] text-xs" disabled />
-                    <x-form.input label="Perawatan Fasilitas" name="perawatan-fasilitas" value="Baik" class="!bg-[#F8F8F8] text-xs" disabled />
-                    <x-form.input label="Catatan Tambahan" name="catatan-tambahan" value="Anaknya baik tidak pernah telat membayar." class="!bg-[#F8F8F8] text-xs" disabled />
+                    <x-form.input label="Ketertiban Pembayaran" name="ketertiban-pembayaran" ::value="selectedPengelola.skor_pembayaran" class="!bg-[#F8F8F8] text-xs" disabled />
+                    <x-form.input label="Sikap" name="sikap" ::value="selectedPengelola.skor_sikap" class="!bg-[#F8F8F8] text-xs" disabled />
+                    <x-form.input label="Perawatan Fasilitas" name="perawatan-fasilitas" ::value="selectedPengelola.skor_perawatan" class="!bg-[#F8F8F8] text-xs" disabled />
+                    <x-form.input label="Catatan Tambahan" name="catatan-tambahan" ::value="selectedPengelola.catatan" class="!bg-[#F8F8F8] text-xs" disabled />
+
 
                     <div>
                         <p class="text-xs text-neutral mb-2">Bukti</p>
@@ -462,7 +463,7 @@
 
                 <h2 class="text-xl font-bold mb-4">Konfirmasi Setujui</h2>
 
-                <p class="text-xs text-neutral">Apakah Anda yakin ingin menyetujui pendaftaran pengelola ini? Akun akan segera aktif.</p>
+                <p class="text-xs text-neutral">Apakah Anda yakin ingin menyetujui penilaian penghuni ini? Tindakan ini tidak dapat dibatalkan.</p>
 
                 <div class="flex gap-3 mt-8">
                     <x-form.button

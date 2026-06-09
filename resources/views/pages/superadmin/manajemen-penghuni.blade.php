@@ -232,21 +232,21 @@
                             <template x-if="selectedPenghuni.skor_pembayaran === 'Baik'"><x-badge type="success" class="!px-3 !py-1 !text-xs">Baik</x-badge></template>
                             <template x-if="selectedPenghuni.skor_pembayaran === 'Perlu Perhatian'"><x-badge type="warning" class="!px-3 !py-1 !text-xs">Perlu Perhatian</x-badge></template>
                             <template x-if="selectedPenghuni.skor_pembayaran === 'Buruk'"><x-badge type="danger" class="!px-3 !py-1 !text-xs">Buruk</x-badge></template>
-                            <template x-if="selectedPenghuni.skor_pembayaran === '-'"><span class="text-xs text-neutral">-</span></template>
+                            <template x-if="selectedPenghuni.skor_pembayaran === '-'"><span class="text-xs text-neutral italic">Belum ada penilaian</span></template>
                         </div>
                         <div class="flex items-center justify-between">
                             <p class="text-xs text-neutral">Sikap</p>
                             <template x-if="selectedPenghuni.skor_sikap === 'Baik'"><x-badge type="success" class="!px-3 !py-1 !text-xs">Baik</x-badge></template>
                             <template x-if="selectedPenghuni.skor_sikap === 'Perlu Perhatian'"><x-badge type="warning" class="!px-3 !py-1 !text-xs">Perlu Perhatian</x-badge></template>
                             <template x-if="selectedPenghuni.skor_sikap === 'Buruk'"><x-badge type="danger" class="!px-3 !py-1 !text-xs">Buruk</x-badge></template>
-                            <template x-if="selectedPenghuni.skor_sikap === '-'"><span class="text-xs text-neutral">-</span></template>
+                            <template x-if="selectedPenghuni.skor_sikap === '-'"><span class="text-xs text-neutral italic">Belum ada penilaian</span></template>
                         </div>
                         <div class="flex items-center justify-between">
                             <p class="text-xs text-neutral">Perawatan Fasilitas</p>
                             <template x-if="selectedPenghuni.skor_perawatan_fasilitas === 'Baik'"><x-badge type="success" class="!px-3 !py-1 !text-xs">Baik</x-badge></template>
                             <template x-if="selectedPenghuni.skor_perawatan_fasilitas === 'Perlu Perhatian'"><x-badge type="warning" class="!px-3 !py-1 !text-xs">Perlu Perhatian</x-badge></template>
                             <template x-if="selectedPenghuni.skor_perawatan_fasilitas === 'Buruk'"><x-badge type="danger" class="!px-3 !py-1 !text-xs">Buruk</x-badge></template>
-                            <template x-if="selectedPenghuni.skor_perawatan_fasilitas === '-'"><span class="text-xs text-neutral">-</span></template>
+                            <template x-if="selectedPenghuni.skor_perawatan_fasilitas === '-'"><span class="text-xs text-neutral italic">Belum ada penilaian</span></template>
                         </div>
                     </div>
 
@@ -314,21 +314,21 @@
                             <template x-if="selectedPenghuni.skor_pembayaran === 'Baik'"><x-badge type="success" class="!px-3 !py-1 !text-xs">Baik</x-badge></template>
                             <template x-if="selectedPenghuni.skor_pembayaran === 'Perlu Perhatian'"><x-badge type="warning" class="!px-3 !py-1 !text-xs">Perlu Perhatian</x-badge></template>
                             <template x-if="selectedPenghuni.skor_pembayaran === 'Buruk'"><x-badge type="danger" class="!px-3 !py-1 !text-xs">Buruk</x-badge></template>
-                            <template x-if="selectedPenghuni.skor_pembayaran === '-'"><span class="text-xs text-neutral">-</span></template>
+                            <template x-if="selectedPenghuni.skor_pembayaran === '-'"><span class="text-xs text-neutral italic">Belum ada penilaian</span></template>
                         </div>
                         <div class="flex items-center justify-between">
                             <p class="text-xs text-neutral">Sikap</p>
                             <template x-if="selectedPenghuni.skor_sikap === 'Baik'"><x-badge type="success" class="!px-3 !py-1 !text-xs">Baik</x-badge></template>
                             <template x-if="selectedPenghuni.skor_sikap === 'Perlu Perhatian'"><x-badge type="warning" class="!px-3 !py-1 !text-xs">Perlu Perhatian</x-badge></template>
                             <template x-if="selectedPenghuni.skor_sikap === 'Buruk'"><x-badge type="danger" class="!px-3 !py-1 !text-xs">Buruk</x-badge></template>
-                            <template x-if="selectedPenghuni.skor_sikap === '-'"><span class="text-xs text-neutral">-</span></template>
+                            <template x-if="selectedPenghuni.skor_sikap === '-'"><span class="text-xs text-neutral italic">Belum ada penilaian</span></template>
                         </div>
                         <div class="flex items-center justify-between">
                             <p class="text-xs text-neutral">Perawatan Fasilitas</p>
                             <template x-if="selectedPenghuni.skor_perawatan_fasilitas === 'Baik'"><x-badge type="success" class="!px-3 !py-1 !text-xs">Baik</x-badge></template>
                             <template x-if="selectedPenghuni.skor_perawatan_fasilitas === 'Perlu Perhatian'"><x-badge type="warning" class="!px-3 !py-1 !text-xs">Perlu Perhatian</x-badge></template>
                             <template x-if="selectedPenghuni.skor_perawatan_fasilitas === 'Buruk'"><x-badge type="danger" class="!px-3 !py-1 !text-xs">Buruk</x-badge></template>
-                            <template x-if="selectedPenghuni.skor_perawatan_fasilitas === '-'"><span class="text-xs text-neutral">-</span></template>
+                            <template x-if="selectedPenghuni.skor_perawatan_fasilitas === '-'"><span class="text-xs text-neutral italic">Belum ada penilaian</span></template>
                         </div>
                     </div>
 

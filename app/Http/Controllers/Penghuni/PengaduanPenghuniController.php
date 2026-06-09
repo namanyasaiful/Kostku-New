@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Penghuni;
 use App\Http\Controllers\Controller;
 use App\Models\Pengaduan;
 use Illuminate\Http\Request;
+use App\Notifications\PengaduanMasukNotification;
+use App\Models\User;
 
 class PengaduanPenghuniController extends Controller
 {
@@ -55,13 +57,18 @@ class PengaduanPenghuniController extends Controller
                     ->store('pengaduan', 'public');
             }
 
-            Pengaduan::create([
+            $pengaduan = Pengaduan::create([
                 'judul'           => $request->judul,
                 'isi'             => $request->isi,
                 'status'          => 'baru',
                 'user_id'         => auth()->id(),
                 'bukti_pengaduan' => $path,
             ]);
+
+            $pengelola = User::where('role', 'pengelola')->first();
+            if ($pengelola) {
+                $pengelola->notify(new PengaduanMasukNotification($pengaduan));
+            }
 
             return redirect()->route('pengaduan.penghuni')
                 ->with('success_pengaduan', true);

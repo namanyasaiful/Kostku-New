@@ -203,6 +203,7 @@
             <thead class="sticky top-0 bg-white z-10 border-default">
                 <x-table.tr>
                     <x-table.th>Tanggal Pengaduan</x-table.th>
+                    <x-table.th>Judul Pengaduan</x-table.th>
                     <x-table.th>Status</x-table.th>
                     <x-table.th>Aksi</x-table.th>
                 </x-table.tr>
@@ -212,6 +213,9 @@
                 <x-table.tr>
                     <x-table.td class="font-medium text-heading">
                         {{ $pengaduan->created_at->format('d/m/Y') }}
+                    </x-table.td>
+                    <x-table.td class="font-medium text-heading">
+                        {{ Str::limit($pengaduan->judul, 30) }}
                     </x-table.td>
                     <x-table.td>
                         @if ($pengaduan->status === 'baru')
@@ -259,15 +263,21 @@
             </tbody>
         </x-table.index>
         <div class="mt-4">
-            {{ $pengaduans->links() }}
         </div>
         @else
         <p class="text-center text-neutral py-10">Belum ada pengaduan.</p>
         @endif
+
+        <div class="flex items-center justify-between mt-4">
+            <p class="text-xs text-neutral mt-3">Menampilkan {{ $pengaduans->count() }} data</p>
+            {{ $pengaduans->links() }}
+        </div>
     </x-card>
 
     {{-- ================= PAGINATION ================= --}}
-    <x-pagination />
+    <div class="mt-4">
+        <x-pagination :paginator="$pengaduans" />
+    </div>
 
     {{-- ================= MODAL ================= --}}
     <x-modal show="modalOpen" maxWidth="lg:max-w-[450px] max-w-[350px]">

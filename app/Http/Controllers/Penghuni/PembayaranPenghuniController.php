@@ -5,12 +5,10 @@ namespace App\Http\Controllers\Penghuni;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use App\Models\Pembayaran;
 use Carbon\Carbon;
 use Midtrans\Snap;
-use Midtrans\Notification;
-use Exception;
+use Midtrans\Transaction;
 
 class PembayaranPenghuniController extends Controller
 {
@@ -28,18 +26,66 @@ class PembayaranPenghuniController extends Controller
             abort(403, 'Anda belum terdaftar sebagai penghuni kost.');
         }
 
-        $payments = Pembayaran::where('user_id', Auth::id())
+        $userId   = Auth::id();
+        $payments = Pembayaran::where('user_id', $userId)
             ->orderBy('tanggal_pembayaran', 'desc')
             ->get();
 
-        // PERBAIKAN: Cari sub-cicilan yang belum bayar terlebih dahulu, jika tidak ada baru ambil data tagihan utama.
-        $pending = $payments->where('status', 'belum_bayar')
-                            ->sortByDesc('id') // Menjamin cicilan ter-update yang diambil
-                            ->first();
+        // Ambil cicilan paling baru
+        $cicilan1 = $payments
+            ->filter(fn($p) => str_contains($p->id_pembayaran, '-c1-'))
+            ->sortByDesc('id')
+            ->first();
 
-        $history = $payments->where('status', 'lunas');
+        $cicilan2 = $payments
+            ->filter(fn($p) => str_contains($p->id_pembayaran, '-c2-'))
+            ->sortByDesc('id')
+            ->first();
 
-        return view('pages.penghuni.pembayaran-penghuni', compact('pending', 'history'));
+        // Induk yang sudah dipecah jadi cicilan
+        $indukDenganCicilan = $payments
+            ->filter(fn($p) => str_contains($p->id_pembayaran, '-c1-') || str_contains($p->id_pembayaran, '-c2-'))
+            ->map(fn($p) => preg_replace('/-c[12]-\d+$/', '', $p->id_pembayaran))
+            ->unique()->values()->toArray();
+
+        // Pending = tagihan belum_bayar yang bukan pecahan cicilan dan bukan induk yang sudah dipecah
+        $pending = $payments
+            ->where('status', 'belum_bayar')
+            ->filter(fn($p) =>
+                !str_contains($p->id_pembayaran, '-c1-') &&
+                !str_contains($p->id_pembayaran, '-c2-') &&
+                !in_array($p->id_pembayaran, $indukDenganCicilan)
+            )->first();
+
+        // Tentukan apakah ada tagihan sama sekali
+        $adaTagihan = $payments->isNotEmpty();
+
+        // Tentukan sudahLunas
+        if (!$adaTagihan) {
+            // Tidak ada record sama sekali → belum ada tagihan
+            $sudahLunas = false;
+        } elseif ($cicilan1 || $cicilan2) {
+            // Mode cicilan: lunas kalau KEDUA cicilan sudah lunas
+            $sudahLunas = ($cicilan1 && $cicilan1->status === 'lunas') &&
+                          ($cicilan2 && $cicilan2->status === 'lunas');
+        } else {
+            // Mode lunas biasa: ada tagihan tapi tidak ada pending = sudah lunas
+            $sudahLunas = $adaTagihan && !$pending;
+        }
+
+        // History: semua yang lunas, kecuali induk yang sudah dipecah jadi cicilan
+        $historyQuery = Pembayaran::where('user_id', $userId)
+            ->where('status', 'lunas');
+
+        if (!empty($indukDenganCicilan)) {
+            $historyQuery->whereNotIn('id_pembayaran', $indukDenganCicilan);
+        }
+
+        $history = $historyQuery->orderByDesc('paid_at')->paginate(10);
+
+        return view('pages.penghuni.pembayaran-penghuni', compact(
+            'pending', 'cicilan1', 'cicilan2', 'sudahLunas', 'adaTagihan', 'history'
+        ));
     }
 
     public function create(Request $request)
@@ -51,6 +97,7 @@ class PembayaranPenghuniController extends Controller
         return $this->createPayment($request);
     }
 
+
     public function createPayment(Request $request)
     {
         if (!$this->checkPenghuniAktif()) {
@@ -61,140 +108,203 @@ class PembayaranPenghuniController extends Controller
             'pembayaran_id' => 'required|integer|exists:pembayarans,id',
         ]);
 
-    $pembayaran = Pembayaran::findOrFail($request->pembayaran_id);
+        $pembayaran = Pembayaran::findOrFail($request->pembayaran_id);
 
-    if ($pembayaran->user_id !== Auth::id()) {
-        return response()->json(['message' => 'Akses ke pembayaran ini tidak diizinkan.'], 403);
-    }
+        if ($pembayaran->user_id !== Auth::id()) {
+            return response()->json(['message' => 'Akses tidak diizinkan.'], 403);
+        }
 
-    if ($pembayaran->status !== 'belum_bayar') {
-        return response()->json(['message' => 'Pembayaran sudah selesai.'], 422);
-    }
+        if ($pembayaran->status !== 'belum_bayar') {
+            return response()->json(['message' => 'Pembayaran sudah selesai.'], 422);
+        }
 
-    $user = $pembayaran->user;
+        $user = $pembayaran->user;
 
-    // Logika Cicilan
-    if ((string) ($pembayaran->tipe_pembayaran ?? '') === 'cicilan') {
-
-        // ==================== PERBAIKAN DI SINI ====================
-        // Jika ID Pembayaran mengandung kata '-c1-' atau '-c2-', artinya ini
-        // adalah data pecahan cicilan. LANGSUNG PROSES, JANGAN DIPOTONG LAGI!
+        // Sudah pecahan cicilan → langsung proses
         if (str_contains($pembayaran->id_pembayaran, '-c1-') || str_contains($pembayaran->id_pembayaran, '-c2-')) {
             return $this->generateSingleSnapToken($pembayaran, $user);
         }
-        // ===========================================================
 
-        // Paksa agar trigger cicilan 2x terpenuhi untuk tagihan UTAMA
-        if ((int) $pembayaran->jumlah_cicilan !== 2) {
-            $pembayaran->update(['jumlah_cicilan' => 2]);
-            $pembayaran->refresh();
-        }
+        // Tipe cicilan → buat c1 dulu saja, c2 dibuat setelah c1 lunas
+        if ($request->boolean('is_cicilan')) {
 
-        if ((int) $pembayaran->jumlah_cicilan === 2) {
-            $total = (int) $pembayaran->nominal;
-            $cicilan1 = intdiv($total, 2);
-            $cicilan2 = $total - $cicilan1;
+            $total    = (int) $pembayaran->nominal;
+            $nominal1 = intdiv($total, 2);
+            $nominal2 = $total - $nominal1;
 
-            $tanggal1 = $pembayaran->tanggal_pembayaran ? Carbon::parse($pembayaran->tanggal_pembayaran) : Carbon::now();
+            $tanggal1 = $pembayaran->tanggal_pembayaran
+                ? Carbon::parse($pembayaran->tanggal_pembayaran)
+                : Carbon::now();
             $tanggal2 = $tanggal1->copy()->addWeeks(2);
 
-            // Gunakan suffix pendek (6 digit jam-menit-detik) agar tidak melebihi 50 karakter Midtrans
-            $orderSuffixBase = now()->format('His');
-            $orderId1 = $pembayaran->id_pembayaran . '-c1-' . $orderSuffixBase;
-            $orderId2 = $pembayaran->id_pembayaran . '-c2-' . $orderSuffixBase;
+            // Cek apakah c1 sudah ada (hindari duplikat)
+            $existingC1 = Pembayaran::where('user_id', $pembayaran->user_id)
+                ->where('id_pembayaran', 'like', $pembayaran->id_pembayaran . '-c1-%')
+                ->latest('id')
+                ->first();
 
-            $pembayaran1 = Pembayaran::where('id_pembayaran', $orderId1)->first();
-            $pembayaran2 = Pembayaran::where('id_pembayaran', $orderId2)->first();
+            if ($existingC1) {
+                if ($existingC1->status === 'lunas') {
+                    return response()->json(['message' => 'Cicilan pertama sudah lunas.'], 422);
+                }
 
-            if ($pembayaran2 && $pembayaran2->status === 'lunas') {
-                return response()->json([
-                    'message'        => 'Cicilan kedua sudah lunas. Tagihan periode berikutnya akan muncul sesuai jadwal.',
-                    'snap_tokens'    => [],
-                    'payment_ids'    => [],
-                    'order_ids'      => [],
-                ], 422);
+                if ($existingC1->snap_token) {
+                    return response()->json([
+                        'message'    => 'Snap token reused',
+                        'snap_token' => $existingC1->snap_token,
+                        'payment_id' => $existingC1->id,
+                        'order_id'   => $existingC1->id_pembayaran,
+                    ]);
+                }
+
+                return $this->generateSingleSnapToken($existingC1, $user);
             }
 
-            if (!$pembayaran1) {
-                $pembayaran1 = Pembayaran::create([
-                    'id_pembayaran'      => $orderId1,
-                    'user_id'            => $pembayaran->user_id,
-                    'tanggal_pembayaran' => $tanggal1->toDateString(),
-                    'nominal'            => $cicilan1,
-                    'tipe_pembayaran'    => 'cicilan',
-                    'jumlah_cicilan'     => 1,
-                    'status'             => 'belum_bayar',
-                ]);
-            }
+            // Buat hanya record cicilan 1
+            $suffix   = now()->format('YmdHis') . rand(100, 999);
+            $orderId1 = $pembayaran->id_pembayaran . '-c1-' . $suffix;
 
-            if (!$pembayaran2) {
-                $pembayaran2 = Pembayaran::create([
-                    'id_pembayaran'      => $orderId2,
-                    'user_id'            => $pembayaran->user_id,
-                    'tanggal_pembayaran' => $tanggal2->toDateString(),
-                    'nominal'            => $cicilan2,
-                    'tipe_pembayaran'    => 'cicilan',
-                    'jumlah_cicilan'     => 1,
-                    'status'             => 'belum_bayar',
-                ]);
-            }
+            $pem1 = Pembayaran::create([
+                'id_pembayaran'      => $orderId1,
+                'user_id'            => $pembayaran->user_id,
+                'tanggal_pembayaran' => $tanggal1->toDateString(),
+                'nominal'            => $nominal1,
+                'tipe_pembayaran'    => 'cicilan',
+                'jumlah_cicilan'     => 1,
+                'status'             => 'belum_bayar',
+                'midtrans_order_id'  => $orderId1,
+            ]);
 
-            $snapTokens = [];
-            foreach ([$pembayaran1, $pembayaran2] as $item) {
-                $snapTokens[] = Snap::getSnapToken([
-                    'transaction_details' => [
-                        'order_id'     => $item->id_pembayaran,
-                        'gross_amount' => $item->nominal,
-                    ],
-                    'customer_details' => [
-                        'first_name' => $user->nama,
-                        'email'      => $user->email,
-                    ],
-                ]);
-            }
+            // Simpan info cicilan2 di midtrans_response supaya verify() bisa buat c2
+            $pem1->update([
+                'midtrans_response' => json_encode([
+                    'cicilan2_nominal'     => $nominal2,
+                    'cicilan2_tanggal'     => $tanggal2->toDateString(),
+                    'cicilan2_suffix'      => $suffix,
+                    'induk_id_pembayaran'  => $pembayaran->id_pembayaran,
+                ])
+            ]);
 
-            [$snapToken1, $snapToken2] = $snapTokens;
-            $pembayaran1->update(['snap_token' => $snapToken1]);
-            $pembayaran2->update(['snap_token' => $snapToken2]);
+            $snapToken1 = Snap::getSnapToken([
+                'transaction_details' => [
+                    'order_id'     => $pem1->id_pembayaran,
+                    'gross_amount' => (int) $pem1->nominal,
+                ],
+                'customer_details' => [
+                    'first_name' => $user->nama,
+                    'email'      => $user->email,
+                ],
+            ]);
+
+            $pem1->update(['snap_token' => $snapToken1]);
 
             return response()->json([
-                'message'     => 'Snap token generated for cicilan 2x',
-                'snap_tokens' => [$snapToken1, $snapToken2],
-                'payment_ids' => [$pembayaran1->id, $pembayaran2->id],
-                'order_ids'   => [$pembayaran1->id_pembayaran, $pembayaran2->id_pembayaran],
+                'message'    => 'Snap token cicilan 1 generated',
+                'snap_token' => $snapToken1,
+                'payment_id' => $pem1->id,
+                'order_id'   => $pem1->id_pembayaran,
             ]);
         }
+
+        // Default: bayar lunas
+        return $this->generateSingleSnapToken($pembayaran, $user);
     }
 
-    // Default: 1 transaksi tunggal (Lunas)
-    return $this->generateSingleSnapToken($pembayaran, $user);
-}
+    private function generateSingleSnapToken($pembayaran, $user)
+    {
+        $suffix     = now()->format('His'); 
+        $maxBaseLen = 50 - 1 - strlen($suffix); 
+        $base        = substr($pembayaran->id_pembayaran, 0, $maxBaseLen);
 
-/**
- * Helper Helper untuk memproses pembayaran tunggal / pelunasan langsung tanpa potong
- */
-private function generateSingleSnapToken($pembayaran, $user)
-{
-    $snapToken = Snap::getSnapToken([
-        'transaction_details' => [
-            'order_id'     => $pembayaran->id_pembayaran,
-            'gross_amount' => (int) $pembayaran->nominal, // Nominal penuh dari record yang dipilih
-        ],
-        'customer_details' => [
-            'first_name' => $user->nama,
-            'email'      => $user->email,
-        ],
-    ]);
+        $midtransOrderId = substr($base . '-' . $suffix, 0, 50);
 
-    $pembayaran->update(['snap_token' => $snapToken]);
+        $email = trim(preg_replace('/\s+/', '', $user->email ?? ''));
 
-    return response()->json([
-        'message'    => 'Snap token generated',
-        'snap_token' => $snapToken,
-        'payment_id' => $pembayaran->id,
-        'order_id'   => $pembayaran->id_pembayaran,
-    ]);
-}
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $email = 'user' . $user->id . '@placeholder.com';
+        }
+
+        $snapToken = Snap::getSnapToken([
+            'transaction_details' => [
+                'order_id'     => $midtransOrderId,
+                'gross_amount' => (int) $pembayaran->nominal,
+            ],
+            'customer_details' => [
+                'first_name' => trim($user->nama),
+                'email'      => $email,
+            ],
+        ]);
+
+        $pembayaran->update([
+            'snap_token'        => $snapToken,
+            'midtrans_order_id' => $midtransOrderId,
+        ]);
+
+        return response()->json([
+            'message'    => 'Snap token generated',
+            'snap_token' => $snapToken,
+            'payment_id' => $pembayaran->id,
+            'order_id'   => $midtransOrderId,
+        ]);
+    }
+
+    /**
+     * Dipanggil dari frontend setelah Midtrans onSuccess
+     */
+    public function verify(Request $request)
+    {
+        if (!$this->checkPenghuniAktif()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'pembayaran_id' => 'required|integer|exists:pembayarans,id',
+        ]);
+
+        $pembayaran = Pembayaran::findOrFail($request->pembayaran_id);
+
+        if ($pembayaran->user_id !== Auth::id()) {
+            return response()->json(['message' => 'Akses tidak diizinkan.'], 403);
+        }
+
+        if ($pembayaran->status === 'lunas') {
+            return response()->json(['status' => 'lunas']);
+        }
+
+        $pembayaran->update([
+            'status'  => 'lunas',
+            'paid_at' => now(),
+        ]);
+
+        // Jika ini cicilan 1 → buat cicilan 2 sekarang
+        if (str_contains($pembayaran->id_pembayaran, '-c1-')) {
+            $meta = json_decode($pembayaran->midtrans_response, true);
+
+            $cicilan2Nominal   = $meta['cicilan2_nominal']    ?? null;
+            $cicilan2Tanggal   = $meta['cicilan2_tanggal']    ?? null;
+            $cicilan2Suffix    = $meta['cicilan2_suffix']     ?? now()->format('YmdHis');
+            $indukIdPembayaran = $meta['induk_id_pembayaran'] ?? null;
+
+            if ($cicilan2Nominal && $indukIdPembayaran) {
+                $orderId2 = $indukIdPembayaran . '-c2-' . $cicilan2Suffix;
+
+                $existingC2 = Pembayaran::where('id_pembayaran', $orderId2)->first();
+                if (!$existingC2) {
+                    Pembayaran::create([
+                        'id_pembayaran'      => $orderId2,
+                        'user_id'            => $pembayaran->user_id,
+                        'tanggal_pembayaran' => $cicilan2Tanggal ?? now()->addWeeks(2)->toDateString(),
+                        'nominal'            => $cicilan2Nominal,
+                        'tipe_pembayaran'    => 'cicilan',
+                        'jumlah_cicilan'     => 1,
+                        'status'             => 'belum_bayar',
+                    ]);
+                }
+            }
+        }
+
+        return response()->json(['status' => 'lunas']);
+    }
 
     public function status(Pembayaran $pembayaran)
     {
@@ -203,7 +313,7 @@ private function generateSingleSnapToken($pembayaran, $user)
         }
 
         if ($pembayaran->user_id !== Auth::id()) {
-            return response()->json(['message' => 'Akses ke pembayaran ini tidak diizinkan.'], 403);
+            return response()->json(['message' => 'Akses tidak diizinkan.'], 403);
         }
 
         return response()->json([
@@ -233,46 +343,29 @@ private function generateSingleSnapToken($pembayaran, $user)
     public function callback(Request $request)
     {
         try {
-            // 1. Ambil payload mentah dari request body
             $payload = $request->all();
             $orderId = $request->input('order_id');
 
-            // 2. Validasi awal: pastikan order_id ada di payload
+            \Log::info('Midtrans callback masuk', ['order_id' => $orderId]);
+
             if (!$orderId) {
                 return response()->json(['message' => 'Invalid payload: order_id is missing'], 400);
             }
 
-            // 3. Cari data pembayaran berdasarkan id_pembayaran sebelum memanggil SDK Midtrans
-            // Ini mencegah crash/error 500 jika menerima "Test Notification" acak dari dashboard Midtrans
-            $pembayaran = Pembayaran::where('id_pembayaran', $orderId)->first();
+            // Cari by midtrans_order_id dulu, fallback ke id_pembayaran
+            $pembayaran = Pembayaran::where('midtrans_order_id', $orderId)->first()
+                ?? Pembayaran::where('id_pembayaran', $orderId)->first();
 
             if (!$pembayaran) {
-                return response()->json([
-                    'message' => 'Pembayaran dengan Order ID ' . $orderId . ' tidak ditemukan.'
-                ], 404);
+                return response()->json(['message' => 'Pembayaran tidak ditemukan.'], 404);
             }
 
-            // 4. Inisialisasi Midtrans Notification (untuk validasi signature key otomatis)
-            $notif = new \Midtrans\Notification();
-
-            // Ambil data terverifikasi langsung dari objek SDK Midtrans
+            $notif             = new \Midtrans\Notification();
             $transactionStatus = $notif->transaction_status;
-            $paymentType = $notif->payment_type;
-            $transactionId = $notif->transaction_id;
-            $fraudStatus = $notif->fraud_status ?? null;
+            $paymentType       = $notif->payment_type;
+            $transactionId     = $notif->transaction_id;
+            $fraudStatus       = $notif->fraud_status ?? null;
 
-            // 5. Buat struktur log audit internal
-            $callbackAudit = [
-                'received_at' => now()->toDateTimeString(),
-                'order_id' => $orderId,
-                'transaction_status' => $transactionStatus,
-                'transaction_id' => $transactionId,
-                'fraud_status' => $fraudStatus,
-                'payment_type' => $paymentType,
-                'payload' => $payload,
-            ];
-
-            // 6. Parsing Nomor Virtual Account (VA) atau Biller Code
             $vaNumber = null;
             if (!empty($payload['va_numbers']) && is_array($payload['va_numbers'])) {
                 $vaNumber = $payload['va_numbers'][0]['va_number'] ?? null;
@@ -282,7 +375,6 @@ private function generateSingleSnapToken($pembayaran, $user)
                 $vaNumber = $payload['biller_code'] . ' / ' . $payload['bill_key'];
             }
 
-            // Parsing Waktu Pembayaran
             $paidAt = null;
             if (!empty($payload['transaction_time'])) {
                 try {
@@ -292,81 +384,48 @@ private function generateSingleSnapToken($pembayaran, $user)
                 }
             }
 
-            // Data dasar untuk update database
             $updateData = [
                 'transaction_status' => $transactionStatus,
-                'payment_type' => $paymentType,
-                'midtrans_response' => json_encode(array_merge($callbackAudit, $payload)),
+                'payment_type'       => $paymentType,
+                'midtrans_response'  => json_encode($payload),
             ];
 
-            if ($vaNumber) {
-                $updateData['va_number'] = $vaNumber;
-            }
-            if ($vaNumber) {
-                $updateData['va_number'] = $vaNumber;
-            }
+            if ($vaNumber) $updateData['va_number'] = $vaNumber;
 
-            // Idempotency check: jika status di DB sudah 'lunas'
             $alreadySettled = ($pembayaran->status === 'lunas');
 
-            // 7. Evaluasi Status Keberhasilan Transaksi
             $isSuccessful = ($transactionStatus === 'settlement') || (
-                $transactionStatus === 'capture' && ($fraudStatus === 'accept' || $fraudStatus === 'challenge')
+                $transactionStatus === 'capture' && in_array($fraudStatus, ['accept', 'challenge'])
             );
 
             if ($isSuccessful) {
-                if ($alreadySettled) {
-                    // Tetap update response & status transaksi agar data sync tanpa merusak status kelulusan
-                    $pembayaran->update($updateData);
-                    return response()->json(['message' => 'Already settled'], 200);
+                if (!$alreadySettled) {
+                    $updateData['status']         = 'lunas';
+                    $updateData['transaction_id'] = $transactionId;
+                    $updateData['paid_at']        = $paidAt ?? now();
                 }
-
-                $updateData['status'] = 'lunas';
-                $updateData['transaction_id'] = $transactionId;
-                $updateData['paid_at'] = $paidAt ?? now();
-
                 $pembayaran->update($updateData);
-            }
-            // Handle status Pending
-            elseif ($transactionStatus === 'pending') {
+            } elseif ($transactionStatus === 'pending') {
                 if (!$alreadySettled) {
-                    $updateData['status'] = 'pending';
+                    $updateData['status']         = 'pending';
                     $updateData['transaction_id'] = $transactionId;
-                    $pembayaran->update($updateData);
-                } else {
-                    $pembayaran->update($updateData);
                 }
-            }
-            // Handle status Gagal/Kedaluwarsa
-            elseif (in_array($transactionStatus, ['deny', 'cancel', 'expire'])) {
+                $pembayaran->update($updateData);
+            } elseif (in_array($transactionStatus, ['deny', 'cancel', 'expire'])) {
                 if (!$alreadySettled) {
-                    $updateData['status'] = 'failed';
+                    $updateData['status']         = 'failed';
                     $updateData['transaction_id'] = $transactionId;
-                    $pembayaran->update($updateData);
-                } else {
-                    $pembayaran->update($updateData);
                 }
-            }
-            // Kondisi status lainnya (misal: challenge)
-            else {
-                if (!$alreadySettled && $transactionStatus === 'challenge') {
-                    $updateData['status'] = 'pending';
-                }
+                $pembayaran->update($updateData);
+            } else {
                 $pembayaran->update($updateData);
             }
 
             return response()->json(['message' => 'OK'], 200);
-        } catch (\Exception $e) {
-            // Log error jika terjadi crash tak terduga agar mudah didebug
-            \Log::error('Midtrans Callback Error: ' . $e->getMessage(), [
-                'file' => $e->getFile(),
-                'line' => $e->getLine()
-            ]);
 
-            return response()->json([
-                'message' => 'Internal Server Error',
-                'error' => $e->getMessage()
-            ], 500);
+        } catch (\Exception $e) {
+            \Log::error('Midtrans Callback Error: ' . $e->getMessage());
+            return response()->json(['message' => 'Internal Server Error', 'error' => $e->getMessage()], 500);
         }
     }
 
@@ -376,13 +435,29 @@ private function generateSingleSnapToken($pembayaran, $user)
             abort(403, 'Anda belum terdaftar sebagai penghuni kost.');
         }
 
+        $indukDenganCicilan = Pembayaran::where('user_id', Auth::id())
+            ->where(function ($q) {
+                $q->where('id_pembayaran', 'like', '%-c1-%')
+                  ->orWhere('id_pembayaran', 'like', '%-c2-%');
+            })
+            ->get()
+            ->map(fn($p) => preg_replace('/-c[12]-\d+$/', '', $p->id_pembayaran))
+            ->unique()->values()->toArray();
+
         $payments = Pembayaran::where('user_id', Auth::id())
             ->orderBy('tanggal_pembayaran', 'desc')
             ->get();
 
         return response()->json([
-            'pending' => $payments->where('status', 'belum_bayar')->first(),
-            'history' => $payments->where('status', 'lunas')->values(),
+            'pending' => $payments->where('status', 'belum_bayar')
+                ->filter(fn($p) =>
+                    !str_contains($p->id_pembayaran, '-c1-') &&
+                    !str_contains($p->id_pembayaran, '-c2-') &&
+                    !in_array($p->id_pembayaran, $indukDenganCicilan)
+                )->first(),
+            'history' => $payments->where('status', 'lunas')
+                ->filter(fn($p) => !in_array($p->id_pembayaran, $indukDenganCicilan))
+                ->values(),
         ]);
     }
 

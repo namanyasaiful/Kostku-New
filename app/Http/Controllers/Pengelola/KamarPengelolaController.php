@@ -22,38 +22,59 @@ class KamarPengelolaController extends Controller
 
         $kosts = Kost::where('user_id', Auth::id())->get();
         $kostIds = $kosts->pluck('id');
+        $search = request('search_kamar');
 
         $allKamars = Kamar::whereIn('kode_kost', $kostIds)
             ->with('penghuni')
-            ->paginate(10);
+            ->when($search, fn($q) => $q->where('nomor_kamar', 'like', '%' . $search . '%'))
+            ->paginate(10, ['*'], 'semua_page')
+            ->withQueryString();
 
         $terisiKamars = Kamar::whereIn('kode_kost', $kostIds)
-            ->with('penghuni')
             ->where('status', 'terisi')
-            ->paginate(10);
+            ->with('penghuni')
+            ->when($search, fn($q) => $q->where('nomor_kamar', 'like', '%' . $search . '%'))
+            ->paginate(10, ['*'], 'terisi_page')
+            ->withQueryString();
 
         $kosongKamars = Kamar::whereIn('kode_kost', $kostIds)
-            ->with('penghuni')
             ->where('status', 'kosong')
-            ->paginate(10);
+            ->with('penghuni')
+            ->when($search, fn($q) => $q->where('nomor_kamar', 'like', '%' . $search . '%'))
+            ->paginate(10, ['*'], 'kosong_page')
+            ->withQueryString();
 
         return view('pages.pengelola.kamar-pengelola', compact('kosts', 'allKamars', 'terisiKamars', 'kosongKamars'));
     }
 
     public function storeKamar(Request $request)
     {
-        $request->validate([
-            'nomor_kamar'  => 'required|string|max:255',
-            'tipe_kamar'   => 'required|string|max:255',
-            'harga'        => 'required|numeric',
-            'fasilitas'    => 'required|string',
-        ]);
-
+        // Cek kost dulu sebelum validasi
         $kost = Kost::where('user_id', Auth::id())->first();
 
         if (!$kost) {
-            return redirect()->back()->with('error', 'Anda harus membuat data kost terlebih dahulu sebelum menambah kamar!');
+            return redirect()->back()->withInput()->with('error', 'Anda harus membuat data kost terlebih dahulu!');
         }
+
+        $request->validate([
+            'nomor_kamar' => [
+                'required',
+                'string',
+                'max:255',
+                \Illuminate\Validation\Rule::unique('kamars', 'nomor_kamar')->where('kode_kost', $kost->id),
+            ],
+            'tipe_kamar'  => 'required|string|max:255',
+            'harga'       => 'required|numeric|min:0',
+            'fasilitas'   => 'required|string',
+        ], [
+            'nomor_kamar.required' => 'Nomor kamar wajib diisi.',
+            'nomor_kamar.unique'   => 'Nomor kamar sudah digunakan di kost ini.',
+            'tipe_kamar.required'  => 'Tipe kamar wajib dipilih.',
+            'harga.required'       => 'Harga wajib diisi.',
+            'harga.numeric'        => 'Harga harus berupa angka.',
+            'harga.min'            => 'Harga tidak boleh negatif.',
+            'fasilitas.required'   => 'Fasilitas wajib diisi.',
+        ]);
 
         $kost->kamars()->create([
             'nomor_kamar' => $request->nomor_kamar,
@@ -71,10 +92,10 @@ class KamarPengelolaController extends Controller
     public function updateKamar(Request $request, $id)
     {
         $request->validate([
-            'nomor_kamar'  => 'required|string|max:255',
-            'tipe_kamar'   => 'required|string|max:255',
-            'harga'        => 'required|numeric',
-            'fasilitas'    => 'required|string',
+            'nomor_kamar' => 'required|string|max:255',
+            'tipe_kamar'  => 'required|string|max:255',
+            'harga'       => 'required|numeric',
+            'fasilitas'   => 'required|string',
         ]);
 
         $kostIds = Kost::where('user_id', Auth::id())->pluck('id');

@@ -12,6 +12,14 @@ $canAccessFeature = $penghuni ? true : false;
         notifOpen: false,
         modalOpen: false,
         modalType: null,
+        notifs: [],
+        unread: 0,
+        async loadNotifs() {
+            const res = await fetch('{{ route('notifikasi.index') }}');
+            const data = await res.json();
+            this.notifs = data.notifs;
+            this.unread = data.unread;
+        },
         openModal(type) {
             this.modalOpen = true;
             this.modalType = type;
@@ -21,6 +29,7 @@ $canAccessFeature = $penghuni ? true : false;
             this.modalType = null;
         }
     }"
+    x-init="loadNotifs()"
     class="min-h-screen flex">
 
     {{-- ================= SIDEBAR OVERLAY MOBILE ================= --}}
@@ -146,18 +155,39 @@ $canAccessFeature = $penghuni ? true : false;
                 </div>
                 {{-- RIGHT --}}
                 <div class="flex items-center gap-2">
-                    {{-- NOTIFICATION --}}
-                    <button
-                        @click="notifOpen = true"
-                        class="relative w-11 h-11 flex items-center justify-center">
-                        <img
-                            src="{{ asset('assets/icons/notif-icon.png') }}"
-                            class="w-5 h-5">
-                        {{-- DOT --}}
-                        <span
-                            class="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500">
-                        </span>
-                    </button>
+                    
+                    {{-- NOTIFICATION BELL --}}
+                    <div>
+                        <button @click="notifOpen = !notifOpen; loadNotifs()" class="relative w-11 h-11 flex items-center justify-center">
+                            <img src="{{ asset('assets/icons/notif-icon.png') }}" class="w-5 h-5">
+                            <span x-show="unread > 0" class="absolute top-2 right-2 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] flex items-center justify-center" x-text="unread"></span>
+                        </button>
+
+                        {{-- DROPDOWN --}}
+                        <div x-show="notifOpen" @click.outside="notifOpen = false"
+                            class="absolute right-4 top-16 w-96 bg-white rounded-xl shadow-lg border border-gray-100 z-50 overflow-hidden">
+                            
+                            <div class="flex items-center justify-between px-4 py-3 border-b">
+                                <span class="font-semibold text-sm">Notifikasi</span>
+                                <a href="{{ route('notifikasi.readAll') }}" class="text-xs text-primary hover:underline">Tandai semua dibaca</a>
+                            </div>
+
+                            <div class="max-h-72 overflow-y-auto divide-y">
+                                <template x-for="notif in notifs" :key="notif.id">
+                                    <a :href="notif.data.url" class="flex gap-3 px-4 py-3 hover:bg-gray-50 transition"
+                                        :class="notif.read_at ? 'opacity-60' : 'bg-blue-50/40'">
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-xs font-semibold" x-text="notif.data.judul"></p>
+                                            <p class="text-xs text-gray-500 mt-0.5 leading-relaxed whitespace-normal" x-text="notif.data.pesan"></p>
+                                        </div>
+                                    </a>
+                                </template>
+                                <div x-show="notifs.length === 0" class="px-4 py-6 text-center text-xs text-gray-400">
+                                    Belum ada notifikasi
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     {{-- PROFILE --}}
                     <div class="flex items-center gap-3">
                         <div class="block">
@@ -174,7 +204,7 @@ $canAccessFeature = $penghuni ? true : false;
             @yield('content')
         </main>
     </div>
-    <x-notification-modal />
+    {{-- <x-notification-modal /> --}}
 
     <x-modal show="modalOpen" maxWidth="lg:max-w-[450px] max-w-[350px]">
         {{-- ====================================================== --}}

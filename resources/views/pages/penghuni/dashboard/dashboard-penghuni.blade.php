@@ -82,7 +82,7 @@ $status = 'joined';
 
     {{-- ================= PAGE HEADER ================= --}}
     <x-page-header
-        title="Selamat Datang, Saifulloh Fattah">
+        :title="'Selamat Datang, ' . $namaPengguna">
         <x-form.button
             type="button"
             x-show="status === 'not_joined'"

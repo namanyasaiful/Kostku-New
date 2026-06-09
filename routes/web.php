@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // Auth
@@ -30,6 +31,8 @@ use App\Http\Controllers\SuperAdmin\PenilaianPenghuniController;
 use App\Http\Controllers\SuperAdmin\PengaduanSuperAdminController;
 use App\Http\Controllers\SuperAdmin\PembayaranSuperAdminController;
 use App\Http\Controllers\SuperAdmin\LogAuditController;
+
+use App\Http\Controllers\NotifikasiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -102,10 +105,7 @@ Route::controller(PembayaranPenghuniController::class)->group(function () {
     Route::get('/payment/history', [PembayaranPenghuniController::class, 'getHistory'])->name('payment.history');
     Route::get('/payment/pending/{pembayaran}', [PembayaranPenghuniController::class, 'pending'])->name('payment.pending');
     Route::post('/payment/simulate/{pembayaran}/settlement', [PembayaranPenghuniController::class, 'simulateSettlement']);
-    Route::post('/payment/callback', [PembayaranPenghuniController::class, 'callback'])
-        ->withoutMiddleware([
-            Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
-        ]);
+    Route::post('/payment/callback', [PembayaranPenghuniController::class, 'callback']);
     Route::get('/payment/finish', [PembayaranPenghuniController::class, 'finish']);
     Route::get('/payment/unfinish', [PembayaranPenghuniController::class, 'unfinish']);
     Route::get('/payment/error', [PembayaranPenghuniController::class, 'error']);
@@ -154,6 +154,7 @@ Route::controller(PembayaranPengelolaController::class)->group(function () {
 Route::controller(PengaduanPengelolaController::class)->group(function () {
     Route::get('/pengelola/pengaduan-pengelola', 'viewPengaduan')->name('pengaduan.pengelola');
     Route::post('/pengelola/pengaduan-pengelola/store', 'pengelolaStorePengaduan')->name('pengelola.pengaduan.store');
+    Route::patch('/pengelola/pengaduan-pengelola/{id}/status', 'updateStatus')->name('pengelola.pengaduan.status');
 });
 
 // Penghuni Pengelola
@@ -222,4 +223,29 @@ Route::controller(PembayaranSuperAdminController::class)->group(function () {
 // Log Audit - superadmin
 Route::controller(LogAuditController::class)->group(function () {
     Route::get('/superadmin/log-audit', 'viewLogAudit')->name('log-audit.superadmin');
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| NOTIFIKASI
+|--------------------------------------------------------------------------
+*/
+
+
+// Notifikasi (bisa diakses pengelola & penghuni)
+Route::middleware('auth')->group(function () {
+    Route::post('/push/subscribe', function (Request $request) {
+        $request->user()->updatePushSubscription(
+            $request->endpoint,
+            $request->public_key,
+            $request->auth_token,
+            $request->content_encoding
+        );
+        return response()->json(['success' => true]);
+    })->name('push.subscribe');
+
+    Route::get('/notifikasi', [NotifikasiController::class, 'index'])->name('notifikasi.index');
+    Route::get('/notifikasi/read-all', [NotifikasiController::class, 'readAll'])->name('notifikasi.readAll');
+    Route::post('/payment/verify', [PembayaranPenghuniController::class, 'verify']);
 });

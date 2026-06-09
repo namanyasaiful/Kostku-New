@@ -9,12 +9,19 @@ use App\Models\Kamar;
 use App\Models\Penghuni;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use App\Notifications\RequestMasukNotification;
+use App\Models\User;
 
 class DashboardPenghuniController extends Controller
 {
     public function viewDashboard()
     {
-        return view('pages.penghuni.dashboard.dashboard-penghuni');
+        $namaPengguna = Auth::user()->nama;
+
+        return view(
+            'pages.penghuni.dashboard.dashboard-penghuni',
+            compact('namaPengguna')
+        );
     }
 
     public function joinKost(Request $request)
@@ -64,12 +71,19 @@ class DashboardPenghuniController extends Controller
             );
         }
 
-        Penghuni::create([
+        $penghuni = Penghuni::create([
             'user_id' => Auth::id(),
             'nomor_kamar' => $kamar->id,
             'status_request' => 'menunggu',
             'tanggal_masuk' => now(),
         ]);
+
+        // Notif ke pengelola kost yang bersangkutan
+        $pengelola = $kost->user; // pengelola pemilik kost ini
+        if ($pengelola) {
+            $penghuni->load('user');
+            $pengelola->notify(new RequestMasukNotification($penghuni));
+        }
 
         return redirect()
             ->route('dashboard.penghuni')
@@ -78,6 +92,7 @@ class DashboardPenghuniController extends Controller
 
     public function leaveKost(Request $request)
     {
+        // dd($request->all());
         $request->validate([
             'alasan_keluar' => 'required|string'
         ], [
@@ -95,6 +110,7 @@ class DashboardPenghuniController extends Controller
 
         $penghuni->update([
             'tanggal_keluar' => now(),
+            'notes_penghuni' => $request->alasan_keluar,
         ]);
 
         return redirect()
